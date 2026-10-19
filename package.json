@@ -1,7 +1,7 @@
 {
   "name": "helm",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A terminal made for Claude Code",
   "license": "MIT",
   "type": "module",

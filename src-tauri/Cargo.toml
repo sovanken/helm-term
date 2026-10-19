@@ -1,6 +1,6 @@
 [package]
 name = "helm"
-version = "1.0.0"
+version = "1.0.1"
 description = "A terminal made for Claude Code"
 authors = ["Helm contributors"]
 license = "MIT"

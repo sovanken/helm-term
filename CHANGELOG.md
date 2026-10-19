@@ -3,6 +3,10 @@
 All notable changes to Helm are listed here. Helm follows [Semantic Versioning](https://semver.org).
 The same notes appear in the app under **Settings → What's new** (`src/lib/changelog.ts`).
 
+## 1.0.1 — October 2026
+
+- **History:** every conversation's ⋯ menu has "Usage & context details": its context window (exact or estimated), how it grew, tokens and cache, cost, time and tools, with PDF export and Continue.
+
 ## 1.0.0 — October 2026
 
 First public release.

@@ -9,6 +9,13 @@ export interface Release {
 
 export const CHANGELOG: Release[] = [
   {
+    version: "1.0.1",
+    date: "October 2026",
+    highlights: [
+      { title: "Details for past conversations", text: "In History, the ⋯ menu now shows any conversation's context, tokens, cost and tools, and can save them as a PDF." },
+    ],
+  },
+  {
     version: "1.0.0",
     date: "October 2026",
     highlights: [

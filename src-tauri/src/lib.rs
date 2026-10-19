@@ -8,7 +8,9 @@ mod export;
 mod git;
 mod projects;
 mod preview;
+mod pdf;
 mod pty;
+mod report;
 mod sessions;
 mod shell;
 mod toast;
@@ -148,6 +150,35 @@ async fn session_stats(transcript_path: Option<String>, session_id: Option<Strin
     .await
     .ok()
     .flatten()
+}
+
+/// Saves the report currently laid out for printing as a PDF at `path`.
+#[tauri::command]
+async fn print_pdf(app: AppHandle, path: String) -> Result<(), String> {
+    pdf::print(&app, path).await
+}
+
+/// Tokens, turns, tools and context for one session (the Agents page detail view).
+#[tauri::command]
+async fn session_report(transcript_path: Option<String>, session_id: Option<String>) -> Option<report::SessionReport> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let path = transcript_path
+            .map(PathBuf::from)
+            .filter(|p| p.is_file())
+            .or_else(|| session_id.as_deref().and_then(sessions::find_transcript))?;
+        Some(report::session(&path))
+    })
+    .await
+    .ok()
+    .flatten()
+}
+
+/// Usage over the last `days` days from every transcript, by local day, project and model.
+#[tauri::command]
+async fn usage_totals(app: AppHandle, days: u32, offset_min: i64) -> report::UsageTotals {
+    tauri::async_runtime::spawn_blocking(move || report::totals(&app.state::<report::TotalsCache>(), days.clamp(1, 60), offset_min))
+        .await
+        .unwrap_or_default()
 }
 
 #[tauri::command]
@@ -418,6 +449,7 @@ pub fn run() {
         .plugin(tauri_plugin_autostart::Builder::new().build())
         .manage(PtyManager::default())
         .manage(SessionCache::default())
+        .manage(report::TotalsCache::default())
         .manage(browser::Browsers::default())
         .setup(|app| {
             let dir = data_dir(app.handle());
@@ -477,6 +509,9 @@ pub fn run() {
             write_text_file,
             read_text_file,
             preview_file,
+            session_report,
+            print_pdf,
+            usage_totals,
             browser::browser_open,
             browser::browser_bounds,
             browser::browser_visible,

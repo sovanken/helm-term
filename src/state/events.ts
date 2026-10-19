@@ -220,13 +220,26 @@ function onStatus({ paneId, launchId, data }: HookEvent) {
     },
   });
 
-  const fiveHour = readWindow(d.rate_limits?.five_hour);
-  const sevenDay = readWindow(d.rate_limits?.seven_day);
+  const prev = s.usage;
+  // A window Claude stops reporting has reset (nothing used yet in the new one), or the reading
+  // simply wasn't included this time: keep it visible either way.
+  const carry = (now: LimitWindow | undefined, before: LimitWindow | undefined): LimitWindow | undefined => {
+    if (now || !before) return now;
+    if (before.resetsAt && before.resetsAt * 1000 <= Date.now()) return { pct: 0, idle: true };
+    return before;
+  };
+  const fiveHour = carry(readWindow(d.rate_limits?.five_hour), prev?.fiveHour);
+  const sevenDay = carry(readWindow(d.rate_limits?.seven_day), prev?.sevenDay);
   const spendRaw = d.rate_limits?.spend_limit;
   const spend = readWindow(spendRaw);
-  if (!fiveHour && !sevenDay && !spend) return;
+  const other: Record<string, LimitWindow> = {};
+  for (const [key, value] of Object.entries((d.rate_limits ?? {}) as Record<string, unknown>)) {
+    if (key === "five_hour" || key === "seven_day" || key === "spend_limit") continue;
+    const w = readWindow(value);
+    if (w) other[key] = w;
+  }
+  if (!fiveHour && !sevenDay && !spend && !Object.keys(other).length) return;
 
-  const prev = s.usage;
   const sameWindow = prev?.fiveHour?.resetsAt === fiveHour?.resetsAt;
   // Daily usage log: increases of the weekly limit within the same weekly window.
   if (sevenDay && prev?.sevenDay && prev.sevenDay.resetsAt === sevenDay.resetsAt) logUsage(pane, sevenDay.pct - prev.sevenDay.pct);
@@ -243,6 +256,7 @@ function onStatus({ paneId, launchId, data }: HookEvent) {
       fiveHour,
       sevenDay,
       spend: spend ? { ...spend, usedUsd: spendRaw?.used_usd, limitUsd: spendRaw?.limit_usd } : undefined,
+      other: Object.keys(other).length ? other : prev?.other,
       updatedAt: Date.now(),
       samples,
     },

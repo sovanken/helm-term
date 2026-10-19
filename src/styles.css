@@ -526,3 +526,60 @@ nav[role="tablist"] > [role="tab"]:hover + [role="tab"]::before {
     transform: translateX(300%);
   }
 }
+
+/* ---------- PDF reports (lib/pdf.tsx) ---------- */
+#print-root {
+  display: none;
+}
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  html.printing,
+  html.printing body {
+    height: auto;
+    overflow: visible;
+    background: #fff;
+  }
+  html.printing body > *:not(#print-root) {
+    display: none !important;
+  }
+  html.printing #print-root {
+    display: block;
+  }
+}
+.print-page {
+  width: 100%;
+  padding: 12mm 15mm 6mm;
+  background: #fff;
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+.print-page section {
+  break-inside: avoid;
+}
+.print-page table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.print-page th,
+.print-page td {
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}
+.print-page th {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.print-page td.num,
+.print-page th.num {
+  text-align: right;
+}

@@ -135,6 +135,57 @@ export type FilePreview =
   | { kind: "tooLarge"; size: number; modified: number }
   | { kind: "binary"; size: number; modified: number };
 
+export interface ContextItem {
+  label: string;
+  tokens: number;
+  pct: number;
+}
+
+export interface SessionReport {
+  prompts: number;
+  replies: number;
+  inputTokens: number;
+  outputTokens: number;
+  cacheReadTokens: number;
+  cacheWriteTokens: number;
+  contextTokens: number;
+  contextWindow: number;
+  setupTokens?: number;
+  series: { t: number; context: number; output: number }[];
+  tools: { name: string; count: number }[];
+  toolCalls: number;
+  models: string[];
+  started?: number;
+  last?: number;
+  activeMs: number;
+  compactions: number;
+  costUsd?: number;
+  linesAdded?: number;
+  linesRemoved?: number;
+  /** Claude's own /context breakdown, from the last time it was run in this session. */
+  exact?: { at: number; used: number; window: number; items: ContextItem[] };
+}
+
+export interface DayTotals {
+  day: string;
+  inputTokens: number;
+  outputTokens: number;
+  cacheReadTokens: number;
+  cacheWriteTokens: number;
+  costUsd: number;
+  linesAdded: number;
+  linesRemoved: number;
+  activeMs: number;
+  sessions: number;
+  replies: number;
+}
+
+export interface UsageTotals {
+  days: DayTotals[];
+  byProject: { key: string; tokens: number; costUsd: number; sessions: number }[];
+  byModel: { key: string; tokens: number; costUsd: number; sessions: number }[];
+}
+
 export const ipc = {
   launch: (req: LaunchRequest, onData: Channel<ArrayBuffer>) => invoke<void>("pty_launch", { req, onData }),
   write: (paneId: string, data: string) => invoke<void>("pty_write", { paneId, data }),
@@ -172,6 +223,8 @@ export const ipc = {
   clearScreenshots: () => invoke<number>("clear_screenshots"),
   writeTextFile: (path: string, content: string) => invoke<void>("write_text_file", { path, content }),
   readTextFile: (path: string) => invoke<string>("read_text_file", { path }),
+  sessionReport: (transcriptPath?: string, sessionId?: string) => invoke<SessionReport | null>("session_report", { transcriptPath, sessionId }),
+  usageTotals: (days: number) => invoke<UsageTotals>("usage_totals", { days, offsetMin: -new Date().getTimezoneOffset() }),
   previewFile: (path: string) => invoke<FilePreview>("preview_file", { path }),
   fileBytes: (path: string) => invoke<ArrayBuffer>("file_bytes", { path }),
   listShells: () => invoke<ShellInfo[]>("list_shells"),

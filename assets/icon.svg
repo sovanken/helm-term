@@ -1,8 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
-<rect x="32" y="32" width="960" height="960" rx="216" fill="#16171a"/>
-<g fill="none" stroke="#e0a458" stroke-width="54" stroke-linecap="round">
-<circle cx="512" cy="512" r="230"/>
-<circle cx="512" cy="512" r="70"/>
-<line x1="582.0" y1="512.0" x2="842.0" y2="512.0"/><line x1="561.5" y1="561.5" x2="745.3" y2="745.3"/><line x1="512.0" y1="582.0" x2="512.0" y2="842.0"/><line x1="462.5" y1="561.5" x2="278.7" y2="745.3"/><line x1="442.0" y1="512.0" x2="182.0" y2="512.0"/><line x1="462.5" y1="462.5" x2="278.7" y2="278.7"/><line x1="512.0" y1="442.0" x2="512.0" y2="182.0"/><line x1="561.5" y1="462.5" x2="745.3" y2="278.7"/>
-</g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><defs><mask id="g2-m0" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024"><rect width="1024" height="1024" fill="#fff"/><rect x="74" y="394" width="672" height="522" rx="104" fill="#000"/></mask><mask id="g2-m1" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024"><rect width="1024" height="1024" fill="#fff"/><polyline points="189.20999999999998,569.2 283.59000000000003,655.0 189.20999999999998,740.8" fill="none" stroke="#000" stroke-width="63.800000000000004" stroke-linecap="round" stroke-linejoin="round"/><line x1="339.36" y1="740.8" x2="450.90000000000003" y2="740.8" stroke="#000" stroke-width="63.800000000000004" stroke-linecap="round"/></mask></defs><g mask="url(#g2-m0)"><rect x="348" y="150" width="576" height="440" rx="78" fill="#b46c30"/></g><g mask="url(#g2-m1)"><rect x="100" y="420" width="620" height="470" rx="78" fill="#e7a85a"/></g></svg>

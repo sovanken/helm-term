@@ -45,6 +45,10 @@ fn mtime_ms(meta: &std::fs::Metadata) -> u64 {
 }
 
 /// All top-level transcript files (subagent transcripts live in subfolders and are skipped).
+pub(crate) fn transcript_paths() -> Vec<PathBuf> {
+    transcript_files()
+}
+
 fn transcript_files() -> Vec<PathBuf> {
     let Some(root) = projects_dir() else { return vec![] };
     std::fs::read_dir(root)

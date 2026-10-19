@@ -141,12 +141,16 @@ export interface LimitWindow {
   pct: number;
   /** Unix seconds. */
   resetsAt?: number;
+  /** The window has reset and a new one starts with the next message. */
+  idle?: boolean;
 }
 
 export interface Usage {
   fiveHour?: LimitWindow;
   sevenDay?: LimitWindow;
   spend?: LimitWindow & { usedUsd?: number; limitUsd?: number };
+  /** Any other windows Claude reports (e.g. a per-model weekly limit), by their key. */
+  other?: Record<string, LimitWindow>;
   updatedAt: number;
   /** Recent five-hour readings for the burn rate. */
   samples: { t: number; pct: number }[];

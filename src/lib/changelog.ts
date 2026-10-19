@@ -16,6 +16,7 @@ export const CHANGELOG: Release[] = [
       { title: "Approve from anywhere", text: "Background tabs ask for permission in Helm and in a Windows notification with Allow / Deny, plus Always allow for things you trust." },
       { title: "Usage limits", text: "Live 5-hour and weekly meters with reset countdown, your pace, which tab used the most, and warnings at 80% and 95%." },
       { title: "Agents tab", text: "Every Claude session grouped into Needs you, Working and Done, with context, cost and what each one is doing (Ctrl+Shift+A)." },
+      { title: "Usage and context at a glance", text: "Every limit with its reset time and your pace, today's and this week's cost and tokens, and per session what fills the context window. Save any of it as a PDF." },
       { title: "Built-in browser", text: "Open your app beside the terminal, test phone and tablet sizes, and send errors, screenshots or any part of the page to Claude in one click." },
       { title: "Files open in Helm", text: "Code with highlighting, Markdown, images, PDF, video and audio open as Helm tabs instead of other apps." },
       { title: "See background agents", text: "The right panel opens when Claude starts a subagent, showing what it's doing and its final answer. Details lists screenshots, files and web pages used." },

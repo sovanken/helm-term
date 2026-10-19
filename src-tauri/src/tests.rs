@@ -2,7 +2,7 @@
 
 use serde_json::json;
 
-use crate::{bridge, browser, export, preview, sessions, shell, worktrees};
+use crate::{bridge, browser, export, preview, report, sessions, shell, worktrees};
 
 fn launch(extra: serde_json::Value) -> shell::LaunchRequest {
     let mut base = json!({
@@ -159,4 +159,28 @@ fn browser_addresses_are_completed_and_helm_itself_is_off_limits() {
     assert!(app("http://localhost:1420/"));
     assert!(!app("http://localhost:5173/"));
     assert!(!app("https://example.com/"));
+}
+
+#[test]
+fn timestamps_and_local_days() {
+    assert_eq!(report::parse_ts("1970-01-01T00:00:00.000Z"), Some(0));
+    assert_eq!(report::parse_ts("2026-10-19T10:14:23.192Z"), Some(1_792_404_863_192));
+    // 23:30 UTC is already the next day seven hours east.
+    let t = report::parse_ts("2026-10-19T23:30:00Z").unwrap();
+    assert_eq!(report::local_day(t, 0), "2026-10-19");
+    assert_eq!(report::local_day(t, 420), "2026-10-20");
+    assert_eq!(report::local_day(t, -300), "2026-10-19");
+}
+
+#[test]
+fn context_output_is_read_into_categories() {
+    let raw = "<local-command-stdout> \u{1b}[1mContext Usage\u{1b}[22m\n  52.3k/1m tokens (5%)\n  \u{1b}[38;2;1;2;3m\u{26c1}\u{1b}[39m System prompt: \u{1b}[38;2;9;9;9m2.9k tokens (0.3%)\u{1b}[39m\n  MCP tools: 695 tokens (0.1%)\n  Messages: 16.8k tokens (1.7%)\n  \u{26f6} Free space: 914.7k (91.5%)\n  Autocompact buffer: 33k tokens (3.3%)\n\nAuto-compact window: 1m tokens\n";
+    let exact = report::parse_context_output(raw, 5).unwrap();
+    assert_eq!((exact.used, exact.window, exact.at), (52_300, 1_000_000, 5));
+    let get = |l: &str| exact.items.iter().find(|i| i.label == l).map(|i| (i.tokens, i.pct));
+    assert_eq!(get("System prompt"), Some((2_900, 0.3)));
+    assert_eq!(get("MCP tools"), Some((695, 0.1)));
+    assert_eq!(get("Free space"), Some((914_700, 91.5)));
+    assert_eq!(get("Autocompact buffer"), Some((33_000, 3.3)));
+    assert!(get("Auto-compact window").is_none());
 }

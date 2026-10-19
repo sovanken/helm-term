@@ -1,19 +1,26 @@
+import { useId } from "react";
 import { FolderOpen, Sparkles, SquareTerminal } from "lucide-react";
 import { defaultFolder, folderName, useStore } from "../state/store";
 import { chooseFolder } from "./TitleBar";
 
+/** Helm's logo: two stacked terminal panes, the front one showing a prompt. */
 export function HelmMark({ size = 40 }: { size?: number }) {
-  // A ship's wheel: the helm you steer with.
+  const id = useId().replace(/:/g, "");
   return (
-    <svg width={size} height={size} viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden>
-      <circle cx="24" cy="24" r="12" />
-      <circle cx="24" cy="24" r="3.5" />
-      {Array.from({ length: 8 }, (_, i) => {
-        const a = (i * Math.PI) / 4;
-        return (
-          <line key={i} x1={24 + Math.cos(a) * 3.5} y1={24 + Math.sin(a) * 3.5} x2={24 + Math.cos(a) * 19} y2={24 + Math.sin(a) * 19} />
-        );
-      })}
+    <svg width={size} height={size} viewBox="0 0 1024 1024" aria-hidden>
+      <defs>
+        <mask id={`${id}-back`} maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+          <rect width="1024" height="1024" fill="#fff" />
+          <rect x="74" y="394" width="672" height="522" rx="104" fill="#000" />
+        </mask>
+        <mask id={`${id}-front`} maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+          <rect width="1024" height="1024" fill="#fff" />
+          <polyline points="189,569 284,655 189,741" fill="none" stroke="#000" strokeWidth="64" strokeLinecap="round" strokeLinejoin="round" />
+          <line x1="339" y1="741" x2="451" y2="741" stroke="#000" strokeWidth="64" strokeLinecap="round" />
+        </mask>
+      </defs>
+      <rect x="348" y="150" width="576" height="440" rx="78" fill="#b46c30" mask={`url(#${id}-back)`} />
+      <rect x="100" y="420" width="620" height="470" rx="78" fill="#e7a85a" mask={`url(#${id}-front)`} />
     </svg>
   );
 }

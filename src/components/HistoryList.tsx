@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
-import { Copy, FileDown, MessageSquare, MoreHorizontal, Play, SquareTerminal } from "lucide-react";
+import { Copy, FileDown, MoreHorizontal, Play, SquareTerminal } from "lucide-react";
 import { ipc, type SearchHit, type SessionInfo } from "../lib/ipc";
 import { fuzzyScore, timeAgo } from "../lib/fuzzy";
-import { activePane, folderName, useStore } from "../state/store";
+import { folderName, useStore } from "../state/store";
 import { exportConversation } from "../lib/actions";
 import { Menu } from "./Menu";
-import { ItemIcon, SidebarSearch } from "./Sidebar";
+import { SidebarSearch } from "./Sidebar";
 
 let refreshing: Promise<void> | null = null;
 
@@ -36,23 +36,23 @@ function SessionRow({ session, snippet, open }: { session: SessionInfo; snippet?
     <div className="group relative">
       <button
         onClick={() => resumeSession(session)}
-        title={`${session.title}\n${session.cwd}\n\nClick to continue this conversation`}
-        className="flex w-full items-start gap-2.5 rounded-lg px-2 py-2 text-left hover:bg-hover"
+        title={`${session.title}
+${session.cwd}
+
+Click to continue this conversation`}
+        className={`flex w-full flex-col gap-0.5 rounded-lg py-1.5 pr-2 pl-3 text-left hover:bg-hover ${open ? "bg-hover/60" : ""}`}
       >
-        <ItemIcon kind="conversation" size={24} active={open} />
-        <span className="min-w-0 flex-1">
-          <span className={`block truncate pr-6 text-[13px] ${open ? "font-medium text-fg" : "text-fg"}`}>{session.title}</span>
-          {snippet && <span className="mt-0.5 line-clamp-2 block rounded bg-accent-soft px-1.5 py-0.5 text-[11px] text-muted">{snippet}</span>}
-          <span className="mt-0.5 flex items-center gap-1.5 text-[11px] text-faint">
-            <span className="truncate">{folderName(session.cwd)}</span>
-            <span className="shrink-0">· {timeAgo(session.lastUsed)}</span>
-            <span className="flex shrink-0 items-center gap-0.5" title={`${session.prompts} messages from you`}>
-              · <MessageSquare size={10} /> {session.prompts}
-            </span>
-          </span>
+        <span className="flex items-center gap-2">
+          <span className={`min-w-0 flex-1 truncate text-[13px] ${open ? "font-medium text-fg" : "text-fg/90"}`}>{session.title}</span>
+          <span className="shrink-0 text-[11px] text-faint tabular-nums group-hover:invisible">{timeAgo(session.lastUsed).replace(/ ago$/, "").replace("just now", "now")}</span>
         </span>
+        <span className="flex items-center gap-1.5 text-[11.5px] text-faint">
+          {open && <span className="size-1.5 shrink-0 rounded-full bg-accent" title="Open in a tab" />}
+          <span className="truncate">{folderName(session.cwd)}</span>
+        </span>
+        {snippet && <span className="mt-0.5 line-clamp-2 rounded bg-accent-soft px-1.5 py-0.5 text-[11px] text-muted">{snippet}</span>}
       </button>
-      <div className={`absolute top-1.5 right-1.5 ${menu ? "block" : "hidden group-hover:block"}`}>
+      <div className={`absolute top-1 right-1 ${menu ? "block" : "hidden group-hover:block"}`}>
         <button
           aria-label="More actions"
           onClick={() => setMenu((m) => !m)}
@@ -83,10 +83,8 @@ export function HistoryList() {
   const panes = useStore((s) => s.panes);
   const openIds = useMemo(() => new Set(Object.values(panes).flatMap((p) => [p.sessionId, p.resumeSessionId])), [panes]);
   const [query, setQuery] = useState("");
-  const [thisProject, setThisProject] = useState(false);
   const [hits, setHits] = useState<SearchHit[]>([]);
   const [searching, setSearching] = useState(false);
-  const projectCwd = activePane()?.cwd;
 
   useEffect(() => {
     const t = setTimeout(() => void refreshSessions(), activity ? 1500 : 0);
@@ -108,8 +106,7 @@ export function HistoryList() {
   }, [query]);
 
   const visible = useMemo(() => {
-    let list = sessions;
-    if (thisProject && projectCwd) list = list.filter((s) => s.cwd.toLowerCase() === projectCwd.toLowerCase());
+    const list = sessions;
     if (!query.trim()) return list.map((s) => ({ session: s, snippet: undefined as string | undefined }));
     const hitMap = new Map(hits.map((h) => [h.sessionId, h.snippet]));
     return list
@@ -120,7 +117,7 @@ export function HistoryList() {
       })
       .filter((r) => r.score >= 0)
       .sort((a, b) => b.score - a.score);
-  }, [sessions, query, hits, thisProject, projectCwd]);
+  }, [sessions, query, hits]);
 
   const groups = useMemo(() => {
     if (query.trim()) return [{ label: "Results", rows: visible }];
@@ -136,26 +133,11 @@ export function HistoryList() {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <SidebarSearch value={query} onChange={setQuery} placeholder="Search conversations" busy={searching} />
-      {projectCwd && (
-        <div className="mx-2 mt-1 mb-1 flex gap-1">
-          {[false, true].map((only) => (
-            <button
-              key={String(only)}
-              onClick={() => setThisProject(only)}
-              className={`max-w-full truncate rounded-full border px-2.5 py-0.5 text-[11px] ${thisProject === only ? "border-accent bg-accent-soft text-accent" : "border-line text-muted hover:text-fg"}`}
-            >
-              {only ? folderName(projectCwd) : "All projects"}
-            </button>
-          ))}
-        </div>
-      )}
 
       <div className="scroll-thin flex-1 overflow-y-auto px-1.5 pb-3">
         {groups.map((g) => (
           <section key={g.label} className="mb-1">
-            <h2 className="sticky top-0 z-10 bg-bg px-2 pt-2 pb-1 text-[11px] font-semibold tracking-wide text-faint uppercase">
-              {g.label} <span className="font-normal normal-case">{g.rows.length}</span>
-            </h2>
+            <h2 className="sticky top-0 z-10 bg-bg px-3 pt-3 pb-1 text-[11.5px] font-medium text-faint">{g.label}</h2>
             {g.rows.map(({ session, snippet }) => (
               <SessionRow key={session.id} session={session} snippet={snippet} open={openIds.has(session.id)} />
             ))}

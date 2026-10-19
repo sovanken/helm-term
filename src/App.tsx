@@ -147,7 +147,7 @@ export default function App() {
         )}
         <main
           id="main-area"
-          className={`relative min-w-0 flex-1 overflow-hidden border-line ${view === "terminal" && tabs.length ? "bg-[var(--term-bg)]" : "bg-surface"} ${showSidebar ? "rounded-tl-lg border-t border-l" : "border-t"} ${showChanges ? "rounded-tr-lg border-r" : ""}`}
+          className={`relative min-w-0 flex-1 overflow-hidden border-line ${view === "terminal" && tabs.length ? "bg-[var(--term-bg)]" : "bg-surface"} rounded-lg border ${showSidebar ? "" : "ml-2"} ${showChanges ? "" : "mr-2"}`}
         >
           {tabs.map((t) => (
             <TabView key={t.id} tab={t} visible={view === "terminal" && t.id === activeTabId} />

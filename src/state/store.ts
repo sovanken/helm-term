@@ -437,10 +437,12 @@ export const useStore = create<State>((set, get) => ({
 
   closeAgents: () => set((s) => ({ agentsOpen: false, view: s.view === "agents" ? "terminal" : s.view })),
 
-  openFile: (path, cwd) => {
+  openFile: (raw, cwd) => {
+    // One tab per file, however the path was written (C:/a/b.txt and c:\a\b.txt are the same file).
+    const path = raw.replace(/\//g, "\\").replace(/^([a-z]):/, (_, d: string) => `${d.toUpperCase()}:`);
     const existing = get().fileTabs.find((f) => f.path.toLowerCase() === path.toLowerCase());
     if (existing) return set({ activeFileId: existing.id, view: "file" });
-    const tab: FileTab = { id: crypto.randomUUID(), path, cwd };
+    const tab: FileTab = { id: crypto.randomUUID(), path, cwd: cwd?.replace(/\//g, "\\") };
     set((s) => ({ fileTabs: [...s.fileTabs, tab].slice(-20), activeFileId: tab.id, view: "file" }));
   },
 

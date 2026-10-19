@@ -221,7 +221,7 @@ function FileTabButton({ file }: { file: FileTab }) {
         aria-label={`Close ${name}`}
         onPointerDown={(e) => e.stopPropagation()}
         onClick={() => closeFile(file.id)}
-        className={`flex size-5 shrink-0 items-center justify-center rounded text-muted hover:bg-hover hover:text-fg ${active ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+        className={`ml-auto flex size-5 shrink-0 items-center justify-center rounded text-muted hover:bg-hover hover:text-fg ${active ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
       >
         <X size={13} />
       </button>

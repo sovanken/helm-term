@@ -24,6 +24,7 @@ import {
   SquareTerminal,
   X,
   FileText,
+  Globe,
   Image as ImageIcon,
 } from "lucide-react";
 import { paneIds } from "../lib/layout";
@@ -31,6 +32,7 @@ import { activePane, cleanTitle, defaultFolder, folderName, type FileTab, type P
 import { Menu, type MenuItem } from "./Menu";
 import { useShells } from "../lib/shells";
 import { closeTabSafely, confirmClosePanes } from "../lib/actions";
+import { pageName } from "../lib/browser";
 import { StatusDot } from "./StatusDot";
 
 const appWindow = getCurrentWindow();
@@ -90,8 +92,9 @@ function TabButton({ tab, index }: { tab: Tab; index: number }) {
   const pane = panes[tab.activePaneId];
   if (!pane) return null;
   const claude = pane.claudeActive || pane.kind === "claude";
-  const title = cleanTitle(pane.title);
-  const name = folderName(pane.cwd);
+  const isBrowser = pane.kind === "browser";
+  const title = isBrowser ? "" : cleanTitle(pane.title);
+  const name = isBrowser ? pageName(pane) : folderName(pane.cwd);
   const count = paneIds(tab.root).length;
 
   return (
@@ -116,6 +119,8 @@ function TabButton({ tab, index }: { tab: Tab; index: number }) {
           <StatusDot status={tabStatus(tab, panes)} claude={claude} />
         ) : claude ? (
           <Sparkles size={14} className={active ? "text-accent" : ""} />
+        ) : isBrowser ? (
+          <Globe size={14} className={active ? "text-accent" : ""} />
         ) : (
           <SquareTerminal size={14} />
         )}
@@ -297,9 +302,9 @@ function AllTabsMenu({ onClose }: { onClose: () => void }) {
     const claude = !!pane && (pane.claudeActive || pane.kind === "claude");
     const title = pane ? cleanTitle(pane.title) : "";
     return {
-      label: `${pane ? folderName(pane.cwd) : "Tab"}${title ? ` · ${title}` : ""}`,
+      label: pane?.kind === "browser" ? pageName(pane) : `${pane ? folderName(pane.cwd) : "Tab"}${title ? ` · ${title}` : ""}`,
       hint: i < 9 ? `Ctrl+${i + 1}` : undefined,
-      icon: claude ? <Sparkles size={14} /> : <SquareTerminal size={14} />,
+      icon: pane?.kind === "browser" ? <Globe size={14} /> : claude ? <Sparkles size={14} /> : <SquareTerminal size={14} />,
       current: s.view === "terminal" && s.activeTabId === t.id,
       onSelect: () => s.setActiveTab(t.id),
     };
@@ -415,6 +420,8 @@ export function TitleBar() {
           .map((sh) => ({ label: `New Claude tab in ${sh.label}`, icon: <Sparkles size={14} />, onSelect: () => s.openTab(cwd(), "claude", { shell: sh.id }) }))
       : []),
     { label: "Open folder with Claude…", icon: <FolderOpen size={14} />, onSelect: () => void chooseFolder("claude") },
+    { label: "New browser tab", icon: <Globe size={14} />, onSelect: () => s.openBrowser("about:blank"), separatorBefore: true },
+    ...(tabs.length ? [{ label: "Browser beside this tab", icon: <Columns2 size={14} />, onSelect: () => s.openBrowser("about:blank", { beside: true }) }] : []),
     ...(tabs.length
       ? [
           { label: "Split right", hint: "Alt+Shift+=", icon: <Columns2 size={14} />, onSelect: () => s.splitActive("row", "shell"), separatorBefore: true },

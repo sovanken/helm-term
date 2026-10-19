@@ -1,11 +1,13 @@
 import { useRef } from "react";
-import { Sparkles, SquareTerminal, X } from "lucide-react";
-import { computeRects, type DividerRect, type Rect } from "../lib/layout";
+import { Globe, Sparkles, SquareTerminal, X } from "lucide-react";
+import { computeRects, type DividerRect, paneIds, type Rect } from "../lib/layout";
 import { cleanTitle, folderName, type Tab, useStore } from "../state/store";
 import { SearchBar } from "./SearchBar";
 import { StatusDot } from "./StatusDot";
 import { beginLiveResize, endLiveResize } from "../terminal/terminals";
 import { TerminalView } from "./TerminalView";
+import { BrowserView } from "./BrowserView";
+import { displayUrl, pageName } from "../lib/browser";
 
 const pct = (n: number) => `${n * 100}%`;
 const HEADER = 28;
@@ -14,7 +16,7 @@ function PaneHeader({ paneId, active }: { paneId: string; active: boolean }) {
   const pane = useStore((s) => s.panes[paneId]);
   if (!pane) return null;
   const claude = pane.claudeActive || pane.kind === "claude";
-  const title = cleanTitle(pane.title);
+  const title = pane.kind === "browser" ? displayUrl(pane.url) : cleanTitle(pane.title);
   return (
     <div
       className={`flex shrink-0 items-center gap-2 border-b px-2.5 text-[12px] ${
@@ -22,9 +24,9 @@ function PaneHeader({ paneId, active }: { paneId: string; active: boolean }) {
       }`}
       style={{ height: HEADER }}
     >
-      {claude ? <Sparkles size={12} className={active ? "text-accent" : ""} /> : <SquareTerminal size={12} />}
+      {pane.kind === "browser" ? <Globe size={12} className={active ? "text-accent" : ""} /> : claude ? <Sparkles size={12} className={active ? "text-accent" : ""} /> : <SquareTerminal size={12} />}
       <span className="truncate">
-        <span className="font-medium">{folderName(pane.cwd)}</span>
+        <span className="font-medium">{pane.kind === "browser" ? pageName(pane) : folderName(pane.cwd)}</span>
         {title && <span className="text-faint"> · {title}</span>}
       </span>
       <StatusDot status={pane.status} claude={false} />
@@ -86,6 +88,9 @@ function Divider({ tabId, d }: { tabId: string; d: DividerRect }) {
 
 export function TabView({ tab, visible }: { tab: Tab; visible: boolean }) {
   const searchOpen = useStore((s) => s.searchOpen);
+  // Only re-render on a pane's kind, not on every status change.
+  const kindsKey = useStore((s) => paneIds(tab.root).map((id) => s.panes[id]?.kind).join(","));
+  const kinds = Object.fromEntries(paneIds(tab.root).map((id, i) => [id, kindsKey.split(",")[i]]));
   const { panes, dividers } = computeRects(tab.root);
   const isSplit = panes.length > 1;
 
@@ -104,8 +109,14 @@ export function TabView({ tab, visible }: { tab: Tab; visible: boolean }) {
           >
             {isSplit && <PaneHeader paneId={paneId} active={active} />}
             <div className="relative min-h-0 flex-1">
-              <TerminalView paneId={paneId} active={active} visible={visible} />
-              {visible && active && searchOpen && <SearchBar paneId={paneId} />}
+              {kinds[paneId] === "browser" ? (
+                <BrowserView paneId={paneId} visible={visible} />
+              ) : (
+                <>
+                  <TerminalView paneId={paneId} active={active} visible={visible} />
+                  {visible && active && searchOpen && <SearchBar paneId={paneId} />}
+                </>
+              )}
             </div>
           </div>
         );

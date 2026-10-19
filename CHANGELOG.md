@@ -15,6 +15,8 @@ First public release.
 - **Agents tab:** every session grouped into Needs you / Working / Done.
 - **Right panel** with Changes, Agents and Details: background subagents open it automatically and show what they're doing and their final answer; Details lists screenshots, attached and changed files, web pages and MCP tools for the conversation.
 - **Save usage:** 14-day usage history by project, /compact suggestions as context fills, a warning before the prompt cache expires, and big pastes attached as a file.
+- **Built-in browser:** open your app in a Helm tab or beside the terminal (Helm offers it when a dev server starts), test phone, tablet and laptop sizes, and send console errors, failed requests, screenshots or any picked element to Claude. "My browser" is always one click away.
+- **Files open in Helm:** code with highlighting, Markdown preview, images, PDF, video and audio, straight from the Details panel.
 - **Prompt improver** (Ctrl+Shift+I): write a prompt, let Claude make it clearer, then send it.
 - Tabs reopen the same conversations after a restart; Ctrl+Alt+Shift+T reopens a closed tab.
 - Screenshot paste with Ctrl+V, file drop, clickable `file:line` links that open in VS Code.

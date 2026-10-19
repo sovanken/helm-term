@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import {
+import { Globe,
   ArrowDown,
   ArrowUp,
   Bot,
@@ -242,6 +242,10 @@ export function StatusBar() {
             title="Claude in this tab"
           >
             {STATE_TEXT[pane.status]}
+          </Chip>
+        ) : pane.kind === "browser" ? (
+          <Chip icon={<Globe size={12} />} tone={pane.page?.loading ? "text-working" : undefined}>
+            {pane.page?.loading ? "Loading" : "Browser"}
           </Chip>
         ) : (
           <Chip icon={<SquareTerminal size={12} />}>{shellLabel(pane.shell ?? useStore.getState().settings.shell, shells)}</Chip>

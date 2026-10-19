@@ -84,7 +84,7 @@ export function ApprovalBar() {
   if (approvals.length === 0 || view === "agents") return null;
   const shown = approvals.slice(0, 3);
   return (
-    <div className="pointer-events-none absolute top-3 right-4 z-30 flex w-[380px] max-w-[calc(100%-32px)] flex-col gap-2">
+    <div data-overlay className="pointer-events-none absolute top-3 right-4 z-30 flex w-[380px] max-w-[calc(100%-32px)] flex-col gap-2">
       {shown.map((a) => (
         <div key={a.id} className="anim-slide-in pointer-events-auto shadow-lg shadow-black/20">
           <ApprovalCard approval={a} compact />

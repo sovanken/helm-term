@@ -2,7 +2,7 @@
 
 use serde_json::json;
 
-use crate::{bridge, export, preview, sessions, shell, worktrees};
+use crate::{bridge, browser, export, preview, sessions, shell, worktrees};
 
 fn launch(extra: serde_json::Value) -> shell::LaunchRequest {
     let mut base = json!({
@@ -145,4 +145,18 @@ fn file_tabs_pick_the_right_viewer() {
     assert!(preview::bytes(&dir.join("doc.PDF")).is_ok());
     assert!(preview::bytes(&dir.join("a.rs")).is_err());
     std::fs::remove_dir_all(&dir).ok();
+}
+
+#[test]
+fn browser_addresses_are_completed_and_helm_itself_is_off_limits() {
+    assert_eq!(browser::parse_url("localhost:5173").unwrap().as_str(), "http://localhost:5173/");
+    assert_eq!(browser::parse_url("example.com/docs").unwrap().as_str(), "https://example.com/docs");
+    assert!(browser::parse_url("javascript:alert(1)").is_err());
+    let dev = tauri::Url::parse("http://localhost:1420").unwrap();
+    let app = |u: &str| browser::is_app_url(&tauri::Url::parse(u).unwrap(), Some(&dev));
+    assert!(app("http://tauri.localhost/index.html"));
+    assert!(app("http://ipc.localhost/plugin:fs"));
+    assert!(app("http://localhost:1420/"));
+    assert!(!app("http://localhost:5173/"));
+    assert!(!app("https://example.com/"));
 }

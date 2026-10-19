@@ -1,4 +1,5 @@
 mod bridge;
+mod browser;
 mod claude_settings;
 mod clipboard;
 mod commands;
@@ -25,7 +26,7 @@ use bridge::Bridge;
 use pty::PtyManager;
 use sessions::SessionCache;
 
-fn data_dir(app: &AppHandle) -> PathBuf {
+pub(crate) fn data_dir(app: &AppHandle) -> PathBuf {
     app.path().app_local_data_dir().unwrap_or_else(|_| std::env::temp_dir().join("helm"))
 }
 
@@ -417,6 +418,7 @@ pub fn run() {
         .plugin(tauri_plugin_autostart::Builder::new().build())
         .manage(PtyManager::default())
         .manage(SessionCache::default())
+        .manage(browser::Browsers::default())
         .setup(|app| {
             let dir = data_dir(app.handle());
             let bridge = bridge::start(app.handle().clone(), dir.join("hooks"))?;
@@ -475,6 +477,17 @@ pub fn run() {
             write_text_file,
             read_text_file,
             preview_file,
+            browser::browser_open,
+            browser::browser_bounds,
+            browser::browser_visible,
+            browser::browser_navigate,
+            browser::browser_go,
+            browser::browser_close,
+            browser::browser_keep_only,
+            browser::browser_devtools,
+            browser::browser_emulate,
+            browser::browser_screenshot,
+            browser::browser_pick,
             file_bytes,
             home_dir,
         ])
@@ -484,6 +497,7 @@ pub fn run() {
             if let RunEvent::Exit = event {
                 app.state::<PtyManager>().kill_all();
                 app.state::<Bridge>().clear_all();
+                app.state::<browser::Browsers>().close_all();
             }
         });
 }

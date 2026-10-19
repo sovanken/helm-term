@@ -7,6 +7,7 @@ import { ipc } from "./lib/ipc";
 import { installShortcuts } from "./lib/shortcuts";
 import { startUpdateChecks } from "./lib/updater";
 import { initEvents } from "./state/events";
+import { initBrowserEvents } from "./lib/browser";
 import { restore } from "./state/persist";
 import { getVersion } from "@tauri-apps/api/app";
 import { showToast, useStore } from "./state/store";
@@ -31,6 +32,7 @@ async function announceUpdate() {
 async function boot() {
   // A reloaded page can't see terminals started by the previous one; stop them first.
   await ipc.reset().catch(() => {});
+  initBrowserEvents();
   const [homeDir] = await Promise.all([ipc.homeDir(), initTerminals(), initEvents()]);
   useStore.getState().set({ homeDir });
   await restore().catch((err) => console.error("Could not restore session", err));

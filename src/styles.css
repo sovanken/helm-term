@@ -516,3 +516,13 @@ nav[role="tablist"] > [role="tab"]:hover + [role="tab"]::before {
 .fade-left.fade-right {
   mask-image: linear-gradient(to right, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
 }
+
+/* Indeterminate progress (browser loading bar). */
+@keyframes helm-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(300%);
+  }
+}

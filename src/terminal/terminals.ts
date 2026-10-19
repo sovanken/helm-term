@@ -10,8 +10,9 @@ import { UnicodeGraphemesAddon } from "@xterm/addon-unicode-graphemes";
 import { Channel } from "@tauri-apps/api/core";
 import { readText, writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { ask } from "@tauri-apps/plugin-dialog";
-import { openPath, openUrl } from "@tauri-apps/plugin-opener";
+import { openPath } from "@tauri-apps/plugin-opener";
 import { ipc, quotePath } from "../lib/ipc";
+import { forgetPane, openLink, scanForDevServer } from "../lib/links";
 import { fontStack, resolveTheme, terminalTheme } from "../lib/themes";
 import { type Settings, useStore } from "../state/store";
 
@@ -114,7 +115,7 @@ function ensure(paneId: string): Entry {
   term.loadAddon(search);
   term.loadAddon(new UnicodeGraphemesAddon());
   term.unicode.activeVersion = "15-graphemes";
-  term.loadAddon(new WebLinksAddon((_e, uri) => void openUrl(uri)));
+  term.loadAddon(new WebLinksAddon((_e, uri) => openLink(uri, { cwd: useStore.getState().panes[paneId]?.cwd })));
 
   const host = document.createElement("div");
   host.className = "term-host";
@@ -380,7 +381,11 @@ async function launch(paneId: string, entry: Entry) {
   const launchId = crypto.randomUUID();
   launchIds.set(paneId, launchId);
   const channel = new Channel<ArrayBuffer | number[]>();
-  channel.onmessage = (data) => entry.term.write(data instanceof ArrayBuffer ? new Uint8Array(data) : Uint8Array.from(data));
+  channel.onmessage = (data) => {
+    const bytes = data instanceof ArrayBuffer ? new Uint8Array(data) : Uint8Array.from(data);
+    entry.term.write(bytes);
+    scanForDevServer(paneId, bytes);
+  };
 
   try {
     await ipc.launch(
@@ -413,6 +418,7 @@ function dispose(paneId: string) {
   if (!entry) return;
   entries.delete(paneId);
   launchIds.delete(paneId);
+  forgetPane(paneId);
   clearTimeout(entry.resizeTimer);
   void ipc.kill(paneId).catch(() => {});
   entry.term.dispose();

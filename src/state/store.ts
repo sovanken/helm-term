@@ -4,7 +4,7 @@ import type { SessionInfo } from "../lib/ipc";
 import type { ThemeMode } from "../lib/themes";
 import { DEFAULT_FONT } from "../lib/themes";
 
-export type PaneKind = "claude" | "shell";
+export type PaneKind = "claude" | "shell" | "browser";
 
 /**
  * idle: nothing running / seen · working: Claude is busy · attention: Claude is waiting on you
@@ -38,12 +38,37 @@ export interface Pane {
   doing?: string;
   /** Running subagents. */
   subagents?: number;
+  /** Browser panes: the address it shows. */
+  url?: string;
+  /** Browser panes: live page state. */
+  page?: PageState;
   /** Claude's permission mode (default, acceptEdits, plan, auto, bypassPermissions, dontAsk). */
   permissionMode?: string;
   /** Subagents and background commands Claude started in this tab. */
   bgTasks?: BgTask[];
   /** Last time Claude reported anything (ms). */
   lastActivity?: number;
+}
+
+/** An error or warning the page reported (console, uncaught exception, failed request). */
+export interface PageProblem {
+  level: "error" | "warning";
+  source: "console" | "exception" | "network" | "browser";
+  text: string;
+  at?: string;
+  time: number;
+}
+
+export interface PageState {
+  title?: string;
+  loading?: boolean;
+  canBack?: boolean;
+  canForward?: boolean;
+  problems?: PageProblem[];
+  /** Device being emulated (see lib/devices). */
+  device?: string;
+  rotated?: boolean;
+  picking?: boolean;
 }
 
 export interface FileTab {
@@ -130,6 +155,7 @@ export interface Usage {
 export interface ClosedTab {
   cwd: string;
   kind: PaneKind;
+  url?: string;
   sessionId?: string;
   shell?: string;
   title?: string;
@@ -157,6 +183,8 @@ export interface Toast {
   text: string;
   kind: "info" | "success" | "error";
   action?: { label: string; run: () => void };
+  /** A second, less prominent button. */
+  secondary?: { label: string; run: () => void };
 }
 
 export interface AvailableUpdate {
@@ -198,6 +226,12 @@ export interface Settings {
   autoOpenAgents: boolean;
   /** Usage-saving hints (cache expiring, compact, large paste, idle sessions). */
   usageTips: boolean;
+  /** Where web links and dev servers open: a Helm browser tab or the system browser. */
+  openLinksIn: "helm" | "browser";
+  /** Offer to open a dev server when a terminal prints its address. */
+  devServerPrompt: boolean;
+  /** Draw a phone, tablet or laptop outline around emulated pages. */
+  deviceFrame: boolean;
 
   // ---- appearance ----
   accent: AccentId;
@@ -260,6 +294,9 @@ export const DEFAULT_SETTINGS: Settings = {
   hiddenStatusItems: [],
   autoOpenAgents: true,
   usageTips: true,
+  openLinksIn: "helm",
+  devServerPrompt: true,
+  deviceFrame: true,
   accent: "brass",
   terminalScheme: "helm",
   uiFont: "inter",
@@ -316,6 +353,8 @@ interface State {
   settingsOpen: boolean;
   /** The Agents tab exists in the tab bar. */
   agentsOpen: boolean;
+  /** Local dev servers seen in terminal output (newest first). */
+  devServers: string[];
   /** Files opened from the right panel, shown as tabs inside Helm. */
   fileTabs: FileTab[];
   activeFileId: string | null;
@@ -334,7 +373,10 @@ interface State {
   closedTabs: ClosedTab[];
   homeDir: string;
 
-  openTab: (cwd: string, kind: PaneKind, opts?: { resumeSessionId?: string; worktree?: string; shell?: string }) => string;
+  openTab: (cwd: string, kind: PaneKind, opts?: { resumeSessionId?: string; worktree?: string; shell?: string; url?: string }) => string;
+  /** Opens a web page in a browser tab, or next to the current pane with `beside`. */
+  openBrowser: (url: string, opts?: { beside?: boolean; cwd?: string }) => void;
+  updatePage: (paneId: string, patch: Partial<PageState>) => void;
   reopenClosedTab: () => void;
   moveTab: (from: number, to: number) => void;
   openAgents: () => void;
@@ -396,6 +438,7 @@ export const useStore = create<State>((set, get) => ({
   agentsOpen: false,
   fileTabs: [],
   activeFileId: null,
+  devServers: [],
   view: "terminal",
   settingsSection: "general",
   newTaskOpen: false,
@@ -409,17 +452,43 @@ export const useStore = create<State>((set, get) => ({
   homeDir: "",
 
   openTab: (cwd, kind, opts) => {
-    const pane = { ...newPane(cwd, kind, opts?.resumeSessionId), worktree: opts?.worktree, shell: opts?.shell };
+    const pane = { ...newPane(cwd, kind, opts?.resumeSessionId), worktree: opts?.worktree, shell: opts?.shell, url: opts?.url };
     const tab: Tab = { id: crypto.randomUUID(), root: leaf(pane.id), activePaneId: pane.id };
     if (cwd && cwd !== get().settings.lastFolder) get().updateSettings({ lastFolder: cwd });
     set((s) => ({ tabs: [...s.tabs, tab], activeTabId: tab.id, view: "terminal", panes: { ...s.panes, [pane.id]: pane } }));
     return tab.id;
   },
 
+  openBrowser: (url, opts) => {
+    const s = get();
+    const cwd = opts?.cwd ?? activePane()?.cwd ?? s.homeDir;
+    const tab = s.tabs.find((t) => t.id === s.activeTabId);
+    if (opts?.beside && tab && s.view === "terminal") {
+      const pane = { ...newPane(cwd, "browser"), url };
+      set({
+        panes: { ...s.panes, [pane.id]: pane },
+        tabs: s.tabs.map((t) => (t.id === tab.id ? { ...t, root: split(t.root, t.activePaneId, "row", pane.id), activePaneId: pane.id } : t)),
+      });
+      return;
+    }
+    s.openTab(cwd, "browser", { url });
+  },
+
+  updatePage: (paneId, patch) =>
+    set((s) => {
+      const pane = s.panes[paneId];
+      if (!pane) return {};
+      return { panes: { ...s.panes, [paneId]: { ...pane, page: { ...pane.page, ...patch } } } };
+    }),
+
   reopenClosedTab: () => {
     const [last, ...rest] = get().closedTabs;
     if (!last) return;
     set({ closedTabs: rest });
+    if (last.kind === "browser" && last.url) {
+      get().openTab(last.cwd, "browser", { url: last.url });
+      return;
+    }
     const resume = last.kind === "claude" && last.sessionId ? last.sessionId : undefined;
     get().openTab(last.cwd, resume ? "claude" : "shell", { resumeSessionId: resume, shell: last.shell });
   },
@@ -482,11 +551,13 @@ export const useStore = create<State>((set, get) => ({
       const { [paneId]: removed, ...panes } = s.panes;
       // Remember closed panes so they can be reopened (Claude ones resume their conversation).
       const claude = removed && (removed.claudeActive || removed.kind === "claude") && removed.sessionId;
+      const browser = removed?.kind === "browser";
       const closedTabs = removed
         ? [
             {
               cwd: removed.cwd,
-              kind: claude ? ("claude" as const) : ("shell" as const),
+              kind: browser ? ("browser" as const) : claude ? ("claude" as const) : ("shell" as const),
+              url: browser ? removed.url : undefined,
               sessionId: claude ? removed.sessionId : undefined,
               shell: removed.shell,
               title: cleanTitle(removed.title),
@@ -606,9 +677,9 @@ export function cleanTitle(title?: string): string {
 let toastTimer: number | undefined;
 
 /** Shows a short message at the bottom of the window. Errors stay a little longer. */
-export function showToast(text: string, kind: Toast["kind"] = "info", action?: Toast["action"]) {
+export function showToast(text: string, kind: Toast["kind"] = "info", action?: Toast["action"], secondary?: Toast["secondary"]) {
   clearTimeout(toastTimer);
-  useStore.setState({ toast: { id: Date.now(), text, kind, action } });
+  useStore.setState({ toast: { id: Date.now(), text, kind, action, secondary } });
   toastTimer = window.setTimeout(() => useStore.setState({ toast: null }), kind === "error" ? 8000 : 4500);
 }
 

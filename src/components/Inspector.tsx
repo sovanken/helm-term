@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect, useMemo, useState } from "react";
-import { openUrl } from "@tauri-apps/plugin-opener";
+import { openLink } from "../lib/links";
 import { Bot, ChevronRight, FileDiff, FileText, Globe, Image, Info, Layers, Paperclip, PenLine, Plug, X } from "lucide-react";
 
 import { ipc, type SessionDetails } from "../lib/ipc";
@@ -103,7 +103,7 @@ function DetailsTab() {
         {details.web.map((u) => (
           <button
             key={u}
-            onClick={() => !u.startsWith("Search: ") && void openUrl(u)}
+            onClick={() => !u.startsWith("Search: ") && openLink(u, { cwd: pane.cwd })}
             className="flex w-full items-center rounded-md px-2 py-1 text-left text-[12px] hover:bg-hover"
             title={u}
           >

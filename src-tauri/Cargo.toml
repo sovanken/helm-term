@@ -16,7 +16,8 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "2", features = [] }
+# "unstable" enables child webviews, used by the built-in browser.
+tauri = { version = "2", features = ["unstable"] }
 tauri-plugin-opener = "2"
 tauri-plugin-store = "2"
 tauri-plugin-dialog = "2"
@@ -40,6 +41,9 @@ base64 = "0.22"
 
 [target."cfg(windows)".dependencies]
 tauri-winrt-notification = "0.8"
+# Same versions Tauri uses, to drive browser tabs through WebView2's DevTools protocol.
+webview2-com = "0.39"
+windows = "0.62"
 
 [profile.release]
 codegen-units = 1

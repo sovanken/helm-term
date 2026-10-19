@@ -15,6 +15,9 @@ const STARTER_PROMPTS: SavedPrompt[] = [
 interface SavedPane {
   kind: PaneKind;
   cwd: string;
+  url?: string;
+  device?: string;
+  rotated?: boolean;
   sessionId?: string;
   shell?: string;
 }
@@ -49,11 +52,14 @@ export async function restore() {
   if (session?.tabs?.length) {
     const panes: Record<string, Pane> = {};
     for (const [id, p] of Object.entries(session.panes)) {
-      // A pane that had a Claude session reopens it; everything else reopens as a shell.
+      // A pane that had a Claude session reopens it, a browser its page; everything else reopens as a shell.
       const resume = p.kind === "claude" && p.sessionId;
+      const browser = p.kind === "browser" && !!p.url;
       panes[id] = {
         id,
-        kind: resume ? "claude" : "shell",
+        kind: browser ? "browser" : resume ? "claude" : "shell",
+        url: browser ? p.url : undefined,
+        page: browser && p.device ? { device: p.device, rotated: p.rotated } : undefined,
         cwd: p.cwd,
         claudeActive: false,
         resumeSessionId: resume ? p.sessionId : undefined,
@@ -84,6 +90,10 @@ function snapshot(): SavedSession {
   const s = useStore.getState();
   const panes: Record<string, SavedPane> = {};
   for (const p of Object.values(s.panes)) {
+    if (p.kind === "browser") {
+      panes[p.id] = { kind: "browser", cwd: p.cwd, url: p.url, device: p.page?.device, rotated: p.page?.rotated };
+      continue;
+    }
     const claude = p.claudeActive || (p.kind === "claude" && !!p.sessionId);
     panes[p.id] = { kind: claude ? "claude" : "shell", cwd: p.cwd, sessionId: claude ? p.sessionId : undefined, shell: p.shell };
   }

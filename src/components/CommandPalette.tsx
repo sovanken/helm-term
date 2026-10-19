@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import {
+import { Globe,
   BookmarkPlus,
   Info,
   Bot,
@@ -143,6 +143,10 @@ export function CommandPalette() {
     action("composer", "Write and improve a prompt…", <Wand2 size={15} />, () => s.set({ composerOpen: true }), "Ctrl+Shift+I", "compose better prompt rewrite clearer");
     action("bg-agents", "Show background agents", <Bot size={15} />, () => s.set({ changesOpen: true, inspectorTab: "agents" }), undefined, "subagents background tasks");
     action("details", "Show conversation details", <Info size={15} />, () => s.set({ changesOpen: true, inspectorTab: "details" }), undefined, "attachments screenshots files read changed");
+    action("browser", "New browser tab", <Globe size={15} />, () => s.openBrowser("about:blank"), undefined, "web page localhost preview test phone responsive");
+    if (pane) action("browser-beside", "Open a browser beside this tab", <Globe size={15} />, () => s.openBrowser("about:blank", { beside: true }), undefined, "web page localhost preview split");
+    for (const url of s.devServers.slice(0, 3))
+      action(`dev-${url}`, `Open ${url.replace(/^https?:\/\//, "").replace(/\/$/, "")} beside this tab`, <Globe size={15} />, () => s.openBrowser(url, { beside: true }), undefined, "dev server localhost preview");
     action("new-task", "New parallel task…", <Layers size={15} />, () => s.set({ newTaskOpen: true }), undefined, "worktree branch parallel");
     if (pane) {
       action("split-right", "Split right", <Columns2 size={15} />, () => s.splitActive("row", "shell"), "Alt+Shift+=");

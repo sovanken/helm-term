@@ -462,6 +462,12 @@ function ClaudeInHelm() {
         <Row label="Usage-saving hints" hint="A heads-up before a conversation's cache goes cold, a one-click /compact when context fills up, attach-as-file for huge pastes, and a nudge for big idle conversations.">
           <Toggle label="Usage hints" checked={s.usageTips} onChange={(v) => update({ usageTips: v })} />
         </Row>
+        <Row label="Open web links in" hint="Links in the terminal and in Details, and dev servers you open. Helm's browser can test phone sizes and send errors, screenshots and page elements to Claude.">
+          <Segmented<Settings["openLinksIn"]> value={s.openLinksIn} onChange={(v) => update({ openLinksIn: v })} options={[{ id: "helm", label: "Helm" }, { id: "browser", label: "My browser" }]} />
+        </Row>
+        <Row label="Offer to open dev servers" hint="When a terminal prints a local address such as localhost:5173, show a button to open it.">
+          <Toggle label="Dev server prompt" checked={s.devServerPrompt} onChange={(v) => update({ devServerPrompt: v })} />
+        </Row>
         <Row label="Windows hints for Claude" hint="Tell Claude it's on Windows and which shell syntax to use, so it stops mixing PowerShell and Bash commands.">
           <Toggle label="Windows hints" checked={s.windowsHints} onChange={(v) => update({ windowsHints: v })} />
         </Row>

@@ -68,6 +68,24 @@ pub fn find_transcript(session_id: &str) -> Option<PathBuf> {
         .find(|p| p.is_file())
 }
 
+/// A subagent's final answer: the message of its `SubagentHandback` tool call (how subagents
+/// report back), or otherwise the last text it wrote.
+pub fn last_assistant_text(path: &Path) -> Option<String> {
+    let size = std::fs::metadata(path).ok()?.len();
+    let lines = read_lines(path, size.saturating_sub(TAIL_BYTES), TAIL_BYTES);
+    lines.iter().rev().find_map(|line| handback_message(line).or_else(|| assistant_text(line)))
+}
+
+fn handback_message(line: &Value) -> Option<String> {
+    if line.get("type")?.as_str()? != "assistant" {
+        return None;
+    }
+    line.pointer("/message/content")?.as_array()?.iter().find_map(|p| {
+        let is_handback = p.get("type").and_then(Value::as_str) == Some("tool_use") && p.get("name").and_then(Value::as_str) == Some("SubagentHandback");
+        if is_handback { p.pointer("/input/message").and_then(Value::as_str).map(String::from) } else { None }
+    })
+}
+
 /// The folder a session was started in (Claude only resumes a session from its own project).
 pub fn session_cwd(session_id: &str) -> Option<String> {
     let path = find_transcript(session_id)?;

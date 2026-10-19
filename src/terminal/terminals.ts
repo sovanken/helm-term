@@ -243,6 +243,20 @@ export async function pasteInto(paneId: string) {
       });
       if (!ok) return focusTerminal(paneId);
     }
+    // A huge paste stays in the conversation and is re-sent with every message; a file is read once.
+    if (claude && text.length > 20_000 && s.settings.usageTips) {
+      const asFile = await ask(
+        `This paste is ${Math.round(text.length / 1000)}k characters. Pasted text is re-sent with every later message. Saving it as a file and attaching the path lets Claude read it only when needed, which saves usage.`,
+        { title: "Attach as a file?", okLabel: "Attach as file", cancelLabel: "Paste text" },
+      );
+      if (asFile) {
+        const path = await ipc.savePaste(text).catch(() => null);
+        if (path) {
+          entry.term.paste(`${quotePath(path)} `);
+          return;
+        }
+      }
+    }
     entry.term.paste(text);
     return;
   }

@@ -195,7 +195,7 @@ export function StatusBar() {
 
   const live = pane.stats;
   const pct =
-    live?.contextPct !== undefined
+    live?.contextPct != null
       ? Math.round(live.contextPct)
       : stats && stats.contextWindow
         ? Math.min(100, Math.round((stats.contextTokens / stats.contextWindow) * 100))
@@ -325,7 +325,7 @@ export function StatusBar() {
         <Chip
           icon={<Database size={12} />}
           tone={cacheSecs === null ? "text-faint" : cacheSecs < 90 ? "text-attention" : "text-done"}
-          title={`Claude reuses this conversation cheaply while the cache is warm${cache.ttl ? ` (lasts ${cache.ttl} after each message)` : ""}. Continuing before it goes cold saves usage.${cache.hitRatio !== undefined ? ` Cache hit rate: ${Math.round(cache.hitRatio * 100)}%.` : ""}`}
+          title={`Claude reuses this conversation cheaply while the cache is warm${cache.ttl ? ` (lasts ${cache.ttl} after each message)` : ""}. Continuing before it goes cold saves usage.${cache.hitRatio != null ? ` Cache hit rate: ${Math.round(cache.hitRatio * 100)}%.` : ""}`}
           hint={cacheSecs !== null ? `${formatCountdown(Date.now() / 1000 + Math.max(cacheSecs, 0))} left` : undefined}
           strong={false}
         >
@@ -350,7 +350,7 @@ export function StatusBar() {
           </span>
         </Chip>
       )}
-      {show("cost") && claude && cost !== undefined && (
+      {show("cost") && claude && cost != null && (
         <Chip
           title="Session cost at API prices, and lines Claude added / removed"
           hint={
@@ -364,7 +364,7 @@ export function StatusBar() {
           ${cost.toFixed(2)}
         </Chip>
       )}
-      {show("context") && claude && pct !== undefined && pct > 0 && (
+      {show("context") && claude && pct != null && pct > 0 && (
         <Chip
           title={stats ? `${formatTokens(stats.contextTokens)} of ${formatTokens(stats.contextWindow)} tokens. Click to see what's using it (/context).` : `${pct}% of the context window used. Click to see what's using it (/context).`}
           onClick={() => typeCommand(pane.id, "/context", true)}

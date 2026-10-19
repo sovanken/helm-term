@@ -23,7 +23,8 @@ export const SHORTCUTS: Shortcut[] = [
   { keys: "Ctrl+Shift+H", label: "Conversation history" },
   { keys: "Ctrl+Shift+A", label: "Agents: all sessions, approvals and usage limits" },
   { keys: "Ctrl+Alt+Shift+T", label: "Reopen closed tab" },
-  { keys: "Ctrl+Shift+G", label: "Show changes (git)" },
+  { keys: "Ctrl+Shift+G", label: "Right panel: changes, agents, details" },
+  { keys: "Ctrl+Shift+I", label: "Write and improve a prompt" },
   { keys: "Ctrl+Shift+F", label: "Find in output" },
   { keys: "Ctrl+Shift+B", label: "Show or hide projects" },
   { keys: "Ctrl+Shift+K", label: "Clear scrollback" },
@@ -53,6 +54,7 @@ function run(e: KeyboardEvent): boolean {
       case "KeyP": s.set({ paletteOpen: !s.paletteOpen }); return true;
       case "KeyA": if (s.view === "agents") s.closeAgents(); else s.openAgents(); return true;
       case "KeyG": s.set({ changesOpen: !s.changesOpen }); return true;
+      case "KeyI": s.set({ composerOpen: !s.composerOpen }); return true;
       case "KeyH":
         s.set(s.sidebarOpen && s.sidebarView === "history" ? { sidebarOpen: false } : { sidebarOpen: true, sidebarView: "history" });
         return true;
@@ -100,7 +102,7 @@ export function installShortcuts() {
         e.stopPropagation();
         const pane = activePane();
         const st = useStore.getState();
-        if (pane && st.view === "terminal" && !st.searchOpen && !st.paletteOpen && !st.promptsOpen) {
+        if (pane && st.view === "terminal" && !st.searchOpen && !st.paletteOpen && !st.promptsOpen && !st.composerOpen) {
           requestAnimationFrame(() => focusTerminal(pane.id));
         }
       }

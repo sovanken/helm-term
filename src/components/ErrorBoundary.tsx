@@ -1,6 +1,34 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
 
 /**
+ * Keeps an error in one part of the window (status bar, a side panel…) from taking down the
+ * rest. Shows a small "couldn't show" note with a retry, instead of the part.
+ */
+export class PartBoundary extends Component<{ name: string; children: ReactNode; className?: string }, { error: Error | null }> {
+  state = { error: null as Error | null };
+
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error(`Helm: ${this.props.name} failed`, error, info.componentStack);
+  }
+
+  render() {
+    if (!this.state.error) return this.props.children;
+    return (
+      <div className={`flex items-center gap-2 px-3 py-1.5 text-[12px] text-faint ${this.props.className ?? ""}`}>
+        <span>Couldn't show the {this.props.name}.</span>
+        <button onClick={() => this.setState({ error: null })} className="rounded px-1.5 py-0.5 text-accent hover:bg-hover">
+          Try again
+        </button>
+      </div>
+    );
+  }
+}
+
+/**
  * Last line of defence for UI errors: instead of a blank window, show what happened and a way back.
  * Terminals live outside React, and reloading restores every tab.
  */

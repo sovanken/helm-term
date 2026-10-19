@@ -7,6 +7,7 @@ import { ApprovalCard } from "./Approvals";
 import { modelLabel } from "./StatusBar";
 import { StatusDot } from "./StatusDot";
 import { UsageCockpit } from "./Usage";
+import { UsageHistory } from "./UsageHistory";
 
 function openPane(paneId: string) {
   const s = useStore.getState();
@@ -50,7 +51,7 @@ function AgentCard({ pane }: { pane: Pane }) {
       </div>
       <div className="flex items-center gap-3 border-t border-line pt-2 text-[11px] text-faint">
         {pane.stats?.model && <span>{modelLabel(pane.stats.model)}</span>}
-        {pct !== undefined && (
+        {pct != null && (
           <span className="flex items-center gap-1.5">
             <span className="relative h-1 w-10 overflow-hidden rounded-full bg-hover">
               <span className={`absolute inset-y-0 left-0 rounded-full ${pct >= 85 ? "bg-danger" : pct >= 65 ? "bg-attention" : "bg-accent"}`} style={{ width: `${Math.max(pct, 2)}%` }} />
@@ -58,7 +59,7 @@ function AgentCard({ pane }: { pane: Pane }) {
             {Math.round(pct)}% context
           </span>
         )}
-        {pane.stats?.costUsd !== undefined && <span>${pane.stats.costUsd.toFixed(2)}</span>}
+        {pane.stats?.costUsd != null && <span>${pane.stats.costUsd.toFixed(2)}</span>}
         {!!(pane.stats?.linesAdded || pane.stats?.linesRemoved) && (
           <span>
             <span className="text-done">+{pane.stats?.linesAdded ?? 0}</span> <span className="text-danger">−{pane.stats?.linesRemoved ?? 0}</span>
@@ -164,6 +165,7 @@ export function AgentsPage() {
           </div>
           <aside className="min-w-0">
             <UsageCockpit />
+            <UsageHistory />
           </aside>
         </div>
       </div>

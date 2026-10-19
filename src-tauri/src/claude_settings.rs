@@ -153,7 +153,7 @@ pub struct McpServer {
     pub managed: bool,
 }
 
-fn claude_cmd(cwd: &str) -> Result<std::process::Command, String> {
+pub(crate) fn claude_cmd(cwd: &str) -> Result<std::process::Command, String> {
     let exe = which::which("claude").map_err(|_| "Claude Code is not installed or not on PATH".to_string())?;
     let mut cmd = hidden(&exe.to_string_lossy());
     if Path::new(cwd).is_dir() {

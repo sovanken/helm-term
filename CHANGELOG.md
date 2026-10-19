@@ -13,6 +13,9 @@ First public release.
 - **Approve from anywhere:** background tabs ask for permission in Helm and in a Windows notification with Allow / Deny / Always allow.
 - **Usage limits:** live 5-hour and weekly meters, reset countdown, pace, per-tab share, warnings at 80% and 95%.
 - **Agents tab:** every session grouped into Needs you / Working / Done.
+- **Right panel** with Changes, Agents and Details: background subagents open it automatically and show what they're doing and their final answer; Details lists screenshots, attached and changed files, web pages and MCP tools for the conversation.
+- **Save usage:** 14-day usage history by project, /compact suggestions as context fills, a warning before the prompt cache expires, and big pastes attached as a file.
+- **Prompt improver** (Ctrl+Shift+I): write a prompt, let Claude make it clearer, then send it.
 - Tabs reopen the same conversations after a restart; Ctrl+Alt+Shift+T reopens a closed tab.
 - Screenshot paste with Ctrl+V, file drop, clickable `file:line` links that open in VS Code.
 

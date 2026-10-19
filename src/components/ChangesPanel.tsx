@@ -78,25 +78,16 @@ export function ChangesPanel() {
   return (
     <>
       <aside className="flex w-full min-w-0 flex-col bg-bg">
-        <div className="flex items-center gap-2 px-3 py-2.5">
-          <FileDiff size={15} className="text-muted" />
-          <div className="min-w-0 flex-1">
-            <div className="font-medium text-fg">Changes</div>
-            <div className="flex items-center gap-1 truncate text-[11px] text-faint">
-              {cwd && folderName(changes?.root ?? cwd)}
-              {changes?.branch && (
-                <>
-                  <span>·</span>
-                  <GitBranch size={10} /> {changes.branch}
-                </>
-              )}
-            </div>
-          </div>
-          <button aria-label="Refresh" title="Refresh" onClick={() => void load()} className="flex size-6 items-center justify-center rounded text-faint hover:bg-hover hover:text-fg">
+        <div className="flex items-center gap-1.5 px-3 py-2 text-[12px] text-muted">
+          <FileDiff size={13} className="shrink-0" />
+          <span className="truncate font-medium text-fg">{cwd && folderName(changes?.root ?? cwd)}</span>
+          {changes?.branch && (
+            <span className="flex shrink-0 items-center gap-1 text-faint">
+              <GitBranch size={11} /> {changes.branch}
+            </span>
+          )}
+          <button aria-label="Refresh" title="Refresh" onClick={() => void load()} className="ml-auto flex size-6 shrink-0 items-center justify-center rounded text-faint hover:bg-hover hover:text-fg">
             <RefreshCw size={12} className={loading ? "status-working" : ""} />
-          </button>
-          <button aria-label="Close" title="Close (Ctrl+Shift+G)" onClick={() => useStore.getState().set({ changesOpen: false })} className="flex size-6 items-center justify-center rounded text-faint hover:bg-hover hover:text-fg">
-            <X size={14} />
           </button>
         </div>
 

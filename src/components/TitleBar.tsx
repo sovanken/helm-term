@@ -12,6 +12,7 @@ import {
   Columns2,
   Bot,
   Command,
+  Wand2,
   Download,
   FileDiff,
   Settings,
@@ -342,6 +343,14 @@ export function TitleBar() {
         <Command size={13} />
         <span className="text-[12px]">Commands</span>
         <kbd className="font-sans text-[10px] text-faint">Ctrl+Shift+P</kbd>
+      </button>
+      <button
+        aria-label="Write a prompt"
+        title="Write and improve a prompt (Ctrl+Shift+I)"
+        onClick={() => useStore.getState().set({ composerOpen: true })}
+        className="flex size-8 items-center justify-center rounded-md text-muted hover:bg-hover hover:text-fg"
+      >
+        <Wand2 size={15} />
       </button>
       <UpdateButton />
       <AgentsButton />

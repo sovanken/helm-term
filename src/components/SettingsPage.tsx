@@ -456,6 +456,12 @@ function ClaudeInHelm() {
         <Row label="Track usage limits" hint="Show your 5-hour and weekly limits, pace and warnings. Uses Claude's status line, so it's skipped if you set up your own status line.">
           <Toggle label="Usage limits" checked={s.usageCockpit} onChange={(v) => update({ usageCockpit: v })} />
         </Row>
+        <Row label="Open background agents automatically" hint="When Claude starts a subagent or background command, open the right panel on Agents (only if it's closed).">
+          <Toggle label="Auto-open agents" checked={s.autoOpenAgents} onChange={(v) => update({ autoOpenAgents: v })} />
+        </Row>
+        <Row label="Usage-saving hints" hint="A heads-up before a conversation's cache goes cold, a one-click /compact when context fills up, attach-as-file for huge pastes, and a nudge for big idle conversations.">
+          <Toggle label="Usage hints" checked={s.usageTips} onChange={(v) => update({ usageTips: v })} />
+        </Row>
         <Row label="Windows hints for Claude" hint="Tell Claude it's on Windows and which shell syntax to use, so it stops mixing PowerShell and Bash commands.">
           <Toggle label="Windows hints" checked={s.windowsHints} onChange={(v) => update({ windowsHints: v })} />
         </Row>

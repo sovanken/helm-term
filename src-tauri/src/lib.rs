@@ -2,6 +2,7 @@ mod bridge;
 mod claude_settings;
 mod clipboard;
 mod commands;
+mod details;
 mod export;
 mod git;
 mod projects;
@@ -315,6 +316,54 @@ fn clear_screenshots(app: AppHandle) -> u32 {
     removed
 }
 
+/// What a session attached, read, changed and fetched (right panel → Details).
+#[tauri::command]
+async fn session_details(transcript_path: Option<String>, session_id: Option<String>) -> Result<details::SessionDetails, String> {
+    blocking!({
+        let path = transcript_path
+            .map(PathBuf::from)
+            .filter(|p| p.is_file())
+            .or_else(|| session_id.as_deref().and_then(sessions::find_transcript))
+            .ok_or("No conversation yet")?;
+        details::read(&path)
+    })
+}
+
+/// A subagent's final answer, from the transcript path its SubagentStop hook reports.
+#[tauri::command]
+async fn subagent_result(path: String) -> Option<String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let p = PathBuf::from(&path);
+        // Only Claude Code transcripts, never arbitrary files.
+        let root = sessions::projects_dir()?;
+        if !p.starts_with(&root) || p.extension().is_none_or(|e| e != "jsonl") {
+            return None;
+        }
+        sessions::last_assistant_text(&p)
+    })
+    .await
+    .ok()
+    .flatten()
+}
+
+/// Rewrites a prompt to be clearer (Claude Haiku, no tools, nothing saved).
+#[tauri::command]
+async fn improve_prompt(app: AppHandle, text: String, project: String) -> Result<String, String> {
+    let dir = data_dir(&app).join("improve");
+    blocking!(details::improve_prompt(&text, &project, &dir))
+}
+
+/// Saves a very large paste as a text file so Claude can read it instead of filling the prompt.
+#[tauri::command]
+fn save_paste(app: AppHandle, text: String) -> Result<String, String> {
+    let dir = data_dir(&app).join("pastes");
+    std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    let stamp = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_millis()).unwrap_or(0);
+    let path = dir.join(format!("paste-{stamp}.txt"));
+    std::fs::write(&path, text).map_err(|e| e.to_string())?;
+    Ok(path.to_string_lossy().into_owned())
+}
+
 /// Export / import of settings to a file the user picked in a save/open dialog.
 #[tauri::command]
 fn write_text_file(path: String, content: String) -> Result<(), String> {
@@ -359,7 +408,10 @@ pub fn run() {
             let bridge = bridge::start(app.handle().clone(), dir.join("hooks"))?;
             bridge.clear_all();
             app.manage(bridge);
-            std::thread::spawn(move || clipboard::prune(dir.join("screenshots")));
+            std::thread::spawn(move || {
+                clipboard::prune(dir.join("screenshots"));
+                clipboard::prune(dir.join("pastes"));
+            });
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -400,6 +452,10 @@ pub fn run() {
             git_revert_hunk,
             session_cwd,
             data_dir_path,
+            session_details,
+            improve_prompt,
+            subagent_result,
+            save_paste,
             screenshots_info,
             clear_screenshots,
             write_text_file,

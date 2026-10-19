@@ -6,6 +6,7 @@ import { toolSummary, toolVerb } from "../lib/agents";
 import { ipc } from "../lib/ipc";
 import { paneIds } from "../lib/layout";
 import { isCurrentLaunch } from "../terminal/terminals";
+import { contextHint, logUsage, startUsageHints, trackTaskEvent } from "./tasks";
 import { type Approval, cleanTitle, folderName, type LimitWindow, type Pane, showToast, useStore } from "./store";
 
 interface HookEvent {
@@ -66,6 +67,13 @@ function onHook({ paneId, launchId, event, data }: HookEvent) {
   const now = Date.now();
   const mode = str(data?.permission_mode);
   if (mode && mode !== pane.permissionMode) updatePane(paneId, { permissionMode: mode });
+  if (import.meta.env.DEV) {
+    // Dev only: recent hook payloads, for debugging what Claude Code sends.
+    const w = window as unknown as { __helmHookLog?: unknown[] };
+    (w.__helmHookLog ??= []).push({ event, at: now, data });
+    if (w.__helmHookLog.length > 80) w.__helmHookLog.shift();
+  }
+  trackTaskEvent(paneId, event, data);
 
   switch (event) {
     case "SessionStart":
@@ -186,6 +194,7 @@ function onStatus({ paneId, launchId, data }: HookEvent) {
   const pane = s.panes[paneId];
   if (!pane || !data || !isCurrentLaunch(paneId, launchId)) return;
   const d = data as Record<string, any>;
+  if (typeof d.context_window?.used_percentage === "number") contextHint(pane, d.context_window.used_percentage);
   s.updatePane(paneId, {
     stats: {
       model: str(d.model?.id) ?? str(d.model?.display_name),
@@ -219,6 +228,8 @@ function onStatus({ paneId, launchId, data }: HookEvent) {
 
   const prev = s.usage;
   const sameWindow = prev?.fiveHour?.resetsAt === fiveHour?.resetsAt;
+  // Daily usage log: increases of the weekly limit within the same weekly window.
+  if (sevenDay && prev?.sevenDay && prev.sevenDay.resetsAt === sevenDay.resetsAt) logUsage(pane, sevenDay.pct - prev.sevenDay.pct);
   // Attribute five-hour increases to the tab that reported them (approximate per-tab share).
   let usageByPane = sameWindow ? s.usageByPane : {};
   if (fiveHour && prev?.fiveHour && sameWindow && fiveHour.pct > prev.fiveHour.pct) {
@@ -260,5 +271,6 @@ export async function initEvents() {
   await listen<HookEvent>("claude-status", (e) => onStatus(e.payload));
   await listen<{ paneId: string }>("pty-exit", (e) => useStore.getState().closePane(e.payload.paneId));
   window.addEventListener("focus", () => useStore.getState().markSeen());
+  startUsageHints();
 }
 

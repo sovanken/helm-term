@@ -6,11 +6,13 @@ import { accentColor, resolveTheme, uiFontStack } from "./lib/themes";
 import { activePane, DEFAULT_SETTINGS, useStore } from "./state/store";
 import { applyThemeToAll, currentTerminalTheme, insertText, windowsBuildNumber } from "./terminal/terminals";
 import { AgentsPage } from "./components/AgentsPage";
+import { PartBoundary } from "./components/ErrorBoundary";
 import { ApprovalBar } from "./components/Approvals";
-import { ChangesPanel } from "./components/ChangesPanel";
+import { Inspector } from "./components/Inspector";
 import { NewTaskDialog } from "./components/Tasks";
 import { ToastView } from "./components/Toast";
 import { CommandPalette } from "./components/CommandPalette";
+import { PromptComposer } from "./components/PromptComposer";
 import { PromptsDialog } from "./components/PromptsDialog";
 import { ResizeHandle } from "./components/ResizeHandle";
 import { SettingsPage } from "./components/SettingsPage";
@@ -106,6 +108,7 @@ export default function App() {
   const promptsOpen = useStore((s) => s.promptsOpen);
   const changesOpen = useStore((s) => s.changesOpen);
   const newTaskOpen = useStore((s) => s.newTaskOpen);
+  const composerOpen = useStore((s) => s.composerOpen);
   const sidebarWidth = useStore((s) => s.settings.sidebarWidth);
   const changesWidth = useStore((s) => s.settings.changesWidth);
   const { updateSettings } = useStore.getState();
@@ -123,7 +126,9 @@ export default function App() {
         {showSidebar && (
           <>
             <div className="flex shrink-0" style={{ width: sidebarWidth }}>
-              <Sidebar />
+              <PartBoundary name="sidebar" className="w-full">
+                <Sidebar />
+              </PartBoundary>
             </div>
             <ResizeHandle
               side="left"
@@ -146,15 +151,21 @@ export default function App() {
           {tabs.length === 0 && view === "terminal" && <Welcome />}
           {view === "settings" && (
             <div className="anim-fade absolute inset-0 z-20 bg-surface">
-              <SettingsPage />
+              <PartBoundary name="settings">
+                <SettingsPage />
+              </PartBoundary>
             </div>
           )}
           {view === "agents" && (
             <div className="anim-fade absolute inset-0 z-20 bg-surface">
-              <AgentsPage />
+              <PartBoundary name="agents view">
+                <AgentsPage />
+              </PartBoundary>
             </div>
           )}
-          <ApprovalBar />
+          <PartBoundary name="approval cards">
+            <ApprovalBar />
+          </PartBoundary>
         </main>
         {showChanges && (
           <>
@@ -168,15 +179,20 @@ export default function App() {
               onChange={(w) => updateSettings({ changesWidth: w })}
             />
             <div className="flex shrink-0" style={{ width: changesWidth }}>
-              <ChangesPanel />
+              <PartBoundary name="right panel" className="w-full">
+                <Inspector />
+              </PartBoundary>
             </div>
           </>
         )}
       </div>
-      <StatusBar />
+      <PartBoundary name="status bar" className="h-[30px] shrink-0 bg-bg">
+        <StatusBar />
+      </PartBoundary>
       {paletteOpen && <CommandPalette />}
       {promptsOpen && <PromptsDialog />}
       {newTaskOpen && <NewTaskDialog />}
+      {composerOpen && <PromptComposer />}
       <ToastView />
     </div>
   );

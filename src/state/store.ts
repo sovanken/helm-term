@@ -40,8 +40,40 @@ export interface Pane {
   subagents?: number;
   /** Claude's permission mode (default, acceptEdits, plan, auto, bypassPermissions, dontAsk). */
   permissionMode?: string;
+  /** Subagents and background commands Claude started in this tab. */
+  bgTasks?: BgTask[];
   /** Last time Claude reported anything (ms). */
   lastActivity?: number;
+}
+
+export interface BgTask {
+  id: string;
+  kind: "agent" | "command";
+  /** What it's doing, e.g. the subagent's task description or the command. */
+  label: string;
+  /** Subagent type (Explore, Plan, general-purpose…). */
+  type?: string;
+  agentId?: string;
+  startedAt: number;
+  endedAt?: number;
+  status: "running" | "done";
+  /** The subagent's final answer. */
+  summary?: string;
+  /** What the subagent is doing right now, e.g. "Grep: TODO". */
+  doing?: string;
+  /** Tool calls the subagent has made. */
+  steps?: number;
+  /** Runs in the background (Claude keeps working meanwhile). */
+  background?: boolean;
+  /** Created from SubagentStart before Claude's own description arrived. */
+  placeholder?: boolean;
+}
+
+/** One day of usage: share of the weekly limit used, and how it split across projects. */
+export interface UsageDay {
+  day: string;
+  weekPts: number;
+  byProject: Record<string, number>;
 }
 
 export interface PaneStats {
@@ -153,6 +185,10 @@ export interface Settings {
   windowsHints: boolean;
   /** Status bar items the user switched off (right-click the status bar). */
   hiddenStatusItems: string[];
+  /** Open the right panel on Agents when Claude starts a background agent. */
+  autoOpenAgents: boolean;
+  /** Usage-saving hints (cache expiring, compact, large paste, idle sessions). */
+  usageTips: boolean;
 
   // ---- appearance ----
   accent: AccentId;
@@ -213,6 +249,8 @@ export const DEFAULT_SETTINGS: Settings = {
   usageCockpit: true,
   windowsHints: true,
   hiddenStatusItems: [],
+  autoOpenAgents: true,
+  usageTips: true,
   accent: "brass",
   terminalScheme: "helm",
   uiFont: "inter",
@@ -260,7 +298,11 @@ interface State {
   searchOpen: boolean;
   paletteOpen: boolean;
   promptsOpen: boolean;
+  /** The right panel is open (Changes · Agents · Details). */
   changesOpen: boolean;
+  inspectorTab: "changes" | "agents" | "details";
+  composerOpen: boolean;
+  usageLog: UsageDay[];
   /** The Settings tab exists in the tab bar. */
   settingsOpen: boolean;
   /** The Agents tab exists in the tab bar. */
@@ -332,6 +374,9 @@ export const useStore = create<State>((set, get) => ({
   paletteOpen: false,
   promptsOpen: false,
   changesOpen: false,
+  inspectorTab: "changes",
+  composerOpen: false,
+  usageLog: [],
   agentsOpen: false,
   view: "terminal",
   settingsSection: "general",

@@ -1,6 +1,7 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import {
   BookmarkPlus,
+  Info,
   Bot,
   RotateCcw,
   Download,
@@ -139,6 +140,9 @@ export function CommandPalette() {
     action("agents", "Agents: sessions, approvals and usage", <Bot size={15} />, () => s.openAgents(), "Ctrl+Shift+A", "dashboard limits quota approve");
     if (s.closedTabs.length)
       action("reopen", `Reopen closed tab (${s.closedTabs[0].title || folderName(s.closedTabs[0].cwd)})`, <RotateCcw size={15} />, () => s.reopenClosedTab(), "Ctrl+Alt+Shift+T", "restore undo close");
+    action("composer", "Write and improve a prompt…", <Wand2 size={15} />, () => s.set({ composerOpen: true }), "Ctrl+Shift+I", "compose better prompt rewrite clearer");
+    action("bg-agents", "Show background agents", <Bot size={15} />, () => s.set({ changesOpen: true, inspectorTab: "agents" }), undefined, "subagents background tasks");
+    action("details", "Show conversation details", <Info size={15} />, () => s.set({ changesOpen: true, inspectorTab: "details" }), undefined, "attachments screenshots files read changed");
     action("new-task", "New parallel task…", <Layers size={15} />, () => s.set({ newTaskOpen: true }), undefined, "worktree branch parallel");
     if (pane) {
       action("split-right", "Split right", <Columns2 size={15} />, () => s.splitActive("row", "shell"), "Alt+Shift+=");

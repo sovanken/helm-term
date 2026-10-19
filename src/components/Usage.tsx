@@ -81,7 +81,7 @@ export function UsageCockpit() {
           <Meter
             label="Spend limit"
             win={usage.spend}
-            hint={usage.spend.usedUsd !== undefined && usage.spend.limitUsd !== undefined ? `$${usage.spend.usedUsd.toFixed(2)} of $${usage.spend.limitUsd.toFixed(2)}` : undefined}
+            hint={usage.spend.usedUsd != null && usage.spend.limitUsd != null ? `$${usage.spend.usedUsd.toFixed(2)} of $${usage.spend.limitUsd.toFixed(2)}` : undefined}
           />
         )}
       </div>

@@ -84,6 +84,22 @@ fn titles_are_shortened_on_word_boundaries_safely() {
 }
 
 #[test]
+fn subagent_answer_comes_from_its_handback() {
+    let dir = std::env::temp_dir().join(format!("helm-test-sub-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let path = dir.join("agent-x.jsonl");
+    let lines = [
+        json!({ "type": "assistant", "isSidechain": true, "message": { "content": [{ "type": "text", "text": "Looking around" }] } }),
+        json!({ "type": "assistant", "isSidechain": true, "message": { "content": [{ "type": "tool_use", "name": "SubagentHandback", "input": { "message": "Found 3 .txt files." } }] } }),
+        json!({ "type": "user", "isSidechain": true, "message": { "content": [{ "type": "tool_result", "content": "ok" }] } }),
+    ];
+    std::fs::write(&path, lines.iter().map(|l| l.to_string()).collect::<Vec<_>>().join("\n")).unwrap();
+    let answer = sessions::last_assistant_text(&path);
+    std::fs::remove_dir_all(&dir).ok();
+    assert_eq!(answer.as_deref(), Some("Found 3 .txt files."));
+}
+
+#[test]
 fn export_turns_a_transcript_into_markdown() {
     let dir = std::env::temp_dir().join(format!("helm-test-{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();

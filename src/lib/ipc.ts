@@ -89,6 +89,21 @@ export interface McpServer {
   managed: boolean;
 }
 
+export interface FileUse {
+  path: string;
+  count: number;
+}
+
+export interface SessionDetails {
+  images: string[];
+  mentioned: string[];
+  read: FileUse[];
+  changed: FileUse[];
+  web: string[];
+  mcp: FileUse[];
+  subagents: FileUse[];
+}
+
 export interface ShellInfo {
   id: string;
   label: string;
@@ -142,6 +157,10 @@ export const ipc = {
     invoke<void>("show_approval_toast", { id, title, body, detail, silent }),
   showToast: (title: string, body: string, silent = false) => invoke<void>("show_toast", { title, body, silent }),
   dataDirPath: () => invoke<string>("data_dir_path"),
+  sessionDetails: (transcriptPath?: string, sessionId?: string) => invoke<SessionDetails>("session_details", { transcriptPath, sessionId }),
+  improvePrompt: (text: string, project: string) => invoke<string>("improve_prompt", { text, project }),
+  subagentResult: (path: string) => invoke<string | null>("subagent_result", { path }),
+  savePaste: (text: string) => invoke<string>("save_paste", { text }),
   screenshotsInfo: () => invoke<[number, number]>("screenshots_info"),
   clearScreenshots: () => invoke<number>("clear_screenshots"),
   writeTextFile: (path: string, content: string) => invoke<void>("write_text_file", { path, content }),

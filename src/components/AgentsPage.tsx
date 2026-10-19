@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Bot, Layers, Plus, Sparkles } from "lucide-react";
+import { LayoutDashboard,  Layers, Plus, Sparkles } from "lucide-react";
 import { timeSince as ago } from "../lib/agents";
 import { paneIds } from "../lib/layout";
 import { type Pane, cleanTitle, folderName, useStore } from "../state/store";
@@ -149,7 +149,7 @@ export function AgentsPage() {
             )}
             {claude.length === 0 ? (
               <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-line px-6 py-14 text-center">
-                <Bot size={28} className="text-faint" />
+                <LayoutDashboard size={28} className="text-faint" />
                 <p className="max-w-sm text-muted">Start Claude in a few tabs or parallel tasks. Every session shows up here with what it's doing and whether it needs you.</p>
                 <button onClick={() => openTab(homeDir, "claude")} className="flex items-center gap-1.5 rounded-md border border-line px-3 py-1.5 text-fg hover:bg-hover">
                   <Sparkles size={14} /> Start Claude

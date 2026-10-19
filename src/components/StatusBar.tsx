@@ -1,9 +1,10 @@
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { Globe,
+import {
+  LayoutDashboard, Globe,
   ArrowDown,
   ArrowUp,
-  Bot,
+  
   Brain,
   Cpu,
   Database,
@@ -316,7 +317,7 @@ export function StatusBar() {
       {/* ---- right: Claude numbers ---- */}
       {show("agents") && others.length > 0 && (
         <Chip
-          icon={<Bot size={12} />}
+          icon={<LayoutDashboard size={12} />}
           tone={othersWaiting ? "text-attention" : othersWorking ? "text-working" : "text-muted"}
           title="Other Claude tabs. Click to open Agents (Ctrl+Shift+A)."
           onClick={() => useStore.getState().openAgents()}

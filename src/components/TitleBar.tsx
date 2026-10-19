@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { open } from "@tauri-apps/plugin-dialog";
 import {
+  PanelRight,
+  LayoutDashboard,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -13,11 +15,11 @@ import {
   Plus,
   Rows2,
   Columns2,
-  Bot,
+  
   Command,
   Wand2,
   Download,
-  FileDiff,
+  
   Settings,
   Sparkles,
   Square,
@@ -161,7 +163,7 @@ function AgentsButton() {
       onClick={() => useStore.getState().openAgents()}
       className={`relative flex size-8 items-center justify-center rounded-md hover:bg-hover ${active ? "bg-hover text-fg" : "text-muted hover:text-fg"}`}
     >
-      <Bot size={16} />
+      <LayoutDashboard size={16} />
       {count > 0 && (
         <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-attention px-1 text-[10px] font-semibold text-black">{count}</span>
       )}
@@ -183,7 +185,7 @@ function AgentsTab() {
       onAuxClick={(e) => e.button === 1 && closeAgents()}
       className={`anim-fade group relative flex h-8 w-52 min-w-32 shrink items-center gap-2 rounded-md px-2.5 ${active ? "border border-line bg-surface text-fg" : "border border-transparent text-muted hover:bg-hover hover:text-fg"}`}
     >
-      <Bot size={14} className={active ? "text-accent" : ""} />
+      <LayoutDashboard size={14} className={active ? "text-accent" : ""} />
       <span className="truncate font-medium">Agents</span>
       {count > 0 && <span className="rounded-full bg-attention px-1.5 text-[10px] font-semibold text-black">{count}</span>}
       <button
@@ -284,12 +286,12 @@ function ChangesToggle() {
   const open = useStore((s) => s.changesOpen);
   return (
     <button
-      aria-label="Show changes"
-      title="Changes (Ctrl+Shift+G)"
+      aria-label="Side panel"
+      title="Side panel: changes, background agents and details (Ctrl+Shift+G)"
       onClick={() => useStore.getState().set({ changesOpen: !open })}
       className={`flex size-8 items-center justify-center rounded-md hover:bg-hover ${open ? "bg-hover text-fg" : "text-muted hover:text-fg"}`}
     >
-      <FileDiff size={15} />
+      <PanelRight size={16} />
     </button>
   );
 }
@@ -318,7 +320,7 @@ function AllTabsMenu({ onClose }: { onClose: () => void }) {
       separatorBefore: i === 0 && items.length > 0,
     }),
   );
-  if (s.agentsOpen) items.push({ label: "Agents", icon: <Bot size={14} />, current: s.view === "agents", onSelect: s.openAgents, separatorBefore: true });
+  if (s.agentsOpen) items.push({ label: "Agents", icon: <LayoutDashboard size={14} />, current: s.view === "agents", onSelect: s.openAgents, separatorBefore: true });
   if (s.settingsOpen) items.push({ label: "Settings", icon: <Settings size={14} />, current: s.view === "settings", onSelect: () => s.openSettings(), separatorBefore: !s.agentsOpen });
   return <Menu items={items} onClose={onClose} align="right" />;
 }
@@ -478,11 +480,9 @@ export function TitleBar() {
         aria-label="Command palette"
         title="Command palette (Ctrl+Shift+P)"
         onClick={() => s.set({ paletteOpen: true })}
-        className="flex h-8 items-center gap-2 rounded-md border border-line px-2.5 text-muted hover:bg-hover hover:text-fg"
+        className="flex size-8 items-center justify-center rounded-md text-muted hover:bg-hover hover:text-fg"
       >
-        <Command size={13} />
-        <span className="text-[12px]">Commands</span>
-        <kbd className="font-sans text-[10px] text-faint">Ctrl+Shift+P</kbd>
+        <Command size={16} />
       </button>
       <button
         aria-label="Write a prompt"
@@ -490,7 +490,7 @@ export function TitleBar() {
         onClick={() => useStore.getState().set({ composerOpen: true })}
         className="flex size-8 items-center justify-center rounded-md text-muted hover:bg-hover hover:text-fg"
       >
-        <Wand2 size={15} />
+        <Wand2 size={16} />
       </button>
       <UpdateButton />
       <AgentsButton />

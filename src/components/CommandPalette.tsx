@@ -1,5 +1,7 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import { Globe,
+import {
+  PanelRight,
+  LayoutDashboard, Globe,
   BookmarkPlus,
   Info,
   Bot,
@@ -9,7 +11,7 @@ import { Globe,
   Layers,
   SlidersHorizontal,
   Columns2,
-  FileDiff,
+  
   FolderOpen,
   History,
   MessageSquareText,
@@ -137,7 +139,7 @@ export function CommandPalette() {
     action("new-claude", "New Claude tab", <Sparkles size={15} />, () => s.openTab(cwd, "claude"), "Ctrl+Shift+T");
     action("new-shell", "New PowerShell tab", <SquareTerminal size={15} />, () => s.openTab(cwd, "shell"), "Ctrl+Shift+N");
     action("open-folder", "Open folder with Claude…", <FolderOpen size={15} />, () => void chooseFolder("claude"));
-    action("agents", "Agents: sessions, approvals and usage", <Bot size={15} />, () => s.openAgents(), "Ctrl+Shift+A", "dashboard limits quota approve");
+    action("agents", "Agents: sessions, approvals and usage", <LayoutDashboard size={15} />, () => s.openAgents(), "Ctrl+Shift+A", "dashboard limits quota approve");
     if (s.closedTabs.length)
       action("reopen", `Reopen closed tab (${s.closedTabs[0].title || folderName(s.closedTabs[0].cwd)})`, <RotateCcw size={15} />, () => s.reopenClosedTab(), "Ctrl+Alt+Shift+T", "restore undo close");
     action("composer", "Write and improve a prompt…", <Wand2 size={15} />, () => s.set({ composerOpen: true }), "Ctrl+Shift+I", "compose better prompt rewrite clearer");
@@ -153,7 +155,7 @@ export function CommandPalette() {
       action("split-down", "Split down", <Rows2 size={15} />, () => s.splitActive("column", "shell"), "Alt+Shift+-");
       action("find", "Find in output", <Search size={15} />, () => s.set({ searchOpen: true }), "Ctrl+Shift+F");
     }
-    action("changes", "Show changes", <FileDiff size={15} />, () => s.set({ changesOpen: true }), "Ctrl+Shift+G", "git diff undo revert");
+    action("changes", "Show changes", <PanelRight size={15} />, () => s.set({ changesOpen: true }), "Ctrl+Shift+G", "git diff undo revert");
     action("history", "Conversation history", <History size={15} />, () => s.set({ sidebarOpen: true, sidebarView: "history" }), "Ctrl+Shift+H", "sessions resume");
     action("sidebar", "Show or hide sidebar", <PanelLeft size={15} />, () => s.set({ sidebarOpen: !s.sidebarOpen }), "Ctrl+Shift+B");
     if (claude && pane) action("export", "Export this conversation to Markdown…", <FileDown size={15} />, exportActiveConversation, undefined, "save markdown share");

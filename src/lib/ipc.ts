@@ -50,12 +50,53 @@ export interface SlashCommand {
   takesArgs: boolean;
 }
 
+export interface Worktree {
+  path: string;
+  branch?: string;
+  isMain: boolean;
+  dirty: number;
+  ahead: number;
+}
+
+export interface WorktreeList {
+  isRepo: boolean;
+  mainPath?: string;
+  mainBranch?: string;
+  worktrees: Worktree[];
+}
+
+export type Scope = "user" | "project" | "local";
+
+export interface SettingsFile {
+  path: string;
+  exists: boolean;
+  permissions: { allow?: string[]; ask?: string[]; deny?: string[]; defaultMode?: string; [k: string]: unknown } | null;
+  hooks: Record<string, { matcher?: string; hooks: { type: string; command?: string; timeout?: number }[] }[]> | null;
+}
+
+export interface MemoryFile {
+  scope: Scope;
+  path: string;
+  exists: boolean;
+  content: string;
+}
+
+export interface McpServer {
+  name: string;
+  target: string;
+  status: string;
+  health: "ok" | "auth" | "failed" | "pending" | "unknown";
+  managed: boolean;
+}
+
 export interface LaunchRequest {
   paneId: string;
   cwd: string;
   kind: PaneKind;
   newSessionId?: string;
   resumeSessionId?: string;
+  worktree?: string;
+  launchId: string;
   cols: number;
   rows: number;
 }
@@ -83,6 +124,21 @@ export const ipc = {
   gitRevert: (root: string, path: string, status: string) => invoke<void>("git_revert", { root, path, status }),
   slashCommands: (cwd: string) => invoke<SlashCommand[]>("slash_commands", { cwd }),
   osBuild: () => invoke<number>("os_build"),
+  worktreeList: (cwd: string) => invoke<WorktreeList>("worktree_list", { cwd }),
+  worktreeMerge: (mainPath: string, branch: string) => invoke<string>("worktree_merge", { mainPath, branch }),
+  worktreeRemove: (mainPath: string, path: string, branch: string | undefined, force: boolean, deleteBranch: boolean) =>
+    invoke<void>("worktree_remove", { mainPath, path, branch, force, deleteBranch }),
+  claudeSettingsRead: (scope: Scope, cwd: string) => invoke<SettingsFile>("claude_settings_read", { scope, cwd }),
+  claudeSettingsWrite: (scope: Scope, cwd: string, key: "permissions" | "hooks", value: unknown) =>
+    invoke<void>("claude_settings_write", { scope, cwd, key, value }),
+  memoryRead: (scope: Scope, cwd: string) => invoke<MemoryFile>("memory_read", { scope, cwd }),
+  memoryWrite: (scope: Scope, cwd: string, content: string) => invoke<void>("memory_write", { scope, cwd, content }),
+  mcpList: (cwd: string) => invoke<McpServer[]>("mcp_list", { cwd }),
+  mcpAdd: (cwd: string, name: string, scope: string, transport: string, target: string, args: string[], env: string[]) =>
+    invoke<void>("mcp_add", { cwd, name, scope, transport, target, args, env }),
+  mcpRemove: (cwd: string, name: string, scope?: string) => invoke<void>("mcp_remove", { cwd, name, scope }),
+  exportSession: (outPath: string, includeTools: boolean, sessionId?: string, transcriptPath?: string) =>
+    invoke<void>("export_session", { sessionId, transcriptPath, outPath, includeTools }),
 };
 
 /** Quotes a path for pasting into a prompt or shell when it contains spaces. */

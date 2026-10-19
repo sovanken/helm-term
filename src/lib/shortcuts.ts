@@ -40,7 +40,10 @@ function run(e: KeyboardEvent): boolean {
     switch (e.code) {
       case "KeyT": s.openTab(cwd, "claude"); return true;
       case "KeyN": s.openTab(cwd, "shell"); return true;
-      case "KeyW": if (pane) s.closePane(pane.id); return true;
+      case "KeyW":
+        if (s.view === "settings") s.closeSettings();
+        else if (pane) s.closePane(pane.id);
+        return true;
       case "KeyF": if (pane) s.set({ searchOpen: true }); return true;
       case "KeyB": s.set({ sidebarOpen: !s.sidebarOpen }); return true;
       case "KeyP": s.set({ paletteOpen: !s.paletteOpen }); return true;
@@ -73,7 +76,7 @@ function run(e: KeyboardEvent): boolean {
     if (key === "=" || key === "+") { s.updateSettings({ fontSize: Math.min(28, size + 1) }); return true; }
     if (key === "-") { s.updateSettings({ fontSize: Math.max(9, size - 1) }); return true; }
     if (key === "0") { s.updateSettings({ fontSize: 14 }); return true; }
-    if (key === ",") { s.set({ settingsOpen: true }); return true; }
+    if (key === ",") { s.openSettings(); return true; }
   }
   return false;
 }
@@ -88,7 +91,7 @@ export function installShortcuts() {
         e.stopPropagation();
         const pane = activePane();
         const st = useStore.getState();
-        if (pane && !st.searchOpen && !st.settingsOpen && !st.paletteOpen && !st.promptsOpen) {
+        if (pane && st.view === "terminal" && !st.searchOpen && !st.paletteOpen && !st.promptsOpen) {
           requestAnimationFrame(() => focusTerminal(pane.id));
         }
       }

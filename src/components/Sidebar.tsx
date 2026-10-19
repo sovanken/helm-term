@@ -4,6 +4,7 @@ import { Code2, FolderOpen, FolderSearch, MoreHorizontal, Pin, PinOff, RefreshCw
 import { ipc } from "../lib/ipc";
 import { timeAgo } from "../lib/fuzzy";
 import { HistoryList } from "./HistoryList";
+import { TasksSection } from "./Tasks";
 import { folderName, useStore } from "../state/store";
 import { Menu } from "./Menu";
 import { chooseFolder } from "./TitleBar";
@@ -118,6 +119,7 @@ function ProjectList() {
   return (
     <>
       <div className="scroll-thin flex-1 overflow-y-auto px-2 pb-3">
+        <TasksSection />
         {pinned.length > 0 && (
           <section className="mb-3">
             <h2 className="px-2 pt-2 pb-1 text-[11px] font-semibold tracking-wide text-faint uppercase">Pinned</h2>

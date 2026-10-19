@@ -29,7 +29,7 @@ struct ExitEvent {
 
 /// Variables a running Claude Code session sets for its own child processes. User config
 /// variables (CLAUDE_CODE_USE_BEDROCK, ANTHROPIC_*, …) are deliberately not listed.
-const INHERITED_SESSION_VARS: &[&str] = &[
+pub const INHERITED_SESSION_VARS: &[&str] = &[
     "CLAUDECODE",
     "CLAUDE_PID",
     "CLAUDE_EFFORT",

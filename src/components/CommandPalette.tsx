@@ -1,6 +1,10 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import {
   BookmarkPlus,
+  Download,
+  FileDown,
+  Layers,
+  SlidersHorizontal,
   Columns2,
   FileDiff,
   FolderOpen,
@@ -22,6 +26,8 @@ import { ipc, type SlashCommand } from "../lib/ipc";
 import { activePane, folderName, useStore } from "../state/store";
 import { focusTerminal, insertText, typeCommand } from "../terminal/terminals";
 import { chooseFolder } from "./TitleBar";
+import { exportActiveConversation } from "../lib/actions";
+import { checkForUpdate } from "../lib/updater";
 
 interface Item {
   id: string;
@@ -128,6 +134,7 @@ export function CommandPalette() {
     action("new-claude", "New Claude tab", <Sparkles size={15} />, () => s.openTab(cwd, "claude"), "Ctrl+Shift+T");
     action("new-shell", "New PowerShell tab", <SquareTerminal size={15} />, () => s.openTab(cwd, "shell"), "Ctrl+Shift+N");
     action("open-folder", "Open folder with Claude…", <FolderOpen size={15} />, () => void chooseFolder("claude"));
+    action("new-task", "New parallel task…", <Layers size={15} />, () => s.set({ newTaskOpen: true }), undefined, "worktree branch parallel");
     if (pane) {
       action("split-right", "Split right", <Columns2 size={15} />, () => s.splitActive("row", "shell"), "Alt+Shift+=");
       action("split-down", "Split down", <Rows2 size={15} />, () => s.splitActive("column", "shell"), "Alt+Shift+-");
@@ -136,12 +143,15 @@ export function CommandPalette() {
     action("changes", "Show changes", <FileDiff size={15} />, () => s.set({ changesOpen: true }), "Ctrl+Shift+G", "git diff undo revert");
     action("history", "Conversation history", <History size={15} />, () => s.set({ sidebarOpen: true, sidebarView: "history" }), "Ctrl+Shift+H", "sessions resume");
     action("sidebar", "Show or hide sidebar", <PanelLeft size={15} />, () => s.set({ sidebarOpen: !s.sidebarOpen }), "Ctrl+Shift+B");
+    if (claude && pane) action("export", "Export this conversation to Markdown…", <FileDown size={15} />, exportActiveConversation, undefined, "save markdown share");
+    action("claude-settings", "Claude Code settings…", <SlidersHorizontal size={15} />, () => s.openSettings("permissions"), undefined, "permissions hooks mcp claude.md memory");
+    action("updates", "Check for updates", <Download size={15} />, () => void checkForUpdate(true), undefined, "version upgrade");
     action("prompts", "Manage saved prompts…", <BookmarkPlus size={15} />, () => s.set({ promptsOpen: true }), undefined, "snippets library add edit");
     const dark = document.documentElement.dataset.theme === "dark";
     action("theme", dark ? "Switch to light theme" : "Switch to dark theme", dark ? <Sun size={15} /> : <Moon size={15} />, () =>
       s.updateSettings({ theme: dark ? "light" : "dark" }),
     );
-    action("settings", "Settings", <Settings size={15} />, () => s.set({ settingsOpen: true }), "Ctrl+,", "preferences shortcuts font");
+    action("settings", "Settings", <Settings size={15} />, () => s.openSettings(), "Ctrl+,", "preferences shortcuts font");
 
     const projects = [...s.pinned, ...s.recent.map((r) => r.path).filter((p) => !s.pinned.includes(p))];
     for (const path of projects) {

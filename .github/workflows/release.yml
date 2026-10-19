@@ -1,0 +1,49 @@
+# Builds the signed Windows installer and the updater manifest (latest.json) when a version
+# tag is pushed, e.g. `git tag v0.3.0 && git push origin v0.3.0`. The tag must match the
+# version in src-tauri/tauri.conf.json.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - run: npm ci
+
+      - uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: Helm ${{ github.ref_name }}
+          releaseBody: |
+            Download **Helm_*_x64-setup.exe** below and run it. Helm updates itself after that.
+
+            Windows may show a SmartScreen warning because the installer isn't code-signed yet: click **More info → Run anyway**.
+          releaseDraft: false
+          prerelease: false
+          uploadUpdaterJson: true
+          updaterJsonPreferNsis: true
+          generateReleaseNotes: true

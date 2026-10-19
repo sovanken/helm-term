@@ -22,12 +22,37 @@ export interface Pane {
   sessionId?: string;
   /** Set when restoring a tab: resume this Claude session on launch. */
   resumeSessionId?: string;
+  /** Launch Claude in a new git worktree with this name (parallel task); used once at launch. */
+  worktree?: string;
   status: PaneStatus;
   /** Terminal title set by the running program (Claude Code puts its task summary here). */
   title?: string;
   attentionMessage?: string;
   /** Transcript file of the running Claude session (from hook payloads). */
   transcriptPath?: string;
+}
+
+export type SettingsSection =
+  | "appearance"
+  | "behavior"
+  | "shortcuts"
+  | "about"
+  | "permissions"
+  | "hooks"
+  | "mcp"
+  | "memory";
+
+export interface Toast {
+  id: number;
+  text: string;
+  kind: "info" | "success" | "error";
+  action?: { label: string; run: () => void };
+}
+
+export interface AvailableUpdate {
+  version: string;
+  notes?: string;
+  install: () => Promise<void>;
 }
 
 export interface SavedPrompt {
@@ -76,15 +101,22 @@ interface State {
   sidebarOpen: boolean;
   sidebarView: "projects" | "history";
   searchOpen: boolean;
-  settingsOpen: boolean;
   paletteOpen: boolean;
   promptsOpen: boolean;
   changesOpen: boolean;
+  /** The Settings tab exists in the tab bar. */
+  settingsOpen: boolean;
+  /** What the main area shows: the active terminal tab, or the Settings tab. */
+  view: "terminal" | "settings";
+  settingsSection: SettingsSection;
+  newTaskOpen: boolean;
+  toast: Toast | null;
+  update: AvailableUpdate | null;
   /** Bumped whenever Claude does something that may change files or stats. */
   activity: number;
   homeDir: string;
 
-  openTab: (cwd: string, kind: PaneKind, opts?: { resumeSessionId?: string }) => string;
+  openTab: (cwd: string, kind: PaneKind, opts?: { resumeSessionId?: string; worktree?: string }) => string;
   /** Focuses the pane already running this session, or opens a tab that resumes it. */
   resumeSession: (session: { id: string; cwd: string }) => void;
   closeTab: (tabId: string) => void;
@@ -93,6 +125,8 @@ interface State {
   focusPane: (paneId: string) => void;
   focusNeighbor: (dir: Direction) => void;
   setActiveTab: (tabId: string) => void;
+  openSettings: (section?: SettingsSection) => void;
+  closeSettings: () => void;
   cycleTab: (delta: number) => void;
   resizeSplit: (tabId: string, splitId: string, ratio: number) => void;
   updatePane: (paneId: string, patch: Partial<Pane>) => void;
@@ -130,13 +164,18 @@ export const useStore = create<State>((set, get) => ({
   paletteOpen: false,
   promptsOpen: false,
   changesOpen: false,
+  view: "terminal",
+  settingsSection: "appearance",
+  newTaskOpen: false,
+  toast: null,
+  update: null,
   activity: 0,
   homeDir: "",
 
   openTab: (cwd, kind, opts) => {
-    const pane = newPane(cwd, kind, opts?.resumeSessionId);
+    const pane = { ...newPane(cwd, kind, opts?.resumeSessionId), worktree: opts?.worktree };
     const tab: Tab = { id: crypto.randomUUID(), root: leaf(pane.id), activePaneId: pane.id };
-    set((s) => ({ tabs: [...s.tabs, tab], activeTabId: tab.id, panes: { ...s.panes, [pane.id]: pane } }));
+    set((s) => ({ tabs: [...s.tabs, tab], activeTabId: tab.id, view: "terminal", panes: { ...s.panes, [pane.id]: pane } }));
     return tab.id;
   },
 
@@ -206,9 +245,14 @@ export const useStore = create<State>((set, get) => ({
   },
 
   setActiveTab: (tabId) => {
-    set({ activeTabId: tabId });
+    set({ activeTabId: tabId, view: "terminal" });
     get().markSeen();
   },
+
+  openSettings: (section) =>
+    set((s) => ({ settingsOpen: true, view: "settings", settingsSection: section ?? s.settingsSection })),
+
+  closeSettings: () => set({ settingsOpen: false, view: "terminal" }),
 
   cycleTab: (delta) => {
     const { tabs, activeTabId } = get();
@@ -262,4 +306,13 @@ export function cleanTitle(title?: string): string {
   // Shells set the title to their own program path ("C:\WINDOWS\...\powershell.exe"); that's noise.
   if (/\.exe$/i.test(t) || /^(Windows )?PowerShell$/i.test(t)) return "";
   return t.replace(/^[^\p{L}\p{N}]+/u, "").trim();
+}
+
+let toastTimer: number | undefined;
+
+/** Shows a short message at the bottom of the window. Errors stay a little longer. */
+export function showToast(text: string, kind: Toast["kind"] = "info", action?: Toast["action"]) {
+  clearTimeout(toastTimer);
+  useStore.setState({ toast: { id: Date.now(), text, kind, action } });
+  toastTimer = window.setTimeout(() => useStore.setState({ toast: null }), kind === "error" ? 8000 : 4500);
 }

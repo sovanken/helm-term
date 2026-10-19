@@ -23,6 +23,9 @@
     "store:default",
     "dialog:allow-open",
     "dialog:allow-ask",
+    "dialog:allow-save",
+    "updater:default",
+    "process:allow-restart",
     "clipboard-manager:allow-read-text",
     "clipboard-manager:allow-write-text",
     "window-state:default"

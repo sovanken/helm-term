@@ -5,9 +5,11 @@ import { resolveTheme } from "./lib/themes";
 import { activePane, useStore } from "./state/store";
 import { applyThemeToAll, insertText } from "./terminal/terminals";
 import { ChangesPanel } from "./components/ChangesPanel";
+import { NewTaskDialog } from "./components/Tasks";
+import { ToastView } from "./components/Toast";
 import { CommandPalette } from "./components/CommandPalette";
 import { PromptsDialog } from "./components/PromptsDialog";
-import { SettingsDialog } from "./components/SettingsDialog";
+import { SettingsPage } from "./components/SettingsPage";
 import { StatusBar } from "./components/StatusBar";
 import { Sidebar } from "./components/Sidebar";
 import { TabView } from "./components/TabView";
@@ -44,10 +46,11 @@ export default function App() {
   const tabs = useStore((s) => s.tabs);
   const activeTabId = useStore((s) => s.activeTabId);
   const sidebarOpen = useStore((s) => s.sidebarOpen);
-  const settingsOpen = useStore((s) => s.settingsOpen);
+  const view = useStore((s) => s.view);
   const paletteOpen = useStore((s) => s.paletteOpen);
   const promptsOpen = useStore((s) => s.promptsOpen);
   const changesOpen = useStore((s) => s.changesOpen);
+  const newTaskOpen = useStore((s) => s.newTaskOpen);
   useTheme();
   useFileDrop();
 
@@ -55,22 +58,28 @@ export default function App() {
     <div className="flex h-full flex-col">
       <TitleBar />
       <div className="flex min-h-0 flex-1">
-        {sidebarOpen && <Sidebar />}
+        {sidebarOpen && view === "terminal" && <Sidebar />}
         <main
           id="main-area"
-          className={`relative min-w-0 flex-1 overflow-hidden border-line bg-surface ${sidebarOpen ? "rounded-tl-lg border-t border-l" : "border-t"} ${changesOpen ? "rounded-tr-lg border-r" : ""}`}
+          className={`relative min-w-0 flex-1 overflow-hidden border-line bg-surface ${sidebarOpen && view === "terminal" ? "rounded-tl-lg border-t border-l" : "border-t"} ${changesOpen && view === "terminal" ? "rounded-tr-lg border-r" : ""}`}
         >
           {tabs.map((t) => (
-            <TabView key={t.id} tab={t} visible={t.id === activeTabId} />
+            <TabView key={t.id} tab={t} visible={view === "terminal" && t.id === activeTabId} />
           ))}
-          {tabs.length === 0 && <Welcome />}
+          {tabs.length === 0 && view === "terminal" && <Welcome />}
+          {view === "settings" && (
+            <div className="absolute inset-0 z-20 bg-surface">
+              <SettingsPage />
+            </div>
+          )}
         </main>
-        {changesOpen && <ChangesPanel />}
+        {changesOpen && view === "terminal" && <ChangesPanel />}
       </div>
       <StatusBar />
-      {settingsOpen && <SettingsDialog />}
       {paletteOpen && <CommandPalette />}
       {promptsOpen && <PromptsDialog />}
+      {newTaskOpen && <NewTaskDialog />}
+      <ToastView />
     </div>
   );
 }

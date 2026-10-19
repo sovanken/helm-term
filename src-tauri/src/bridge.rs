@@ -28,6 +28,7 @@ pub const HOOK_EVENTS: &[&str] =
 #[serde(rename_all = "camelCase")]
 struct HookEvent {
     pane_id: String,
+    launch_id: Option<String>,
     event: String,
     data: serde_json::Value,
 }
@@ -51,7 +52,8 @@ async fn hook(
         return StatusCode::BAD_REQUEST;
     };
     let data = serde_json::from_slice(&body).unwrap_or(serde_json::Value::Null);
-    let _ = state.app.emit("claude-hook", HookEvent { pane_id, event, data });
+    let launch_id = q.get("launch").cloned();
+    let _ = state.app.emit("claude-hook", HookEvent { pane_id, launch_id, event, data });
     StatusCode::NO_CONTENT
 }
 
@@ -74,13 +76,13 @@ pub fn start(app: AppHandle, hooks_dir: PathBuf) -> Result<Bridge, String> {
 
 impl Bridge {
     /// Writes the per-pane settings file and returns its path.
-    pub fn write_settings(&self, pane_id: &str) -> Result<PathBuf, String> {
+    pub fn write_settings(&self, pane_id: &str, launch_id: &str) -> Result<PathBuf, String> {
         let mut hooks = serde_json::Map::new();
         for event in HOOK_EVENTS {
             // curl.exe ships with Windows 10+; plain double quotes work in cmd, PowerShell and bash.
             let command = format!(
-                "curl.exe -s -m 3 -X POST -H \"Content-Type: application/json\" --data-binary @- \"http://127.0.0.1:{}/hook/{}?pane={}&key={}\"",
-                self.port, event, pane_id, self.key
+                "curl.exe -s -m 3 -X POST -H \"Content-Type: application/json\" --data-binary @- \"http://127.0.0.1:{}/hook/{}?pane={}&launch={}&key={}\"",
+                self.port, event, pane_id, launch_id, self.key
             );
             hooks.insert(
                 event.to_string(),

@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
-import { Copy, MessageSquare, MoreHorizontal, Play, Search, SquareTerminal, X } from "lucide-react";
+import { Copy, FileDown, MessageSquare, MoreHorizontal, Play, Search, SquareTerminal, X } from "lucide-react";
 import { ipc, type SearchHit, type SessionInfo } from "../lib/ipc";
 import { fuzzyScore, timeAgo } from "../lib/fuzzy";
 import { activePane, folderName, useStore } from "../state/store";
+import { exportConversation } from "../lib/actions";
 import { Menu } from "./Menu";
 
 let refreshing: Promise<void> | null = null;
@@ -66,7 +67,8 @@ function SessionRow({ session, snippet, open }: { session: SessionInfo; snippet?
             items={[
               { label: "Continue conversation", icon: <Play size={14} />, onSelect: () => resumeSession(session) },
               { label: "Open PowerShell in its folder", icon: <SquareTerminal size={14} />, onSelect: () => openTab(session.cwd, "shell") },
-              { label: "Copy session ID", icon: <Copy size={14} />, onSelect: () => void writeText(session.id), separatorBefore: true },
+              { label: "Export to Markdown…", icon: <FileDown size={14} />, onSelect: () => void exportConversation(session), separatorBefore: true },
+              { label: "Copy session ID", icon: <Copy size={14} />, onSelect: () => void writeText(session.id) },
             ]}
           />
         )}

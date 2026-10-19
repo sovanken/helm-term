@@ -4,6 +4,7 @@ import { refreshSessions } from "./components/HistoryList";
 import { refreshRecent } from "./components/Sidebar";
 import { ipc } from "./lib/ipc";
 import { installShortcuts } from "./lib/shortcuts";
+import { startUpdateChecks } from "./lib/updater";
 import { initEvents } from "./state/events";
 import { restore } from "./state/persist";
 import { useStore } from "./state/store";
@@ -19,6 +20,7 @@ async function boot() {
   installShortcuts();
   void refreshRecent();
   void refreshSessions();
+  startUpdateChecks();
   ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(<App />);
 }
 

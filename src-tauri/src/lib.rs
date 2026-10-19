@@ -1,11 +1,14 @@
 mod bridge;
+mod claude_settings;
 mod clipboard;
 mod commands;
+mod export;
 mod git;
 mod projects;
 mod pty;
 mod sessions;
 mod shell;
+mod worktrees;
 
 use std::path::{Path, PathBuf};
 
@@ -28,7 +31,7 @@ fn pty_launch(
     req: shell::LaunchRequest,
     on_data: Channel<InvokeResponseBody>,
 ) -> Result<(), String> {
-    let settings = bridge.write_settings(&req.pane_id)?;
+    let settings = bridge.write_settings(&req.pane_id, &req.launch_id)?;
     let spec = shell::build(&req, &settings.to_string_lossy())?;
     ptys.spawn(&app, req.pane_id.clone(), spec, on_data)
 }
@@ -154,6 +157,89 @@ async fn slash_commands(cwd: String) -> Vec<commands::SlashCommand> {
     tauri::async_runtime::spawn_blocking(move || commands::list(&cwd)).await.unwrap_or_default()
 }
 
+macro_rules! blocking {
+    ($body:expr) => {
+        tauri::async_runtime::spawn_blocking(move || $body).await.map_err(|e| e.to_string())?
+    };
+}
+
+#[tauri::command]
+async fn worktree_list(cwd: String) -> Result<worktrees::WorktreeList, String> {
+    blocking!(worktrees::list(&cwd))
+}
+
+#[tauri::command]
+async fn worktree_merge(main_path: String, branch: String) -> Result<String, String> {
+    blocking!(worktrees::merge(&main_path, &branch))
+}
+
+#[tauri::command]
+async fn worktree_remove(main_path: String, path: String, branch: Option<String>, force: bool, delete_branch: bool) -> Result<(), String> {
+    blocking!(worktrees::remove(&main_path, &path, branch.as_deref(), force, delete_branch))
+}
+
+#[tauri::command]
+async fn claude_settings_read(scope: String, cwd: String) -> Result<claude_settings::SettingsFile, String> {
+    blocking!(claude_settings::read_settings(&scope, &cwd))
+}
+
+#[tauri::command]
+async fn claude_settings_write(scope: String, cwd: String, key: String, value: serde_json::Value) -> Result<(), String> {
+    blocking!(claude_settings::write_settings_key(&scope, &cwd, &key, value))
+}
+
+#[tauri::command]
+async fn memory_read(scope: String, cwd: String) -> Result<claude_settings::MemoryFile, String> {
+    blocking!(claude_settings::read_memory(&scope, &cwd))
+}
+
+#[tauri::command]
+async fn memory_write(scope: String, cwd: String, content: String) -> Result<(), String> {
+    blocking!(claude_settings::write_memory(&scope, &cwd, &content))
+}
+
+#[tauri::command]
+async fn mcp_list(cwd: String) -> Result<Vec<claude_settings::McpServer>, String> {
+    blocking!(claude_settings::mcp_list(&cwd))
+}
+
+#[tauri::command]
+async fn mcp_add(
+    cwd: String,
+    name: String,
+    scope: String,
+    transport: String,
+    target: String,
+    args: Vec<String>,
+    env: Vec<String>,
+) -> Result<(), String> {
+    blocking!(claude_settings::mcp_add(&cwd, &name, &scope, &transport, &target, &args, &env))
+}
+
+#[tauri::command]
+async fn mcp_remove(cwd: String, name: String, scope: Option<String>) -> Result<(), String> {
+    blocking!(claude_settings::mcp_remove(&cwd, &name, scope.as_deref()))
+}
+
+/// Writes a session as Markdown to `out_path` (chosen by the user in a save dialog).
+#[tauri::command]
+async fn export_session(
+    session_id: Option<String>,
+    transcript_path: Option<String>,
+    out_path: String,
+    include_tools: bool,
+) -> Result<(), String> {
+    blocking!({
+        let path = transcript_path
+            .map(PathBuf::from)
+            .filter(|p| p.is_file())
+            .or_else(|| session_id.as_deref().and_then(sessions::find_transcript))
+            .ok_or("This conversation has no saved transcript yet")?;
+        let md = export::to_markdown(&path, include_tools)?;
+        std::fs::write(&out_path, md).map_err(|e| e.to_string())
+    })
+}
+
 #[tauri::command]
 fn home_dir() -> String {
     dirs::home_dir().map(|p| p.to_string_lossy().into_owned()).unwrap_or_else(|| "C:\\".into())
@@ -174,6 +260,8 @@ pub fn run() {
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_clipboard_manager::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .manage(PtyManager::default())
         .manage(SessionCache::default())
         .setup(|app| {
@@ -204,6 +292,17 @@ pub fn run() {
             git_diff,
             git_revert,
             slash_commands,
+            worktree_list,
+            worktree_merge,
+            worktree_remove,
+            claude_settings_read,
+            claude_settings_write,
+            memory_read,
+            memory_write,
+            mcp_list,
+            mcp_add,
+            mcp_remove,
+            export_session,
             home_dir,
         ])
         .build(tauri::generate_context!())

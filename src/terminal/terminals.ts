@@ -25,6 +25,12 @@ interface Entry {
 }
 
 const entries = new Map<string, Entry>();
+/** Current launch per pane; hook events from older launches (e.g. a process being stopped) are ignored. */
+const launchIds = new Map<string, string>();
+
+export function isCurrentLaunch(paneId: string, launchId?: string | null) {
+  return !launchId || launchIds.get(paneId) === launchId;
+}
 let windowsBuild = 22621;
 
 export async function initTerminals() {
@@ -255,8 +261,10 @@ async function launch(paneId: string, entry: Entry) {
     resumeSessionId = undefined;
     sessionId = crypto.randomUUID();
   }
-  store.updatePane(paneId, { resumeSessionId: undefined, sessionId: resumeSessionId ?? sessionId });
+  store.updatePane(paneId, { resumeSessionId: undefined, worktree: undefined, sessionId: resumeSessionId ?? sessionId });
 
+  const launchId = crypto.randomUUID();
+  launchIds.set(paneId, launchId);
   const channel = new Channel<ArrayBuffer | number[]>();
   channel.onmessage = (data) => entry.term.write(data instanceof ArrayBuffer ? new Uint8Array(data) : Uint8Array.from(data));
 
@@ -268,6 +276,8 @@ async function launch(paneId: string, entry: Entry) {
         kind: pane.kind,
         newSessionId: pane.kind === "claude" && !resumeSessionId ? sessionId : undefined,
         resumeSessionId,
+        worktree: resumeSessionId ? undefined : pane.worktree,
+        launchId,
         cols: entry.term.cols,
         rows: entry.term.rows,
       },
@@ -282,6 +292,7 @@ function dispose(paneId: string) {
   const entry = entries.get(paneId);
   if (!entry) return;
   entries.delete(paneId);
+  launchIds.delete(paneId);
   clearTimeout(entry.resizeTimer);
   void ipc.kill(paneId).catch(() => {});
   entry.term.dispose();

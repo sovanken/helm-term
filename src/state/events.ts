@@ -4,10 +4,12 @@ import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow, UserAttentionType } from "@tauri-apps/api/window";
 import { isPermissionGranted, requestPermission, sendNotification } from "@tauri-apps/plugin-notification";
 import { paneIds } from "../lib/layout";
+import { isCurrentLaunch } from "../terminal/terminals";
 import { cleanTitle, folderName, type Pane, useStore } from "./store";
 
 interface HookEvent {
   paneId: string;
+  launchId?: string | null;
   event: string;
   data: Record<string, unknown> | null;
 }
@@ -30,10 +32,10 @@ async function notify(pane: Pane, title: string, body: string) {
   if (!document.hasFocus()) void getCurrentWindow().requestUserAttention(UserAttentionType.Informational);
 }
 
-function onHook({ paneId, event, data }: HookEvent) {
+function onHook({ paneId, launchId, event, data }: HookEvent) {
   const { panes, updatePane } = useStore.getState();
   const pane = panes[paneId];
-  if (!pane) return;
+  if (!pane || !isCurrentLaunch(paneId, launchId)) return;
   const cwd = typeof data?.cwd === "string" ? data.cwd : undefined;
   const transcriptPath = typeof data?.transcript_path === "string" ? data.transcript_path : undefined;
   if (transcriptPath && transcriptPath !== pane.transcriptPath) updatePane(paneId, { transcriptPath });

@@ -17,6 +17,10 @@ pub struct LaunchRequest {
     pub new_session_id: Option<String>,
     /// Resumes an existing Claude session.
     pub resume_session_id: Option<String>,
+    /// Starts Claude in a new git worktree with this name (a parallel task).
+    pub worktree: Option<String>,
+    /// Identifies this launch so hook events from a previous process in the same pane are ignored.
+    pub launch_id: String,
     pub cols: u16,
     pub rows: u16,
 }
@@ -35,7 +39,10 @@ pub fn build(req: &LaunchRequest, settings_path: &str) -> Result<SpawnSpec, Stri
     if !is_safe_id(&req.pane_id) {
         return Err("Invalid pane id".into());
     }
-    for id in [&req.new_session_id, &req.resume_session_id].into_iter().flatten() {
+    if !is_safe_id(&req.launch_id) {
+        return Err("Invalid launch id".into());
+    }
+    for id in [&req.new_session_id, &req.resume_session_id, &req.worktree].into_iter().flatten() {
         if !is_safe_id(id) {
             return Err("Invalid session id".into());
         }
@@ -68,7 +75,10 @@ function global:prompt {
     if req.kind == "claude" {
         match (&req.resume_session_id, &req.new_session_id) {
             (Some(id), _) => script.push_str(&format!("claude --resume {id}\n")),
-            (None, Some(id)) => script.push_str(&format!("claude --session-id {id}\n")),
+            (None, Some(id)) => match &req.worktree {
+                Some(name) => script.push_str(&format!("claude --session-id {id} --worktree {name}\n")),
+                None => script.push_str(&format!("claude --session-id {id}\n")),
+            },
             _ => script.push_str("claude\n"),
         }
     }

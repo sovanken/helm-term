@@ -1,29 +1,49 @@
 # Helm
 
 **A terminal made for Claude Code.** Helm runs the real `claude` CLI and adds what a terminal
-built around Claude should have: project launcher, per-tab status, notifications, screenshot
-paste, clickable file paths and tabs that reopen the same conversation.
+built around Claude should have: project launcher, per-tab status, notifications, conversation
+history, a command palette, a changes panel, parallel tasks, and tabs that reopen the same conversation.
 
 Free and open source (MIT). Windows first.
 
 > Helm is an independent community project and is not affiliated with or endorsed by Anthropic.
 
+## Install
+
+Download **Helm_x.y.z_x64-setup.exe** from the [latest release](https://github.com/sovanken/helm-term/releases/latest)
+and run it. Helm keeps itself up to date after that.
+
+Windows may show a SmartScreen warning because the installer isn't code-signed yet: click
+**More info → Run anyway**. Updates themselves are cryptographically signed and verified.
+
 ## Features
 
+**Working with Claude**
 - **Project launcher** – your recent Claude Code projects are found automatically; one click starts Claude there.
 - **Status on every tab** – working, needs your approval, or finished, reported by Claude Code hooks (no screen scraping).
 - **Notifications** – a desktop alert when Claude finishes or needs approval in a tab you're not looking at.
 - **Tabs reopen the same conversation** – Claude tabs resume their session after a restart.
 - **Paste screenshots** – Ctrl+V with an image saves it and inserts the path, so Claude sees the picture.
-- **Drop files** to insert their paths.
-- **Clickable file paths** – `src/app.ts:42` in Claude's output opens that line in VS Code.
+- **Drop files** to insert their paths, and **click file paths** like `src/app.ts:42` to open that line in VS Code.
+- **Live status bar** – Claude's state, folder, git branch, lines changed, session cost, context used (click for `/context`) and model (click for `/model`).
+
+**Finding and reusing**
 - **Conversation history** – every Claude Code conversation, grouped by date, with full-text search. Click one to continue it.
 - **Command palette (Ctrl+Shift+P)** – saved prompts, Claude slash commands (built-in, your own commands and skills), actions, projects and recent conversations in one search.
 - **Saved prompts** – a library for prompts you type often; inserted into the prompt, never sent without you.
+- **Export to Markdown** – save any conversation as a readable document (History → ⋯ → Export).
+
+**Changes and parallel work**
 - **Changes panel (Ctrl+Shift+G)** – every file changed since the last commit, side-by-side diff, and undo per file.
-- **Live status bar** – Claude's state, folder, git branch, lines changed, session cost, context used (click for `/context`) and model (click for `/model`).
-- **Tabs and split panes**, find in output, dark/light themes, and text in any language plus emoji renders correctly.
-- **Shortcuts that don't fight Claude Code** – app shortcuts use Ctrl+Shift / Alt+Shift, so Ctrl+T, Ctrl+B, Ctrl+R, Ctrl+O and friends still reach Claude.
+- **Parallel tasks** – start Claude on a second task in its own git worktree and branch, so several tasks run at once without touching each other. Merge or remove each task from the sidebar.
+
+**Settings**
+- **Settings tab (Ctrl+,)** – appearance, behavior and shortcuts, plus Claude Code's own settings: permissions (allow / ask / deny), hooks, MCP servers and CLAUDE.md, for all projects, this project, or only you.
+- **Automatic updates** from GitHub Releases.
+
+**Terminal**
+- Tabs and split panes, find in output, dark/light/system themes, and text in any language plus emoji renders correctly.
+- Shortcuts that don't fight Claude Code: app shortcuts use Ctrl+Shift / Alt+Shift, so Ctrl+T, Ctrl+B, Ctrl+R, Ctrl+O, Ctrl+K and friends still reach Claude.
 
 | Shortcut | Action |
 | --- | --- |
@@ -44,14 +64,20 @@ Free and open source (MIT). Windows first.
 
 Every pane is PowerShell running in a ConPTY pseudo-terminal, rendered with xterm.js (WebGL).
 Helm wraps the `claude` command in each pane so it starts with `--settings <file>` that adds
-hooks for that pane only. Your own `~/.claude/settings.json` is never modified. The hooks
-send small JSON events to a local, key-protected HTTP endpoint on `127.0.0.1`, which drives
-the tab status and notifications.
+status hooks for that pane only. The hooks send small JSON events to a local, key-protected
+HTTP endpoint on `127.0.0.1`, which drives the tab status and notifications.
+
+History, export and the status bar read the transcripts Claude Code already keeps in
+`~/.claude/projects`. The changes panel and parallel tasks use plain git (parallel tasks are
+created with Claude Code's own `--worktree` option). Your Claude Code settings files are only
+changed when you edit them in the Settings tab; Helm then touches only the `permissions` and
+`hooks` keys and keeps a one-time `.helm-backup` copy. MCP servers are managed through `claude mcp`.
 
 ## Requirements
 
 - Windows 10 (1809+) or Windows 11
 - [Claude Code](https://claude.com/claude-code) installed and on your `PATH`
+- Git, for the changes panel and parallel tasks
 - Optional: VS Code (`code` on `PATH`) for clickable file paths
 
 ## Build from source
@@ -65,14 +91,21 @@ npm run tauri dev     # run in development
 npm run tauri build   # build the installer (src-tauri/target/release/bundle/nsis)
 ```
 
-Built with Tauri 2, React 19, TypeScript, Tailwind CSS 4 and xterm.js 6.
+Built with Tauri 2, React 19, TypeScript 7, Tailwind CSS 4 and xterm.js 6.
 
-## Roadmap
+## Releasing
 
-- Parallel tasks in git worktrees
-- Settings screen for permissions, hooks, MCP servers and CLAUDE.md
-- Export a session to Markdown
-- Automatic updates
+Bump the version in `package.json`, `src-tauri/Cargo.toml` and `src-tauri/tauri.conf.json`,
+then push a matching tag:
+
+```powershell
+git tag v0.3.0
+git push origin v0.3.0
+```
+
+The **Release** workflow builds the installer, signs the update with the
+`TAURI_SIGNING_PRIVATE_KEY` repository secret, and publishes the release with `latest.json`,
+which installed copies of Helm check for updates.
 
 ## License
 

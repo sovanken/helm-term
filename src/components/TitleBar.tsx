@@ -11,6 +11,7 @@ import {
   Rows2,
   Columns2,
   Command,
+  Download,
   FileDiff,
   Settings,
   Sparkles,
@@ -39,7 +40,7 @@ export async function chooseFolder(kind: "claude" | "shell") {
 
 function TabButton({ tab, index }: { tab: Tab; index: number }) {
   const panes = useStore((s) => s.panes);
-  const active = useStore((s) => s.activeTabId === tab.id);
+  const active = useStore((s) => s.activeTabId === tab.id && s.view === "terminal");
   const { setActiveTab, closeTab } = useStore.getState();
   const pane = panes[tab.activePaneId];
   if (!pane) return null;
@@ -85,6 +86,53 @@ function TabButton({ tab, index }: { tab: Tab; index: number }) {
         <X size={13} />
       </button>
     </div>
+  );
+}
+
+function SettingsTab() {
+  const open = useStore((s) => s.settingsOpen);
+  const active = useStore((s) => s.view === "settings");
+  if (!open) return null;
+  const { openSettings, closeSettings } = useStore.getState();
+  return (
+    <div
+      role="tab"
+      aria-selected={active}
+      onPointerDown={(e) => e.button === 0 && openSettings()}
+      onAuxClick={(e) => e.button === 1 && closeSettings()}
+      className={`group relative flex h-8 shrink-0 items-center gap-2 rounded-md px-2.5 ${active ? "bg-surface text-fg" : "text-muted hover:bg-hover hover:text-fg"}`}
+    >
+      {active && <span className="absolute inset-x-2.5 -bottom-1 h-0.5 rounded-full bg-accent" />}
+      <Settings size={14} className={active ? "text-accent" : ""} />
+      <span className="font-medium">Settings</span>
+      <button
+        aria-label="Close settings"
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={closeSettings}
+        className="flex size-5 items-center justify-center rounded text-muted hover:bg-hover hover:text-fg"
+      >
+        <X size={13} />
+      </button>
+    </div>
+  );
+}
+
+function UpdateButton() {
+  const update = useStore((s) => s.update);
+  const [busy, setBusy] = useState(false);
+  if (!update) return null;
+  return (
+    <button
+      title={update.notes || `Helm ${update.version} is available`}
+      disabled={busy}
+      onClick={() => {
+        setBusy(true);
+        void update.install().catch(() => setBusy(false));
+      }}
+      className="flex h-8 items-center gap-1.5 rounded-md bg-accent-soft px-2.5 text-[12px] font-medium text-accent hover:bg-accent hover:text-on-accent disabled:opacity-60"
+    >
+      <Download size={13} /> {busy ? "Updating…" : `Update to ${update.version}`}
+    </button>
   );
 }
 
@@ -144,6 +192,7 @@ export function TitleBar() {
         {tabs.map((t, i) => (
           <TabButton key={t.id} tab={t} index={i} />
         ))}
+        <SettingsTab />
       </nav>
 
       <div className="relative flex shrink-0 items-center">
@@ -177,11 +226,12 @@ export function TitleBar() {
         <span className="text-[12px]">Commands</span>
         <kbd className="font-sans text-[10px] text-faint">Ctrl+Shift+P</kbd>
       </button>
+      <UpdateButton />
       <ChangesToggle />
       <button
         aria-label="Settings"
         title="Settings (Ctrl+,)"
-        onClick={() => s.set({ settingsOpen: true })}
+        onClick={() => s.openSettings()}
         className="flex size-8 items-center justify-center rounded-md text-muted hover:bg-hover hover:text-fg"
       >
         <Settings size={15} />

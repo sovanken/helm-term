@@ -21,9 +21,19 @@ export interface Bezel {
 
 interface Layout {
   pad: number;
+  /** Outer corner radius of the body. */
   radius: number;
+  /** Corner radius of the screen: never larger than the strips that cover its corners, so the
+   * square page never pokes out past a rounded corner. */
+  screen: number;
   strips: { top: number; bottom: number; left: number; right: number };
   base: number;
+}
+
+function rounded(l: Omit<Layout, "screen" | "radius">, wanted: number, landscape: boolean): Layout {
+  const cover = landscape ? Math.min(l.strips.left, l.strips.right) : Math.min(l.strips.top, l.strips.bottom);
+  const screen = Math.max(0, Math.min(wanted, cover));
+  return { ...l, screen, radius: screen + l.pad };
 }
 
 function layoutFor(device: DeviceSpec, rotated: boolean, scale: number): Layout {
@@ -31,23 +41,21 @@ function layoutFor(device: DeviceSpec, rotated: boolean, scale: number): Layout 
   const px = (n: number, min: number) => Math.max(min, n * s);
   if (device.group === "Phones") {
     const ios = !!device.userAgent?.includes("iPhone");
-    const bar = px(ios ? 50 : 30, ios ? 24 : 16);
-    const home = px(ios ? 24 : 20, 12);
+    const bar = px(ios ? 50 : 32, ios ? 24 : 16);
+    const home = px(ios ? 34 : 28, 14);
     const pad = px(11, 6);
-    const radius = px(ios ? 58 : 46, 26);
+    const want = px(ios ? 47 : 36, 18);
     return rotated
-      ? { pad, radius, base: 0, strips: { top: 0, bottom: home, left: bar, right: px(ios ? 50 : 20, 14) } }
-      : { pad, radius, base: 0, strips: { top: bar, bottom: home, left: 0, right: 0 } };
+      ? rounded({ pad, base: 0, strips: { top: 0, bottom: home, left: bar, right: bar } }, want, true)
+      : rounded({ pad, base: 0, strips: { top: bar, bottom: home, left: 0, right: 0 } }, want, false);
   }
   if (device.group === "Tablets") {
     const pad = px(20, 10);
-    const bar = px(26, 14);
-    const home = px(20, 10);
-    return rotated
-      ? { pad, radius: px(36, 18), base: 0, strips: { top: bar, bottom: home, left: 0, right: 0 } }
-      : { pad, radius: px(36, 18), base: 0, strips: { top: bar, bottom: home, left: 0, right: 0 } };
+    return rounded({ pad, base: 0, strips: { top: px(26, 14), bottom: px(22, 12), left: 0, right: 0 } }, px(18, 10), false);
   }
-  return { pad: px(14, 8), radius: px(14, 8), base: rotated ? 0 : px(16, 9), strips: { top: px(4, 3), bottom: 0, left: 0, right: 0 } };
+  // Laptops and monitors: a square screen in a slightly rounded bezel.
+  const pad = px(14, 8);
+  return { pad, radius: px(14, 8), screen: 0, base: rotated ? 0 : px(16, 9), strips: { top: px(4, 3), bottom: 0, left: 0, right: 0 } };
 }
 
 /** Space the frame adds around a page at the given on-screen scale. */
@@ -97,7 +105,7 @@ export function DeviceFrame({ device, rotated, scale, children }: { device: Devi
     background: BODY,
     boxShadow: computer ? `0 0 0 1px #2c2c2e` : `0 0 0 ${Math.max(1, 1.6 * s)}px ${RIM}, 0 0 0 ${Math.max(2, 3 * s)}px #3a3a3e`,
   };
-  const screenRadius = computer ? Math.max(2, 3 * s) : Math.max(4, l.radius - l.pad);
+  const screenRadius = l.screen;
   const text = Math.max(8, 15 * s);
 
   const statusBar = (

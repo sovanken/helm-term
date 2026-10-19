@@ -181,16 +181,16 @@ function AgentsTab() {
       aria-selected={active}
       onPointerDown={(e) => e.button === 0 && openAgents()}
       onAuxClick={(e) => e.button === 1 && closeAgents()}
-      className={`group relative flex h-8 shrink-0 items-center gap-2 rounded-md px-2.5 ${active ? "border border-line bg-surface text-fg" : "border border-transparent text-muted hover:bg-hover hover:text-fg"}`}
+      className={`anim-fade group relative flex h-8 w-40 min-w-32 shrink items-center gap-2 rounded-md px-2.5 ${active ? "border border-line bg-surface text-fg" : "border border-transparent text-muted hover:bg-hover hover:text-fg"}`}
     >
       <Bot size={14} className={active ? "text-accent" : ""} />
-      <span className="font-medium">Agents</span>
+      <span className="truncate font-medium">Agents</span>
       {count > 0 && <span className="rounded-full bg-attention px-1.5 text-[10px] font-semibold text-black">{count}</span>}
       <button
         aria-label="Close agents"
         onPointerDown={(e) => e.stopPropagation()}
         onClick={closeAgents}
-        className="flex size-5 items-center justify-center rounded text-muted hover:bg-hover hover:text-fg"
+        className={`ml-auto flex size-5 shrink-0 items-center justify-center rounded text-muted hover:bg-hover hover:text-fg ${active ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
       >
         <X size={13} />
       </button>
@@ -245,15 +245,15 @@ function SettingsTab() {
       aria-selected={active}
       onPointerDown={(e) => e.button === 0 && openSettings()}
       onAuxClick={(e) => e.button === 1 && closeSettings()}
-      className={`group relative flex h-8 shrink-0 items-center gap-2 rounded-md px-2.5 ${active ? "border border-line bg-surface text-fg" : "border border-transparent text-muted hover:bg-hover hover:text-fg"}`}
+      className={`anim-fade group relative flex h-8 w-40 min-w-32 shrink items-center gap-2 rounded-md px-2.5 ${active ? "border border-line bg-surface text-fg" : "border border-transparent text-muted hover:bg-hover hover:text-fg"}`}
     >
       <Settings size={14} className={active ? "text-accent" : ""} />
-      <span className="font-medium">Settings</span>
+      <span className="truncate font-medium">Settings</span>
       <button
         aria-label="Close settings"
         onPointerDown={(e) => e.stopPropagation()}
         onClick={closeSettings}
-        className="flex size-5 items-center justify-center rounded text-muted hover:bg-hover hover:text-fg"
+        className={`ml-auto flex size-5 shrink-0 items-center justify-center rounded text-muted hover:bg-hover hover:text-fg ${active ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
       >
         <X size={13} />
       </button>

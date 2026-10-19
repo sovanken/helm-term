@@ -9,6 +9,7 @@ import { AgentsPage } from "./components/AgentsPage";
 import { PartBoundary } from "./components/ErrorBoundary";
 import { ApprovalBar } from "./components/Approvals";
 import { Inspector } from "./components/Inspector";
+import { FileView } from "./components/FileView";
 import { NewTaskDialog } from "./components/Tasks";
 import { ToastView } from "./components/Toast";
 import { CommandPalette } from "./components/CommandPalette";
@@ -70,6 +71,8 @@ function useWheelZoom() {
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
       if (!e.ctrlKey) return;
+      // Parts with their own zoom (PDF tabs) handle it themselves.
+      if ((e.target as HTMLElement | null)?.closest?.("[data-own-zoom]")) return;
       e.preventDefault();
       e.stopPropagation();
       const s = useStore.getState();
@@ -116,8 +119,9 @@ export default function App() {
   useWheelZoom();
   useFileDrop();
 
-  const showSidebar = sidebarOpen && view === "terminal";
-  const showChanges = changesOpen && view === "terminal";
+  // File tabs keep the side panels, so you can click through the files listed in Details.
+  const showSidebar = sidebarOpen && (view === "terminal" || view === "file");
+  const showChanges = changesOpen && (view === "terminal" || view === "file");
 
   return (
     <div className="flex h-full flex-col">
@@ -153,6 +157,13 @@ export default function App() {
             <div className="anim-fade absolute inset-0 z-20 bg-surface">
               <PartBoundary name="settings">
                 <SettingsPage />
+              </PartBoundary>
+            </div>
+          )}
+          {view === "file" && (
+            <div className="anim-fade absolute inset-0 z-20 bg-surface">
+              <PartBoundary name="file">
+                <FileView />
               </PartBoundary>
             </div>
           )}

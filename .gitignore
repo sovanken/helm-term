@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Copied from node_modules by scripts/copy-pdfjs.mjs
+public/pdfjs

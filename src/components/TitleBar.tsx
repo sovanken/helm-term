@@ -3,6 +3,9 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { open } from "@tauri-apps/plugin-dialog";
 import {
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsUpDown,
   Copy,
   FolderOpen,
   Minus,
@@ -20,9 +23,11 @@ import {
   Square,
   SquareTerminal,
   X,
+  FileText,
+  Image as ImageIcon,
 } from "lucide-react";
 import { paneIds } from "../lib/layout";
-import { activePane, cleanTitle, defaultFolder, folderName, type PaneStatus, type Tab, useStore } from "../state/store";
+import { activePane, cleanTitle, defaultFolder, folderName, type FileTab, type PaneStatus, type Tab, useStore } from "../state/store";
 import { Menu, type MenuItem } from "./Menu";
 import { useShells } from "../lib/shells";
 import { closeTabSafely, confirmClosePanes } from "../lib/actions";
@@ -79,7 +84,8 @@ function TabButton({ tab, index }: { tab: Tab; index: number }) {
   const { setActiveTab } = useStore.getState();
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (active) ref.current?.scrollIntoView({ block: "nearest", inline: "nearest" });
+    // After layout, so a just-opened tab that made the strip overflow is fully shown.
+    if (active) requestAnimationFrame(() => ref.current?.scrollIntoView({ block: "nearest", inline: "nearest" }));
   }, [active]);
   const pane = panes[tab.activePaneId];
   if (!pane) return null;
@@ -101,7 +107,7 @@ function TabButton({ tab, index }: { tab: Tab; index: number }) {
         startTabDrag(e, tab.id);
       }}
       onAuxClick={(e) => e.button === 1 && void closeTabSafely(tab.id)}
-      className={`anim-fade group relative flex h-8 min-w-28 max-w-60 shrink-0 items-center gap-2 rounded-md px-2.5 data-[dragging]:z-10 data-[dragging]:cursor-grabbing data-[dragging]:bg-raised ${
+      className={`anim-fade group relative flex h-8 w-60 min-w-32 shrink items-center gap-2 rounded-md px-2.5 data-[dragging]:z-10 data-[dragging]:cursor-grabbing data-[dragging]:bg-raised ${
         active ? "border border-line bg-surface text-fg" : "border border-transparent text-muted hover:bg-hover hover:text-fg"
       }`}
     >
@@ -187,6 +193,42 @@ function AgentsTab() {
   );
 }
 
+const IMAGE_EXT = /\.(png|jpe?g|gif|webp|bmp|ico|svg|avif)$/i;
+
+function FileTabButton({ file }: { file: FileTab }) {
+  const active = useStore((s) => s.view === "file" && s.activeFileId === file.id);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    // After layout, so a just-opened tab that made the strip overflow is fully shown.
+    if (active) requestAnimationFrame(() => ref.current?.scrollIntoView({ block: "nearest", inline: "nearest" }));
+  }, [active]);
+  const { showFile, closeFile } = useStore.getState();
+  const name = file.path.split(/[\\/]/).pop() ?? file.path;
+  const Icon = IMAGE_EXT.test(name) ? ImageIcon : FileText;
+  return (
+    <div
+      ref={ref}
+      role="tab"
+      aria-selected={active}
+      title={file.path}
+      onPointerDown={(e) => e.button === 0 && showFile(file.id)}
+      onAuxClick={(e) => e.button === 1 && closeFile(file.id)}
+      className={`anim-fade group relative flex h-8 w-48 min-w-32 shrink items-center gap-2 rounded-md px-2.5 ${active ? "border border-line bg-surface text-fg" : "border border-transparent text-muted hover:bg-hover hover:text-fg"}`}
+    >
+      <Icon size={14} className={active ? "text-accent" : ""} />
+      <span className="truncate font-medium">{name}</span>
+      <button
+        aria-label={`Close ${name}`}
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={() => closeFile(file.id)}
+        className={`flex size-5 shrink-0 items-center justify-center rounded text-muted hover:bg-hover hover:text-fg ${active ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+      >
+        <X size={13} />
+      </button>
+    </div>
+  );
+}
+
 function SettingsTab() {
   const open = useStore((s) => s.settingsOpen);
   const active = useStore((s) => s.view === "settings");
@@ -247,8 +289,104 @@ function ChangesToggle() {
   );
 }
 
+/** Every open tab, for the "all tabs" list when they don't fit. */
+function AllTabsMenu({ onClose }: { onClose: () => void }) {
+  const s = useStore();
+  const items: MenuItem[] = s.tabs.map((t, i) => {
+    const pane = s.panes[t.activePaneId];
+    const claude = !!pane && (pane.claudeActive || pane.kind === "claude");
+    const title = pane ? cleanTitle(pane.title) : "";
+    return {
+      label: `${pane ? folderName(pane.cwd) : "Tab"}${title ? ` · ${title}` : ""}`,
+      hint: i < 9 ? `Ctrl+${i + 1}` : undefined,
+      icon: claude ? <Sparkles size={14} /> : <SquareTerminal size={14} />,
+      current: s.view === "terminal" && s.activeTabId === t.id,
+      onSelect: () => s.setActiveTab(t.id),
+    };
+  });
+  s.fileTabs.forEach((f, i) =>
+    items.push({
+      label: f.path.split(/[\\/]/).pop() ?? f.path,
+      icon: IMAGE_EXT.test(f.path) ? <ImageIcon size={14} /> : <FileText size={14} />,
+      current: s.view === "file" && s.activeFileId === f.id,
+      onSelect: () => s.showFile(f.id),
+      separatorBefore: i === 0 && items.length > 0,
+    }),
+  );
+  if (s.agentsOpen) items.push({ label: "Agents", icon: <Bot size={14} />, current: s.view === "agents", onSelect: s.openAgents, separatorBefore: true });
+  if (s.settingsOpen) items.push({ label: "Settings", icon: <Settings size={14} />, current: s.view === "settings", onSelect: () => s.openSettings(), separatorBefore: !s.agentsOpen });
+  return <Menu items={items} onClose={onClose} align="right" />;
+}
+
+/**
+ * The tab strip. Tabs shrink first; when they still don't fit, arrows scroll the strip and a
+ * list shows every tab.
+ */
+function TabStrip({ children }: { children: React.ReactNode }) {
+  const nav = useRef<HTMLElement>(null);
+  const [edges, setEdges] = useState({ left: false, right: false });
+  const [list, setList] = useState(false);
+
+  useEffect(() => {
+    const el = nav.current;
+    if (!el) return;
+    const update = () => setEdges({ left: el.scrollLeft > 1, right: el.scrollLeft + el.clientWidth < el.scrollWidth - 1 });
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    const mo = new MutationObserver(update);
+    mo.observe(el, { childList: true, subtree: true });
+    el.addEventListener("scroll", update, { passive: true });
+    return () => {
+      ro.disconnect();
+      mo.disconnect();
+      el.removeEventListener("scroll", update);
+    };
+  }, []);
+
+  const scrollBy = (dir: -1 | 1) => nav.current?.scrollBy({ left: dir * nav.current.clientWidth * 0.7, behavior: "smooth" });
+  const overflowing = edges.left || edges.right;
+  const arrow = "flex h-8 w-6 shrink-0 items-center justify-center rounded-md text-muted hover:bg-hover hover:text-fg disabled:opacity-30 disabled:hover:bg-transparent";
+
+  return (
+    <>
+      {overflowing && (
+        <button aria-label="Scroll tabs left" title="Earlier tabs" disabled={!edges.left} onClick={() => scrollBy(-1)} className={arrow}>
+          <ChevronLeft size={15} />
+        </button>
+      )}
+      <nav
+        ref={nav}
+        role="tablist"
+        data-tauri-drag-region
+        onWheel={(e) => {
+          // Scroll the tab strip sideways with the mouse wheel when tabs overflow.
+          if (!e.ctrlKey && Math.abs(e.deltaY) > Math.abs(e.deltaX)) e.currentTarget.scrollLeft += e.deltaY;
+        }}
+        className={`no-scrollbar flex min-w-0 scroll-px-8 items-center gap-0.5 overflow-x-auto py-1 ${edges.left ? "fade-left" : ""} ${edges.right ? "fade-right" : ""}`}
+      >
+        {children}
+      </nav>
+      {overflowing && (
+        <>
+          <button aria-label="Scroll tabs right" title="Later tabs" disabled={!edges.right} onClick={() => scrollBy(1)} className={arrow}>
+            <ChevronRight size={15} />
+          </button>
+          <div className="relative flex shrink-0">
+            <button aria-label="All tabs" title="All tabs" onClick={() => setList((l) => !l)} className={`${arrow} w-7 ${list ? "bg-hover text-fg" : ""}`}>
+              <ChevronsUpDown size={14} />
+            </button>
+            {list && <AllTabsMenu onClose={() => setList(false)} />}
+          </div>
+        </>
+      )}
+    </>
+  );
+}
+
 export function TitleBar() {
   const tabs = useStore((s) => s.tabs);
+  const fileTabs = useStore((s) => s.fileTabs);
   const sidebarOpen = useStore((s) => s.sidebarOpen);
   const [maximized, setMaximized] = useState(false);
   const [menu, setMenu] = useState(false);
@@ -297,21 +435,16 @@ export function TitleBar() {
         <PanelLeft size={16} />
       </button>
 
-      <nav
-        role="tablist"
-        data-tauri-drag-region
-        onWheel={(e) => {
-          // Scroll the tab strip sideways with the mouse wheel when tabs overflow.
-          if (!e.ctrlKey && Math.abs(e.deltaY) > Math.abs(e.deltaX)) e.currentTarget.scrollLeft += e.deltaY;
-        }}
-        className="no-scrollbar flex min-w-0 items-center gap-0.5 overflow-x-auto py-1"
-      >
+      <TabStrip>
         {tabs.map((t, i) => (
           <TabButton key={t.id} tab={t} index={i} />
         ))}
+        {fileTabs.map((f) => (
+          <FileTabButton key={f.id} file={f} />
+        ))}
         <AgentsTab />
         <SettingsTab />
-      </nav>
+      </TabStrip>
 
       <div className="relative flex shrink-0 items-center">
         <button

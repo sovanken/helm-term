@@ -47,6 +47,7 @@ function run(e: KeyboardEvent): boolean {
       case "KeyW":
         if (s.view === "settings") s.closeSettings();
         else if (s.view === "agents") s.closeAgents();
+        else if (s.view === "file") { if (s.activeFileId) s.closeFile(s.activeFileId); }
         else if (pane) void closePaneSafely(pane.id);
         return true;
       case "KeyF": if (pane) s.set({ searchOpen: true }); return true;

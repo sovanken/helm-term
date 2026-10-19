@@ -1,114 +1,13 @@
 import { type ReactNode, useEffect, useMemo, useState } from "react";
-import { openPath, openUrl } from "@tauri-apps/plugin-opener";
-import { Bot, ChevronDown, ChevronRight, FileDiff, FileText, Globe, Image, Info, Layers, Paperclip, PenLine, Plug, SquareTerminal, X } from "lucide-react";
+import { openUrl } from "@tauri-apps/plugin-opener";
+import { Bot, ChevronRight, FileDiff, FileText, Globe, Image, Info, Layers, Paperclip, PenLine, Plug, X } from "lucide-react";
 
 import { ipc, type SessionDetails } from "../lib/ipc";
-import { paneIds } from "../lib/layout";
-import { activePane, type BgTask, cleanTitle, folderName, type Pane, useStore } from "../state/store";
+import { activePane, useStore } from "../state/store";
+import { AgentsTab, Empty } from "./AgentsPanel";
 import { ChangesPanel } from "./ChangesPanel";
 
 type InspectorTab = "changes" | "agents" | "details";
-
-function useTick(ms: number) {
-  const [, set] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => set((n) => n + 1), ms);
-    return () => clearInterval(t);
-  }, [ms]);
-}
-
-function elapsed(task: BgTask) {
-  const secs = Math.max(0, Math.round(((task.endedAt ?? Date.now()) - task.startedAt) / 1000));
-  return secs < 60 ? `${secs}s` : secs < 3600 ? `${Math.floor(secs / 60)}m ${secs % 60}s` : `${Math.floor(secs / 3600)}h ${Math.floor((secs % 3600) / 60)}m`;
-}
-
-function Empty({ icon, title, text }: { icon: ReactNode; title: string; text: string }) {
-  return (
-    <div className="mx-3 mt-3 flex flex-col items-center gap-2 rounded-xl border border-dashed border-line px-4 py-8 text-center">
-      <span className="text-faint">{icon}</span>
-      <div className="text-[13px] font-medium text-fg">{title}</div>
-      <p className="text-[12px] leading-relaxed text-faint">{text}</p>
-    </div>
-  );
-}
-
-// ---------- Agents ----------
-
-function TaskCard({ task }: { task: BgTask }) {
-  const [open, setOpen] = useState(false);
-  const running = task.status === "running";
-  return (
-    <div className="rounded-lg border border-line bg-raised">
-      <button onClick={() => task.summary && setOpen((o) => !o)} className="flex w-full items-start gap-2.5 p-2.5 text-left">
-        <span className={`mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md ${running ? "bg-accent-soft text-accent" : "bg-hover text-muted"}`}>
-          {task.kind === "agent" ? <Bot size={13} /> : <SquareTerminal size={13} />}
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-[13px] leading-snug text-fg">{task.label}</span>
-          <span className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[11px] text-faint">
-            {running ? <span className="status-working size-2.5 rounded-full border-[1.5px] border-working border-t-transparent" /> : <span className="size-1.5 rounded-full bg-done" />}
-            {task.kind === "agent" ? task.type ?? "Subagent" : "Background command"}
-            {task.background && <span className="rounded bg-hover px-1 text-[10px]">background</span>}
-            <span>· {running ? `running ${elapsed(task)}` : `took ${elapsed(task)}`}</span>
-            {!!task.steps && <span>· {task.steps} {task.steps === 1 ? "step" : "steps"}</span>}
-          </span>
-          {running && task.doing && <span className="mt-1 block truncate font-mono text-[11px] text-muted">{task.doing}</span>}
-        </span>
-        {task.summary && <span className="mt-1 text-faint">{open ? <ChevronDown size={13} /> : <ChevronRight size={13} />}</span>}
-      </button>
-      {open && task.summary && (
-        <div className="scroll-thin max-h-64 overflow-y-auto border-t border-line px-3 py-2 text-[12px] leading-relaxed whitespace-pre-wrap text-muted select-text">{task.summary}</div>
-      )}
-    </div>
-  );
-}
-
-function AgentsTab() {
-  useTick(1000);
-  const panes = useStore((s) => s.panes);
-  const activeTabId = useStore((s) => s.activeTabId);
-  const current = useMemo(() => activePane(), [activeTabId, panes]);
-  const withTasks = Object.values(panes).filter((p) => p.bgTasks?.length);
-  if (withTasks.length === 0) {
-    return (
-      <Empty
-        icon={<Bot size={20} />}
-        title="No background agents yet"
-        text="When Claude starts a subagent or a background command, it shows up here with what it's doing, how long it has run, and its result."
-      />
-    );
-  }
-  const ordered = [...withTasks].sort((a, b) => (a.id === current?.id ? -1 : b.id === current?.id ? 1 : 0));
-  return (
-    <div className="scroll-thin flex-1 overflow-y-auto px-2.5 pb-3">
-      {ordered.map((p: Pane) => {
-        const tasks = [...(p.bgTasks ?? [])].reverse();
-        const running = tasks.filter((t) => t.status === "running").length;
-        return (
-          <section key={p.id} className="mt-2">
-            <button
-              onClick={() => {
-                const s = useStore.getState();
-                const tab = s.tabs.find((t) => paneIds(t.root).includes(p.id));
-                if (tab) s.setActiveTab(tab.id);
-              }}
-              className="mb-1.5 flex w-full items-center gap-1.5 px-1 text-left text-[11px] font-semibold tracking-wide text-faint uppercase hover:text-muted"
-              title="Show this tab"
-            >
-              <span className="truncate">{folderName(p.cwd)}{cleanTitle(p.title) ? ` · ${cleanTitle(p.title)}` : ""}</span>
-              {running > 0 && <span className="shrink-0 rounded-full bg-accent-soft px-1.5 font-semibold normal-case text-accent">{running} running</span>}
-            </button>
-            <div className="space-y-1.5">
-              {tasks.map((t) => (
-                <TaskCard key={t.id} task={t} />
-              ))}
-            </div>
-          </section>
-        );
-      })}
-    </div>
-  );
-}
 
 // ---------- Details ----------
 
@@ -131,8 +30,8 @@ function FileRow({ path, count, cwd }: { path: string; count?: number; cwd: stri
   const short = path.toLowerCase().startsWith(cwd.toLowerCase()) ? path.slice(cwd.length).replace(/^[\\/]/, "") : path;
   return (
     <button
-      onClick={() => void ipc.openInEditor(path).then((ok) => !ok && void openPath(path))}
-      title={`${path}\nClick to open`}
+      onClick={() => useStore.getState().openFile(/^([a-z]:[\\/]|[\\/]{2})/i.test(path) ? path : `${cwd.replace(/[\\/]$/, "")}\\${path}`, cwd)}
+      title={`${path}\nOpen in a tab`}
       className="flex w-full items-center gap-2 rounded-md px-2 py-1 text-left text-[12px] hover:bg-hover"
     >
       <span className="min-w-0 flex-1 truncate font-mono text-fg">{short}</span>

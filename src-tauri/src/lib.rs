@@ -6,6 +6,7 @@ mod details;
 mod export;
 mod git;
 mod projects;
+mod preview;
 mod pty;
 mod sessions;
 mod shell;
@@ -379,6 +380,19 @@ fn read_text_file(path: String) -> Result<String, String> {
     std::fs::read_to_string(path).map_err(|e| e.to_string())
 }
 
+/// Contents of a file for a Helm file tab.
+#[tauri::command]
+async fn preview_file(path: String) -> Result<preview::FilePreview, String> {
+    tauri::async_runtime::spawn_blocking(move || preview::read(std::path::Path::new(&path))).await.map_err(|e| e.to_string())?
+}
+
+/// Bytes of a PDF, video or audio file for a file tab, sent as a binary response (no JSON).
+#[tauri::command]
+async fn file_bytes(path: String) -> Result<tauri::ipc::Response, String> {
+    let bytes = tauri::async_runtime::spawn_blocking(move || preview::bytes(std::path::Path::new(&path))).await.map_err(|e| e.to_string())??;
+    Ok(tauri::ipc::Response::new(bytes))
+}
+
 #[tauri::command]
 fn home_dir() -> String {
     dirs::home_dir().map(|p| p.to_string_lossy().into_owned()).unwrap_or_else(|| "C:\\".into())
@@ -460,6 +474,8 @@ pub fn run() {
             clear_screenshots,
             write_text_file,
             read_text_file,
+            preview_file,
+            file_bytes,
             home_dir,
         ])
         .build(tauri::generate_context!())

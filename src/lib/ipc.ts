@@ -128,6 +128,13 @@ export interface LaunchRequest {
   rows: number;
 }
 
+export type FilePreview =
+  | { kind: "text"; text: string; size: number; truncated: boolean; modified: number }
+  | { kind: "image"; dataUrl: string; size: number; modified: number }
+  | { kind: "media"; mime: string; size: number; modified: number }
+  | { kind: "tooLarge"; size: number; modified: number }
+  | { kind: "binary"; size: number; modified: number };
+
 export const ipc = {
   launch: (req: LaunchRequest, onData: Channel<ArrayBuffer>) => invoke<void>("pty_launch", { req, onData }),
   write: (paneId: string, data: string) => invoke<void>("pty_write", { paneId, data }),
@@ -165,6 +172,8 @@ export const ipc = {
   clearScreenshots: () => invoke<number>("clear_screenshots"),
   writeTextFile: (path: string, content: string) => invoke<void>("write_text_file", { path, content }),
   readTextFile: (path: string) => invoke<string>("read_text_file", { path }),
+  previewFile: (path: string) => invoke<FilePreview>("preview_file", { path }),
+  fileBytes: (path: string) => invoke<ArrayBuffer>("file_bytes", { path }),
   listShells: () => invoke<ShellInfo[]>("list_shells"),
   gitRevertHunk: (root: string, patch: string) => invoke<void>("git_revert_hunk", { root, patch }),
   sessionCwd: (sessionId: string) => invoke<string | null>("session_cwd", { sessionId }),

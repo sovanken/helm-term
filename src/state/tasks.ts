@@ -57,7 +57,9 @@ export function trackTaskEvent(paneId: string, event: string, data: Record<strin
   // A subagent's own tool calls: show what it's doing right now.
   if (eventAgentId && event === "PreToolUse" && tool) {
     const what = toolSummaryLine(tool, input);
-    setTasks(paneId, (tasks) => tasks.map((t) => (t.agentId === eventAgentId ? { ...t, doing: what, steps: (t.steps ?? 0) + 1 } : t)));
+    setTasks(paneId, (tasks) =>
+      tasks.map((t) => (t.agentId === eventAgentId ? { ...t, doing: what, steps: (t.steps ?? 0) + 1, recent: [...(t.recent ?? []), { at: now, what }].slice(-40) } : t)),
+    );
     return;
   }
   if (eventAgentId && event === "PostToolUse") return;

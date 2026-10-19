@@ -8,6 +8,8 @@ const host = process.env.TAURI_DEV_HOST;
 // https://vite.dev/config/
 export default defineConfig(() => ({
   plugins: [react(), tailwindcss()],
+  // Pre-bundle the code highlighter so the first file tab opens without a reload in dev.
+  optimizeDeps: { include: ["shiki", "marked", "dompurify"] },
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   //

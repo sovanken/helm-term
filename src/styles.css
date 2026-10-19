@@ -343,3 +343,176 @@ nav[role="tablist"] > [role="tab"]:hover + [role="tab"]::before {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* ---------- file tabs (code viewer) ---------- */
+.code-view .shiki {
+  margin: 0;
+  padding: 10px 0 24px;
+  background: transparent !important;
+  font-family: "JetBrains Mono Variable", "Cascadia Mono", Consolas, monospace;
+  color: var(--text);
+  font-size: 12.5px;
+  line-height: 1.6;
+  counter-reset: line;
+  tab-size: 4;
+}
+.code-view .shiki code {
+  display: block;
+  min-width: max-content;
+}
+.code-view.wrap .shiki code {
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.code-view .line {
+  display: block;
+  padding-right: 24px;
+}
+.code-view .line:hover {
+  background: var(--hover);
+}
+.code-view .line::before {
+  counter-increment: line;
+  content: counter(line);
+  display: inline-block;
+  width: 3.5em;
+  margin-right: 1.25em;
+  padding-right: 0.25em;
+  text-align: right;
+  color: var(--faint);
+  opacity: 0.7;
+  user-select: none;
+}
+.code-view.wrap .line {
+  padding-left: 4.75em;
+  text-indent: -4.75em;
+}
+.code-view .shiki span {
+  color: var(--shiki-light);
+}
+[data-theme="dark"] .code-view .shiki span {
+  color: var(--shiki-dark);
+}
+.code-view .shiki .line::before {
+  color: var(--faint);
+}
+.checker {
+  background-color: var(--surface);
+  background-image: conic-gradient(var(--hover) 25%, transparent 0 50%, var(--hover) 0 75%, transparent 0);
+  background-size: 16px 16px;
+}
+
+/* Markdown preview in file tabs. */
+.markdown {
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.7;
+}
+.markdown > :first-child {
+  margin-top: 0;
+}
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4 {
+  margin: 1.6em 0 0.6em;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.markdown h1 {
+  font-size: 1.75em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid var(--border);
+}
+.markdown h2 {
+  font-size: 1.35em;
+  padding-bottom: 0.25em;
+  border-bottom: 1px solid var(--border);
+}
+.markdown h3 {
+  font-size: 1.12em;
+}
+.markdown p,
+.markdown ul,
+.markdown ol,
+.markdown pre,
+.markdown table,
+.markdown blockquote {
+  margin: 0 0 1em;
+}
+.markdown ul,
+.markdown ol {
+  padding-left: 1.6em;
+}
+.markdown ul {
+  list-style: disc;
+}
+.markdown ol {
+  list-style: decimal;
+}
+.markdown li + li {
+  margin-top: 0.25em;
+}
+.markdown a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.markdown code {
+  font-family: "JetBrains Mono Variable", Consolas, monospace;
+  font-size: 0.86em;
+  padding: 0.15em 0.4em;
+  border-radius: 5px;
+  background: var(--hover);
+}
+.markdown pre {
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--raised);
+  overflow-x: auto;
+}
+.markdown pre code {
+  padding: 0;
+  background: none;
+  font-size: 12.5px;
+}
+.markdown blockquote {
+  padding: 0 1em;
+  color: var(--muted);
+  border-left: 3px solid var(--border);
+}
+.markdown table {
+  border-collapse: collapse;
+  display: block;
+  overflow-x: auto;
+}
+.markdown th,
+.markdown td {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+}
+.markdown th {
+  font-weight: 600;
+  background: var(--raised);
+}
+.markdown img {
+  max-width: 100%;
+}
+.markdown hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 1.5em 0;
+}
+
+/* Soft edges on the tab strip when more tabs are hidden on that side. */
+.fade-left {
+  mask-image: linear-gradient(to right, transparent 0, #000 24px);
+}
+.fade-right {
+  mask-image: linear-gradient(to left, transparent 0, #000 24px);
+}
+.fade-left.fade-right {
+  mask-image: linear-gradient(to right, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
+}

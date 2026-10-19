@@ -46,6 +46,13 @@ export interface Pane {
   lastActivity?: number;
 }
 
+export interface FileTab {
+  id: string;
+  path: string;
+  /** Project folder it was opened from, to show a shorter path. */
+  cwd?: string;
+}
+
 export interface BgTask {
   id: string;
   kind: "agent" | "command";
@@ -63,6 +70,8 @@ export interface BgTask {
   doing?: string;
   /** Tool calls the subagent has made. */
   steps?: number;
+  /** Its most recent tool calls, oldest first (capped). */
+  recent?: { at: number; what: string }[];
   /** Runs in the background (Claude keeps working meanwhile). */
   background?: boolean;
   /** Created from SubagentStart before Claude's own description arrived. */
@@ -307,8 +316,11 @@ interface State {
   settingsOpen: boolean;
   /** The Agents tab exists in the tab bar. */
   agentsOpen: boolean;
-  /** What the main area shows: the active terminal tab, the Settings tab or the Agents tab. */
-  view: "terminal" | "settings" | "agents";
+  /** Files opened from the right panel, shown as tabs inside Helm. */
+  fileTabs: FileTab[];
+  activeFileId: string | null;
+  /** What the main area shows: the active terminal tab, Settings, Agents or a file tab. */
+  view: "terminal" | "settings" | "agents" | "file";
   settingsSection: SettingsSection;
   newTaskOpen: boolean;
   toast: Toast | null;
@@ -327,6 +339,10 @@ interface State {
   moveTab: (from: number, to: number) => void;
   openAgents: () => void;
   closeAgents: () => void;
+  /** Opens a file in a Helm tab (or switches to it if it's already open). */
+  openFile: (path: string, cwd?: string) => void;
+  showFile: (id: string) => void;
+  closeFile: (id: string) => void;
   /** Focuses the pane already running this session, or opens a tab that resumes it. */
   resumeSession: (session: { id: string; cwd: string }) => void;
   closeTab: (tabId: string) => void;
@@ -378,6 +394,8 @@ export const useStore = create<State>((set, get) => ({
   composerOpen: false,
   usageLog: [],
   agentsOpen: false,
+  fileTabs: [],
+  activeFileId: null,
   view: "terminal",
   settingsSection: "general",
   newTaskOpen: false,
@@ -418,6 +436,25 @@ export const useStore = create<State>((set, get) => ({
   openAgents: () => set({ agentsOpen: true, view: "agents" }),
 
   closeAgents: () => set((s) => ({ agentsOpen: false, view: s.view === "agents" ? "terminal" : s.view })),
+
+  openFile: (path, cwd) => {
+    const existing = get().fileTabs.find((f) => f.path.toLowerCase() === path.toLowerCase());
+    if (existing) return set({ activeFileId: existing.id, view: "file" });
+    const tab: FileTab = { id: crypto.randomUUID(), path, cwd };
+    set((s) => ({ fileTabs: [...s.fileTabs, tab].slice(-20), activeFileId: tab.id, view: "file" }));
+  },
+
+  showFile: (id) => set({ activeFileId: id, view: "file" }),
+
+  closeFile: (id) =>
+    set((s) => {
+      const i = s.fileTabs.findIndex((f) => f.id === id);
+      const fileTabs = s.fileTabs.filter((f) => f.id !== id);
+      if (s.activeFileId !== id) return { fileTabs };
+      const next = fileTabs[Math.min(i, fileTabs.length - 1)];
+      // Closing the file you're looking at shows the neighbouring file, or goes back to the terminal.
+      return next ? { fileTabs, activeFileId: next.id } : { fileTabs, activeFileId: null, view: s.view === "file" ? "terminal" : s.view };
+    }),
 
   resumeSession: ({ id, cwd }) => {
     const s = get();

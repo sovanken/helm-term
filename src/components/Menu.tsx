@@ -9,6 +9,8 @@ export interface MenuItem {
   separatorBefore?: boolean;
   /** Shows a check mark column; used for on/off options. */
   checked?: boolean;
+  /** Marks the item that is showing now (e.g. the current tab in a tab list). */
+  current?: boolean;
   /** Keep the menu open after selecting (for toggling several options). */
   keepOpen?: boolean;
   /** Small non-clickable heading shown above this item. */
@@ -72,8 +74,8 @@ export function Menu({
           style={style}
           className="anim-pop fixed z-50 min-w-60 rounded-lg border border-line bg-raised p-1 shadow-lg shadow-black/20"
         >
-          {items.map((item) => (
-            <div key={item.label}>
+          {items.map((item, i) => (
+            <div key={`${i}-${item.label}`}>
               {item.separatorBefore && <div className="my-1 h-px bg-line" />}
               {item.heading && <div className="px-2.5 pt-1.5 pb-1 text-[11px] font-semibold tracking-wide text-faint uppercase">{item.heading}</div>}
               <button
@@ -83,7 +85,8 @@ export function Menu({
                   if (!item.keepOpen) onClose();
                   item.onSelect();
                 }}
-                className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-fg hover:bg-hover"
+                aria-current={item.current || undefined}
+                className={`flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-fg hover:bg-hover ${item.current ? "bg-hover font-medium" : ""}`}
               >
                 {item.checked !== undefined && (
                   <span className={`flex size-4 items-center justify-center rounded border ${item.checked ? "border-accent bg-accent text-on-accent" : "border-line"}`}>
@@ -94,7 +97,7 @@ export function Menu({
                     )}
                   </span>
                 )}
-                {(item.icon || item.checked === undefined) && <span className="flex size-4 items-center justify-center text-muted">{item.icon}</span>}
+                {(item.icon || item.checked === undefined) && <span className={`flex size-4 items-center justify-center ${item.current ? "text-accent" : "text-muted"}`}>{item.icon}</span>}
                 <span className="flex-1">{item.label}</span>
                 {item.hint && <span className="text-[11px] text-faint">{item.hint}</span>}
               </button>

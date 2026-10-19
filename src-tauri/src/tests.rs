@@ -2,7 +2,7 @@
 
 use serde_json::json;
 
-use crate::{bridge, export, sessions, shell, worktrees};
+use crate::{bridge, export, preview, sessions, shell, worktrees};
 
 fn launch(extra: serde_json::Value) -> shell::LaunchRequest {
     let mut base = json!({
@@ -120,4 +120,29 @@ fn export_turns_a_transcript_into_markdown() {
     assert!(md.contains("### You\n\nAdd a test"));
     assert!(md.contains("- Bash: `npm test`"));
     assert!(md.contains("Done, all tests pass."));
+}
+
+#[test]
+fn file_tabs_pick_the_right_viewer() {
+    let dir = std::env::temp_dir().join(format!("helm-test-preview-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let write = |name: &str, bytes: &[u8]| {
+        let p = dir.join(name);
+        std::fs::write(&p, bytes).unwrap();
+        p
+    };
+    let kind = |p: &std::path::Path| serde_json::to_value(preview::read(p).unwrap()).unwrap()["kind"].as_str().unwrap().to_string();
+
+    assert_eq!(kind(&write("a.rs", b"fn main() {}\n")), "text");
+    assert_eq!(kind(&write("khmer.txt", "សួស្តី 👋".as_bytes())), "text");
+    assert_eq!(kind(&write("logo.svg", b"<svg/>")), "image");
+    assert_eq!(kind(&write("doc.PDF", b"%PDF-1.4")), "media");
+    assert_eq!(kind(&write("clip.mp4", b"....")), "media");
+    assert_eq!(kind(&write("blob.bin", &[1, 2, 0, 3])), "binary");
+    assert!(preview::read(&dir.join("missing.txt")).is_err());
+    assert!(preview::read(&dir).is_err()); // a folder
+    // Raw bytes are only handed out for PDF, video and audio.
+    assert!(preview::bytes(&dir.join("doc.PDF")).is_ok());
+    assert!(preview::bytes(&dir.join("a.rs")).is_err());
+    std::fs::remove_dir_all(&dir).ok();
 }

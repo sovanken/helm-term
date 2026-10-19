@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
-import { Copy, FileDown, MoreHorizontal, Play, SquareTerminal } from "lucide-react";
+import { Copy, FileDown, Gauge, MoreHorizontal, Play, SquareTerminal } from "lucide-react";
 import { ipc, type SearchHit, type SessionInfo } from "../lib/ipc";
 import { fuzzyScore, timeAgo } from "../lib/fuzzy";
 import { folderName, useStore } from "../state/store";
@@ -66,6 +66,7 @@ Click to continue this conversation`}
             onClose={() => setMenu(false)}
             items={[
               { label: "Continue conversation", icon: <Play size={14} />, onSelect: () => resumeSession(session) },
+              { label: "Usage & context details", icon: <Gauge size={14} />, onSelect: () => useStore.getState().set({ historyDetail: session }) },
               { label: "Open PowerShell in its folder", icon: <SquareTerminal size={14} />, onSelect: () => openTab(session.cwd, "shell") },
               { label: "Export to Markdown…", icon: <FileDown size={14} />, onSelect: () => void exportConversation(session), separatorBefore: true },
               { label: "Copy session ID", icon: <Copy size={14} />, onSelect: () => void writeText(session.id) },

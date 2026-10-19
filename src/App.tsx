@@ -10,6 +10,7 @@ import { PartBoundary } from "./components/ErrorBoundary";
 import { ApprovalBar } from "./components/Approvals";
 import { Inspector } from "./components/Inspector";
 import { FileView } from "./components/FileView";
+import { SessionDetail } from "./components/SessionDetail";
 import { NewTaskDialog } from "./components/Tasks";
 import { ToastView } from "./components/Toast";
 import { CommandPalette } from "./components/CommandPalette";
@@ -112,6 +113,7 @@ export default function App() {
   const changesOpen = useStore((s) => s.changesOpen);
   const newTaskOpen = useStore((s) => s.newTaskOpen);
   const composerOpen = useStore((s) => s.composerOpen);
+  const historyDetail = useStore((s) => s.historyDetail);
   const sidebarWidth = useStore((s) => s.settings.sidebarWidth);
   const changesWidth = useStore((s) => s.settings.changesWidth);
   const { updateSettings } = useStore.getState();
@@ -173,6 +175,11 @@ export default function App() {
                 <AgentsPage />
               </PartBoundary>
             </div>
+          )}
+          {historyDetail && (
+            <PartBoundary name="session details">
+              <SessionDetail session={historyDetail} onClose={() => useStore.getState().set({ historyDetail: null })} />
+            </PartBoundary>
           )}
           <PartBoundary name="approval cards">
             <ApprovalBar />

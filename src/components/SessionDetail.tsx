@@ -2,9 +2,9 @@
 // window, how it grew, tokens and cache use, activity and the tools Claude used.
 
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowUpRight, FileDown, Layers, RefreshCw, Shrink, X } from "lucide-react";
+import { ArrowUpRight, FileDown, Layers, Play, RefreshCw, Shrink, X } from "lucide-react";
 
-import { ipc, type SessionReport } from "../lib/ipc";
+import { ipc, type SessionInfo, type SessionReport } from "../lib/ipc";
 import { paneIds } from "../lib/layout";
 import { clock, duration, money, tokens, windowFor } from "../lib/format";
 import { cleanTitle, folderName, type Pane, showToast, useStore } from "../state/store";
@@ -167,8 +167,24 @@ export function GrowthChart({ series, height = 110 }: { series: SessionReport["s
   );
 }
 
-export function SessionDetail({ paneId, onClose }: { paneId: string; onClose: () => void }) {
-  const pane = useStore((s) => s.panes[paneId]);
+/**
+ * Details for a session open in a tab (`paneId`), or for any past conversation from History
+ * (`session`); a past one that's open in a tab uses that tab's live numbers.
+ */
+export function SessionDetail({ paneId, session, onClose }: { paneId?: string; session?: SessionInfo; onClose: () => void }) {
+  const livePane = useStore((s) =>
+    paneId
+      ? s.panes[paneId]
+      : session
+        ? Object.values(s.panes).find((p) => p.kind !== "browser" && (p.sessionId === session.id || p.resumeSessionId === session.id))
+        : undefined,
+  );
+  const pastPane = useMemo<Pane | undefined>(
+    () => (session ? { id: "", kind: "claude", cwd: session.cwd, title: session.title, sessionId: session.id, claudeActive: false, status: "idle" } : undefined),
+    [session],
+  );
+  const pane = livePane ?? pastPane;
+  const open = !!livePane;
   const activity = useStore((s) => s.activity);
   const [report, setReport] = useState<SessionReport | null>(null);
   const [loading, setLoading] = useState(true);
@@ -185,7 +201,7 @@ export function SessionDetail({ paneId, onClose }: { paneId: string; onClose: ()
     const t = setTimeout(load, 250);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paneId, activity]);
+  }, [paneId, session?.id, activity]);
   // After asking for exact numbers, look for the new /context output for a few seconds.
   useEffect(() => {
     if (!askedExact) return;
@@ -238,9 +254,24 @@ export function SessionDetail({ paneId, onClose }: { paneId: string; onClose: ()
           >
             <FileDown size={12} /> PDF
           </button>
-          <button onClick={() => openPane(pane.id)} title="Go to this tab" className="flex h-7 items-center gap-1 rounded-md border border-line px-2 text-[12px] text-fg hover:bg-hover">
-            Open tab <ArrowUpRight size={12} />
-          </button>
+          {open ? (
+            <button onClick={() => openPane(pane.id)} title="Go to this tab" className="flex h-7 items-center gap-1 rounded-md border border-line px-2 text-[12px] text-fg hover:bg-hover">
+              Open tab <ArrowUpRight size={12} />
+            </button>
+          ) : (
+            session && (
+              <button
+                onClick={() => {
+                  useStore.getState().resumeSession(session);
+                  onClose();
+                }}
+                title="Continue this conversation in a tab"
+                className="flex h-7 items-center gap-1 rounded-md border border-line px-2 text-[12px] text-fg hover:bg-hover"
+              >
+                <Play size={11} /> Continue
+              </button>
+            )
+          )}
           <button aria-label="Close" onClick={onClose} className="flex size-7 items-center justify-center rounded-md text-faint hover:bg-hover hover:text-fg">
             <X size={14} />
           </button>
@@ -250,7 +281,7 @@ export function SessionDetail({ paneId, onClose }: { paneId: string; onClose: ()
           <Section
             title="Context window"
             aside={
-              <span className="flex gap-1">
+              open && <span className="flex gap-1">
                 <button
                   onClick={() => runInTab("/context", "again")}
                   disabled={busy}
@@ -292,7 +323,13 @@ export function SessionDetail({ paneId, onClose }: { paneId: string; onClose: ()
                     ))}
                   </div>
                 )}
-                {!b.exact && <p className="mt-2.5 text-[11.5px] leading-relaxed text-faint">Estimated from the conversation. "Get exact numbers" runs Claude's free /context command in this tab.</p>}
+                {!b.exact && (
+                  <p className="mt-2.5 text-[11.5px] leading-relaxed text-faint">
+                    {open
+                      ? `Estimated from the conversation. "Get exact numbers" runs Claude's free /context command in this tab.`
+                      : "Estimated from the conversation. Continue it in a tab to get Claude's exact /context numbers."}
+                  </p>
+                )}
               </>
             )}
           </Section>

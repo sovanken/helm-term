@@ -357,6 +357,8 @@ interface State {
   settingsOpen: boolean;
   /** The Agents tab exists in the tab bar. */
   agentsOpen: boolean;
+  /** A past conversation whose usage and context details are showing (from History). */
+  historyDetail: SessionInfo | null;
   /** Local dev servers seen in terminal output (newest first). */
   devServers: string[];
   /** Files opened from the right panel, shown as tabs inside Helm. */
@@ -443,6 +445,7 @@ export const useStore = create<State>((set, get) => ({
   fileTabs: [],
   activeFileId: null,
   devServers: [],
+  historyDetail: null,
   view: "terminal",
   settingsSection: "general",
   newTaskOpen: false,

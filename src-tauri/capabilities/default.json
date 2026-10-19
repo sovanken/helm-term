@@ -22,6 +22,7 @@
     "notification:default",
     "store:default",
     "dialog:allow-open",
+    "dialog:allow-ask",
     "clipboard-manager:allow-read-text",
     "clipboard-manager:allow-write-text",
     "window-state:default"

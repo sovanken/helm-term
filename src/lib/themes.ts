@@ -64,6 +64,19 @@ export function resolveTheme(mode: ThemeMode): "dark" | "light" {
   return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
 }
 
-/** Cascadia ships with Windows 11; Khmer UI / Leelawadee UI cover Khmer script. */
-export const DEFAULT_FONT =
-  '"Cascadia Mono", "Cascadia Code", Consolas, "Khmer UI", "Leelawadee UI", "Segoe UI Emoji", monospace';
+/**
+ * Fonts that ship with Windows, so text in any language renders without installing anything:
+ * CJK, Korean, Indic, Southeast Asian, African, Mongolian, Tibetan, Armenian/Georgian,
+ * historic scripts, symbols and emoji (Latin, Cyrillic, Greek, Arabic and Hebrew via Segoe UI).
+ */
+export const SCRIPT_FALLBACK =
+  '"Segoe UI", "Microsoft YaHei UI", "Microsoft JhengHei UI", "Yu Gothic UI", "Malgun Gothic", "Nirmala UI", "Leelawadee UI", "Khmer UI", "Myanmar Text", "Ebrima", "Gadugi", "Javanese Text", "Mongolian Baiti", "Microsoft Himalaya", "Sylfaen", "Segoe UI Historic", "Segoe UI Symbol", "Segoe UI Emoji"';
+
+/** Cascadia ships with Windows 11; Consolas covers older systems. */
+export const DEFAULT_FONT = "Cascadia Mono";
+
+/** The user's chosen font first, then Windows monospace fonts, then every-script fallbacks. */
+export function fontStack(primary: string): string {
+  const name = primary.trim().replace(/"/g, "");
+  return `${name ? `"${name}", ` : ""}"Cascadia Mono", "Cascadia Code", Consolas, ${SCRIPT_FALLBACK}, monospace`;
+}

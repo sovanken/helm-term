@@ -18,6 +18,9 @@ export const SHORTCUTS: Shortcut[] = [
   { keys: "Alt+Arrow", label: "Move between panes" },
   { keys: "Ctrl+Tab", label: "Next tab" },
   { keys: "Ctrl+1…9", label: "Go to tab" },
+  { keys: "Ctrl+Shift+P", label: "Command palette: prompts, Claude commands, actions" },
+  { keys: "Ctrl+Shift+H", label: "Conversation history" },
+  { keys: "Ctrl+Shift+G", label: "Show changes (git)" },
   { keys: "Ctrl+Shift+F", label: "Find in output" },
   { keys: "Ctrl+Shift+B", label: "Show or hide projects" },
   { keys: "Ctrl+Shift+K", label: "Clear scrollback" },
@@ -40,6 +43,11 @@ function run(e: KeyboardEvent): boolean {
       case "KeyW": if (pane) s.closePane(pane.id); return true;
       case "KeyF": if (pane) s.set({ searchOpen: true }); return true;
       case "KeyB": s.set({ sidebarOpen: !s.sidebarOpen }); return true;
+      case "KeyP": s.set({ paletteOpen: !s.paletteOpen }); return true;
+      case "KeyG": s.set({ changesOpen: !s.changesOpen }); return true;
+      case "KeyH":
+        s.set(s.sidebarOpen && s.sidebarView === "history" ? { sidebarOpen: false } : { sidebarOpen: true, sidebarView: "history" });
+        return true;
       case "KeyK": if (pane) clearTerminal(pane.id); return true;
       case "Tab": s.cycleTab(-1); return true;
     }
@@ -79,7 +87,8 @@ export function installShortcuts() {
         e.preventDefault();
         e.stopPropagation();
         const pane = activePane();
-        if (pane && !useStore.getState().searchOpen && !useStore.getState().settingsOpen) {
+        const st = useStore.getState();
+        if (pane && !st.searchOpen && !st.settingsOpen && !st.paletteOpen && !st.promptsOpen) {
           requestAnimationFrame(() => focusTerminal(pane.id));
         }
       }

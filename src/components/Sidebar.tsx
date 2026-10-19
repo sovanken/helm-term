@@ -2,6 +2,8 @@ import { useState } from "react";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { Code2, FolderOpen, FolderSearch, MoreHorizontal, Pin, PinOff, RefreshCw, Sparkles, SquareTerminal } from "lucide-react";
 import { ipc } from "../lib/ipc";
+import { timeAgo } from "../lib/fuzzy";
+import { HistoryList } from "./HistoryList";
 import { folderName, useStore } from "../state/store";
 import { Menu } from "./Menu";
 import { chooseFolder } from "./TitleBar";
@@ -9,16 +11,6 @@ import { chooseFolder } from "./TitleBar";
 export async function refreshRecent() {
   const recent = await ipc.recentProjects().catch(() => []);
   useStore.getState().set({ recent });
-}
-
-function timeAgo(ms: number) {
-  const mins = Math.round((Date.now() - ms) / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.round(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.round(hours / 24);
-  return days < 30 ? `${days}d ago` : new Date(ms).toLocaleDateString();
 }
 
 function parentPath(path: string) {
@@ -86,12 +78,7 @@ function ProjectRow({ path, lastUsed, pinned }: { path: string; lastUsed?: numbe
 }
 
 export function Sidebar() {
-  const pinned = useStore((s) => s.pinned);
-  const recent = useStore((s) => s.recent);
-  const [spinning, setSpinning] = useState(false);
-  const isPinned = (p: string) => pinned.some((x) => x.toLowerCase() === p.toLowerCase());
-  const others = recent.filter((r) => !isPinned(r.path));
-
+  const view = useStore((s) => s.sidebarView);
   return (
     <aside className="flex w-64 shrink-0 flex-col bg-bg">
       <div className="px-2 pb-2">
@@ -102,7 +89,34 @@ export function Sidebar() {
           <FolderOpen size={15} /> Open folder with Claude
         </button>
       </div>
+      <div role="tablist" className="mx-2 mb-2 grid grid-cols-2 rounded-md border border-line p-0.5">
+        {(["projects", "history"] as const).map((v) => (
+          <button
+            key={v}
+            role="tab"
+            aria-selected={view === v}
+            title={v === "history" ? "Conversation history (Ctrl+Shift+H)" : "Projects"}
+            onClick={() => useStore.getState().set({ sidebarView: v })}
+            className={`rounded px-2 py-1 text-[12px] font-medium capitalize ${view === v ? "bg-hover text-fg" : "text-muted hover:text-fg"}`}
+          >
+            {v}
+          </button>
+        ))}
+      </div>
+      {view === "projects" ? <ProjectList /> : <HistoryList />}
+    </aside>
+  );
+}
 
+function ProjectList() {
+  const pinned = useStore((s) => s.pinned);
+  const recent = useStore((s) => s.recent);
+  const [spinning, setSpinning] = useState(false);
+  const isPinned = (p: string) => pinned.some((x) => x.toLowerCase() === p.toLowerCase());
+  const others = recent.filter((r) => !isPinned(r.path));
+
+  return (
+    <>
       <div className="scroll-thin flex-1 overflow-y-auto px-2 pb-3">
         {pinned.length > 0 && (
           <section className="mb-3">
@@ -137,6 +151,6 @@ export function Sidebar() {
           )}
         </section>
       </div>
-    </aside>
+    </>
   );
 }

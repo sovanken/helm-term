@@ -2,7 +2,15 @@
 
 import { load, type Store } from "@tauri-apps/plugin-store";
 import type { LayoutNode } from "../lib/layout";
-import { DEFAULT_SETTINGS, type Pane, type PaneKind, type Settings, useStore } from "./store";
+import { DEFAULT_SETTINGS, type Pane, type PaneKind, type SavedPrompt, type Settings, useStore } from "./store";
+
+/** A few useful prompts so the library isn't empty on first run; users can edit or delete them. */
+const STARTER_PROMPTS: SavedPrompt[] = [
+  { id: "starter-review", title: "Review my changes", text: "Review the uncommitted changes in this repo for bugs, edge cases and anything I missed. List issues by severity." },
+  { id: "starter-explain", title: "Explain this project", text: "Give me a short tour of this codebase: what it does, how it is structured, and where the main entry points are." },
+  { id: "starter-tests", title: "Write tests", text: "Write tests for the code we just changed. Follow the existing test style and run them." },
+  { id: "starter-commit", title: "Commit message", text: "Write a clear commit message for the current changes and commit them." },
+];
 
 interface SavedPane {
   kind: PaneKind;
@@ -21,9 +29,13 @@ let store: Store | null = null;
 export async function restore() {
   store = await load("helm.json", { autoSave: 400, defaults: {} });
   const settings = { ...DEFAULT_SETTINGS, ...((await store.get<Partial<Settings>>("settings")) ?? {}) };
+  // Early versions saved the whole font stack; keep only the chosen font's name.
+  settings.fontFamily = settings.fontFamily.split(",")[0].replace(/"/g, "").trim() || DEFAULT_SETTINGS.fontFamily;
   const pinned = (await store.get<string[]>("pinned")) ?? [];
   const sidebarOpen = (await store.get<boolean>("sidebarOpen")) ?? true;
-  useStore.getState().set({ settings, pinned, sidebarOpen });
+  const sidebarView = (await store.get<"projects" | "history">("sidebarView")) ?? "projects";
+  const prompts = (await store.get<SavedPrompt[]>("prompts")) ?? STARTER_PROMPTS;
+  useStore.getState().set({ settings, pinned, sidebarOpen, sidebarView, prompts });
 
   const session = settings.restoreTabs ? await store.get<SavedSession>("session") : undefined;
   if (session?.tabs?.length) {
@@ -49,6 +61,8 @@ export async function restore() {
     if (s.settings !== prev.settings) void store.set("settings", s.settings);
     if (s.pinned !== prev.pinned) void store.set("pinned", s.pinned);
     if (s.sidebarOpen !== prev.sidebarOpen) void store.set("sidebarOpen", s.sidebarOpen);
+    if (s.sidebarView !== prev.sidebarView) void store.set("sidebarView", s.sidebarView);
+    if (s.prompts !== prev.prompts) void store.set("prompts", s.prompts);
     if (s.tabs !== prev.tabs || s.panes !== prev.panes || s.activeTabId !== prev.activeTabId) {
       void store.set("session", snapshot());
     }

@@ -35,6 +35,11 @@ function onHook({ paneId, event, data }: HookEvent) {
   const pane = panes[paneId];
   if (!pane) return;
   const cwd = typeof data?.cwd === "string" ? data.cwd : undefined;
+  const transcriptPath = typeof data?.transcript_path === "string" ? data.transcript_path : undefined;
+  if (transcriptPath && transcriptPath !== pane.transcriptPath) updatePane(paneId, { transcriptPath });
+  if (event === "PostToolUse" || event === "Stop" || event === "SessionStart" || event === "UserPromptSubmit") {
+    useStore.setState((s) => ({ activity: s.activity + 1 }));
+  }
   const where = folderName(cwd ?? pane.cwd);
 
   switch (event) {

@@ -58,7 +58,7 @@
   --color-attention: var(--attention);
   --color-done: var(--done);
   --color-danger: var(--danger);
-  --font-sans: "Segoe UI Variable Text", "Segoe UI", "Khmer UI", system-ui, sans-serif;
+  --font-sans: "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI", "Microsoft JhengHei UI", "Yu Gothic UI", "Malgun Gothic", "Nirmala UI", "Leelawadee UI", "Khmer UI", "Myanmar Text", "Ebrima", "Gadugi", "Javanese Text", "Mongolian Baiti", "Microsoft Himalaya", "Sylfaen", "Segoe UI Historic", "Segoe UI Symbol", "Segoe UI Emoji", system-ui, sans-serif;
 }
 
 html,

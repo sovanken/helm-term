@@ -17,7 +17,12 @@ Free and open source (MIT). Windows first.
 - **Paste screenshots** – Ctrl+V with an image saves it and inserts the path, so Claude sees the picture.
 - **Drop files** to insert their paths.
 - **Clickable file paths** – `src/app.ts:42` in Claude's output opens that line in VS Code.
-- **Tabs and split panes**, find in output, dark/light themes, Khmer and emoji rendering.
+- **Conversation history** – every Claude Code conversation, grouped by date, with full-text search. Click one to continue it.
+- **Command palette (Ctrl+Shift+P)** – saved prompts, Claude slash commands (built-in, your own commands and skills), actions, projects and recent conversations in one search.
+- **Saved prompts** – a library for prompts you type often; inserted into the prompt, never sent without you.
+- **Changes panel (Ctrl+Shift+G)** – every file changed since the last commit, side-by-side diff, and undo per file.
+- **Live status bar** – Claude's state, folder, git branch, lines changed, session cost, context used (click for `/context`) and model (click for `/model`).
+- **Tabs and split panes**, find in output, dark/light themes, and text in any language plus emoji renders correctly.
 - **Shortcuts that don't fight Claude Code** – app shortcuts use Ctrl+Shift / Alt+Shift, so Ctrl+T, Ctrl+B, Ctrl+R, Ctrl+O and friends still reach Claude.
 
 | Shortcut | Action |
@@ -27,6 +32,9 @@ Free and open source (MIT). Windows first.
 | Alt+Shift+= / Alt+Shift+- | Split right / down |
 | Alt+Arrow | Move between panes |
 | Ctrl+Tab, Ctrl+1…9 | Switch tabs |
+| Ctrl+Shift+P | Command palette |
+| Ctrl+Shift+H | Conversation history |
+| Ctrl+Shift+G | Changes panel |
 | Ctrl+Shift+F | Find in output |
 | Ctrl+C / Ctrl+V | Copy selection / paste text or screenshot |
 | Shift+Enter | New line in Claude's prompt |
@@ -61,10 +69,6 @@ Built with Tauri 2, React 19, TypeScript, Tailwind CSS 4 and xterm.js 6.
 
 ## Roadmap
 
-- Session history sidebar with search and resume
-- Command palette and saved prompts
-- Changes panel: see and undo what Claude changed (git)
-- Live status bar: model, context, cost, branch
 - Parallel tasks in git worktrees
 - Settings screen for permissions, hooks, MCP servers and CLAUDE.md
 - Export a session to Markdown

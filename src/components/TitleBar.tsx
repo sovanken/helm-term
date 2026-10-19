@@ -10,6 +10,8 @@ import {
   Plus,
   Rows2,
   Columns2,
+  Command,
+  FileDiff,
   Settings,
   Sparkles,
   Square,
@@ -86,6 +88,20 @@ function TabButton({ tab, index }: { tab: Tab; index: number }) {
   );
 }
 
+function ChangesToggle() {
+  const open = useStore((s) => s.changesOpen);
+  return (
+    <button
+      aria-label="Show changes"
+      title="Changes (Ctrl+Shift+G)"
+      onClick={() => useStore.getState().set({ changesOpen: !open })}
+      className={`flex size-8 items-center justify-center rounded-md hover:bg-hover ${open ? "bg-hover text-fg" : "text-muted hover:text-fg"}`}
+    >
+      <FileDiff size={15} />
+    </button>
+  );
+}
+
 export function TitleBar() {
   const tabs = useStore((s) => s.tabs);
   const sidebarOpen = useStore((s) => s.sidebarOpen);
@@ -151,6 +167,17 @@ export function TitleBar() {
 
       <div data-tauri-drag-region className="h-full min-w-8 flex-1" />
 
+      <button
+        aria-label="Command palette"
+        title="Command palette (Ctrl+Shift+P)"
+        onClick={() => s.set({ paletteOpen: true })}
+        className="flex h-8 items-center gap-2 rounded-md border border-line px-2.5 text-muted hover:bg-hover hover:text-fg"
+      >
+        <Command size={13} />
+        <span className="text-[12px]">Commands</span>
+        <kbd className="font-sans text-[10px] text-faint">Ctrl+Shift+P</kbd>
+      </button>
+      <ChangesToggle />
       <button
         aria-label="Settings"
         title="Settings (Ctrl+,)"

@@ -11,7 +11,7 @@ import { Channel } from "@tauri-apps/api/core";
 import { readText, writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { openPath, openUrl } from "@tauri-apps/plugin-opener";
 import { ipc, quotePath } from "../lib/ipc";
-import { resolveTheme, terminalThemes } from "../lib/themes";
+import { fontStack, resolveTheme, terminalThemes } from "../lib/themes";
 import { type Settings, useStore } from "../state/store";
 
 interface Entry {
@@ -33,7 +33,7 @@ export async function initTerminals() {
 
 function terminalOptions(settings: Settings) {
   return {
-    fontFamily: settings.fontFamily,
+    fontFamily: fontStack(settings.fontFamily),
     fontSize: settings.fontSize,
     lineHeight: 1.15,
     theme: terminalThemes[resolveTheme(settings.theme)],
@@ -176,6 +176,15 @@ export async function pasteInto(paneId: string) {
   // No text: a screenshot becomes a PNG file whose path Claude Code attaches as an image.
   const image = await ipc.pasteImage().catch(() => null);
   if (image) entry.term.paste(quotePath(image) + " ");
+}
+
+/** Types a slash command into Claude's prompt, optionally submitting it. */
+export function typeCommand(paneId: string, text: string, submit: boolean) {
+  void ipc.write(paneId, text).then(() => {
+    // A short pause lets Claude's autocomplete settle before Enter.
+    if (submit) setTimeout(() => void ipc.write(paneId, "\r"), 120);
+  });
+  focusTerminal(paneId);
 }
 
 export function insertText(paneId: string, text: string) {

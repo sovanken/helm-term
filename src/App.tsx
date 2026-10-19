@@ -4,7 +4,11 @@ import { quotePath } from "./lib/ipc";
 import { resolveTheme } from "./lib/themes";
 import { activePane, useStore } from "./state/store";
 import { applyThemeToAll, insertText } from "./terminal/terminals";
+import { ChangesPanel } from "./components/ChangesPanel";
+import { CommandPalette } from "./components/CommandPalette";
+import { PromptsDialog } from "./components/PromptsDialog";
 import { SettingsDialog } from "./components/SettingsDialog";
+import { StatusBar } from "./components/StatusBar";
 import { Sidebar } from "./components/Sidebar";
 import { TabView } from "./components/TabView";
 import { TitleBar } from "./components/TitleBar";
@@ -41,6 +45,9 @@ export default function App() {
   const activeTabId = useStore((s) => s.activeTabId);
   const sidebarOpen = useStore((s) => s.sidebarOpen);
   const settingsOpen = useStore((s) => s.settingsOpen);
+  const paletteOpen = useStore((s) => s.paletteOpen);
+  const promptsOpen = useStore((s) => s.promptsOpen);
+  const changesOpen = useStore((s) => s.changesOpen);
   useTheme();
   useFileDrop();
 
@@ -49,14 +56,21 @@ export default function App() {
       <TitleBar />
       <div className="flex min-h-0 flex-1">
         {sidebarOpen && <Sidebar />}
-        <main className={`relative min-w-0 flex-1 overflow-hidden border-line bg-surface ${sidebarOpen ? "rounded-tl-lg border-t border-l" : "border-t"}`}>
+        <main
+          id="main-area"
+          className={`relative min-w-0 flex-1 overflow-hidden border-line bg-surface ${sidebarOpen ? "rounded-tl-lg border-t border-l" : "border-t"} ${changesOpen ? "rounded-tr-lg border-r" : ""}`}
+        >
           {tabs.map((t) => (
             <TabView key={t.id} tab={t} visible={t.id === activeTabId} />
           ))}
           {tabs.length === 0 && <Welcome />}
         </main>
+        {changesOpen && <ChangesPanel />}
       </div>
+      <StatusBar />
       {settingsOpen && <SettingsDialog />}
+      {paletteOpen && <CommandPalette />}
+      {promptsOpen && <PromptsDialog />}
     </div>
   );
 }

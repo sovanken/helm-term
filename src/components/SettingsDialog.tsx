@@ -76,12 +76,12 @@ export function SettingsDialog() {
             <button onClick={() => updateSettings({ fontSize: Math.min(28, settings.fontSize + 1) })} className="size-7 rounded-md border border-line hover:bg-hover">+</button>
           </div>
         </Row>
-        <Row label="Font" hint="Any installed monospace font. Khmer falls back to Khmer UI.">
+        <Row label="Font" hint="Any installed monospace font. Every language and emoji still renders.">
           <input
-            defaultValue={settings.fontFamily.split(",")[0].replace(/"/g, "")}
+            defaultValue={settings.fontFamily}
             onBlur={(e) => {
               const name = e.target.value.trim();
-              updateSettings({ fontFamily: name ? `"${name}", ${DEFAULT_FONT}` : DEFAULT_FONT });
+              updateSettings({ fontFamily: name || DEFAULT_FONT });
             }}
             onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
             className="w-44 rounded-md border border-line bg-bg px-2 py-1 outline-none focus:border-accent"

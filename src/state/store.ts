@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { type Direction, type LayoutNode, type SplitDir, leaf, neighbor, paneIds, remove, setRatio, split } from "../lib/layout";
+import type { SessionInfo } from "../lib/ipc";
 import type { ThemeMode } from "../lib/themes";
 import { DEFAULT_FONT } from "../lib/themes";
 
@@ -25,6 +26,14 @@ export interface Pane {
   /** Terminal title set by the running program (Claude Code puts its task summary here). */
   title?: string;
   attentionMessage?: string;
+  /** Transcript file of the running Claude session (from hook payloads). */
+  transcriptPath?: string;
+}
+
+export interface SavedPrompt {
+  id: string;
+  title: string;
+  text: string;
 }
 
 export interface Tab {
@@ -36,6 +45,7 @@ export interface Tab {
 export interface Settings {
   theme: ThemeMode;
   fontSize: number;
+  /** Primary terminal font name only; fallbacks are added by fontStack(). */
   fontFamily: string;
   notifications: boolean;
   restoreTabs: boolean;
@@ -61,12 +71,22 @@ interface State {
   settings: Settings;
   pinned: string[];
   recent: RecentProject[];
+  sessions: SessionInfo[];
+  prompts: SavedPrompt[];
   sidebarOpen: boolean;
+  sidebarView: "projects" | "history";
   searchOpen: boolean;
   settingsOpen: boolean;
+  paletteOpen: boolean;
+  promptsOpen: boolean;
+  changesOpen: boolean;
+  /** Bumped whenever Claude does something that may change files or stats. */
+  activity: number;
   homeDir: string;
 
   openTab: (cwd: string, kind: PaneKind, opts?: { resumeSessionId?: string }) => string;
+  /** Focuses the pane already running this session, or opens a tab that resumes it. */
+  resumeSession: (session: { id: string; cwd: string }) => void;
   closeTab: (tabId: string) => void;
   closePane: (paneId: string) => void;
   splitActive: (dir: SplitDir, kind: PaneKind) => void;
@@ -101,9 +121,16 @@ export const useStore = create<State>((set, get) => ({
   settings: DEFAULT_SETTINGS,
   pinned: [],
   recent: [],
+  sessions: [],
+  prompts: [],
   sidebarOpen: true,
+  sidebarView: "projects",
   searchOpen: false,
   settingsOpen: false,
+  paletteOpen: false,
+  promptsOpen: false,
+  changesOpen: false,
+  activity: 0,
   homeDir: "",
 
   openTab: (cwd, kind, opts) => {
@@ -111,6 +138,18 @@ export const useStore = create<State>((set, get) => ({
     const tab: Tab = { id: crypto.randomUUID(), root: leaf(pane.id), activePaneId: pane.id };
     set((s) => ({ tabs: [...s.tabs, tab], activeTabId: tab.id, panes: { ...s.panes, [pane.id]: pane } }));
     return tab.id;
+  },
+
+  resumeSession: ({ id, cwd }) => {
+    const s = get();
+    const pane = Object.values(s.panes).find((p) => p.sessionId === id || p.resumeSessionId === id);
+    const tab = pane && s.tabs.find((t) => paneIds(t.root).includes(pane.id));
+    if (pane && tab) {
+      s.setActiveTab(tab.id);
+      s.focusPane(pane.id);
+    } else {
+      s.openTab(cwd || s.homeDir, "claude", { resumeSessionId: id });
+    }
   },
 
   closeTab: (tabId) => {
@@ -219,5 +258,8 @@ export function folderName(path: string): string {
 
 /** Strips the spinner/status glyphs Claude Code puts in front of its terminal title. */
 export function cleanTitle(title?: string): string {
-  return (title ?? "").replace(/^[^\p{L}\p{N}]+/u, "").trim();
+  const t = (title ?? "").trim();
+  // Shells set the title to their own program path ("C:\WINDOWS\...\powershell.exe"); that's noise.
+  if (/\.exe$/i.test(t) || /^(Windows )?PowerShell$/i.test(t)) return "";
+  return t.replace(/^[^\p{L}\p{N}]+/u, "").trim();
 }

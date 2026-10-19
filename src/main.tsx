@@ -1,5 +1,6 @@
 import ReactDOM from "react-dom/client";
 import App from "./App";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { refreshSessions } from "./components/HistoryList";
 import { refreshRecent } from "./components/Sidebar";
 import { ipc } from "./lib/ipc";
@@ -46,7 +47,11 @@ async function boot() {
   void refreshRecent();
   void refreshSessions();
   startUpdateChecks();
-  ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(<App />);
+  ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>,
+  );
 }
 
 // Dev only: state and terminal modules hold live terminals, so a partial hot swap would orphan

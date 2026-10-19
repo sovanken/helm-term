@@ -1,0 +1,47 @@
+name: Bug report
+description: Something in Helm doesn't work as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting! Please check that the problem still happens on the latest version (Settings → About → Check now).
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you see, and what did you expect instead? Screenshots help a lot.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open a Claude tab in …
+        2. …
+    validations:
+      required: true
+  - type: input
+    id: helm
+    attributes:
+      label: Helm version
+      description: Settings → About
+      placeholder: "1.0.0"
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      placeholder: Windows 11 24H2
+  - type: input
+    id: claude
+    attributes:
+      label: Claude Code version
+      description: Run `claude --version`
+  - type: textarea
+    id: details
+    attributes:
+      label: Error details
+      description: If Helm showed "Something went wrong", click "Copy details" and paste here.
+      render: text

@@ -80,7 +80,7 @@ fn is_safe_id(id: &str) -> bool {
 }
 
 /// The `claude …` line that starts Claude for this pane, if it should start right away.
-fn claude_line(req: &LaunchRequest) -> Option<String> {
+pub(crate) fn claude_line(req: &LaunchRequest) -> Option<String> {
     if req.kind != "claude" {
         return None;
     }
@@ -96,7 +96,7 @@ fn claude_line(req: &LaunchRequest) -> Option<String> {
     Some(if extra.trim().is_empty() { base } else { format!("{base} {}", extra.trim()) })
 }
 
-fn valid_env_name(name: &str) -> bool {
+pub(crate) fn valid_env_name(name: &str) -> bool {
     !name.is_empty()
         && name.len() <= 128
         && name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')

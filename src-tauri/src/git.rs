@@ -63,14 +63,18 @@ pub struct GitSummary {
 /// Branch, uncommitted file count and ahead/behind in a single `git status` call.
 pub fn summary(cwd: &str) -> Option<GitSummary> {
     let out = git_ok(cwd, &["status", "--porcelain=v2", "--branch", "--untracked-files=normal"]).ok()?;
+    Some(parse_summary(&out))
+}
+
+/// Parses `git status --porcelain=v2 --branch` output.
+pub fn parse_summary(out: &str) -> GitSummary {
     let mut s = GitSummary::default();
+    let mut commit = None;
     for line in out.lines() {
         if let Some(head) = line.strip_prefix("# branch.head ") {
             s.branch = (head != "(detached)").then(|| head.to_string());
         } else if let Some(oid) = line.strip_prefix("# branch.oid ") {
-            if s.branch.is_none() && oid != "(initial)" {
-                s.branch = Some(oid.chars().take(7).collect());
-            }
+            commit = (oid != "(initial)").then(|| oid.chars().take(7).collect::<String>());
         } else if let Some(ab) = line.strip_prefix("# branch.ab ") {
             let mut parts = ab.split_whitespace();
             s.ahead = parts.next().and_then(|a| a.trim_start_matches('+').parse().ok());
@@ -79,7 +83,11 @@ pub fn summary(cwd: &str) -> Option<GitSummary> {
             s.changed += 1;
         }
     }
-    Some(s)
+    // Detached HEAD: show the short commit instead of a branch name.
+    if s.branch.is_none() {
+        s.branch = commit;
+    }
+    s
 }
 
 #[derive(Serialize)]
@@ -222,5 +230,33 @@ pub fn revert(root: &str, path: &str, status: &str) -> Result<(), String> {
             }
             git_ok(root, &["restore", "--source=HEAD", "--staged", "--worktree", "--", path]).map(|_| ())
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn summary_counts_changes_and_ahead_behind() {
+        let out = "# branch.oid 1234567890abcdef\n# branch.head main\n# branch.upstream origin/main\n# branch.ab +2 -1\n1 .M N... 100644 100644 100644 a b src/app.ts\n? notes.txt\n";
+        let s = parse_summary(out);
+        assert_eq!(s.branch.as_deref(), Some("main"));
+        assert_eq!(s.changed, 2);
+        assert_eq!((s.ahead, s.behind), (Some(2), Some(1)));
+    }
+
+    #[test]
+    fn summary_without_upstream_or_on_detached_head() {
+        let s = parse_summary("# branch.oid abcdef1234567\n# branch.head (detached)\n");
+        assert_eq!(s.branch.as_deref(), Some("abcdef1"));
+        assert_eq!((s.ahead, s.behind, s.changed), (None, None, 0));
+    }
+
+    #[test]
+    fn rejects_paths_outside_the_repo() {
+        assert!(safe_relative("src/app.ts").is_ok());
+        assert!(safe_relative("../secret.txt").is_err());
+        assert!(safe_relative(r"C:\Windows\win.ini").is_err());
     }
 }

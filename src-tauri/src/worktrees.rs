@@ -48,13 +48,11 @@ fn normalize(p: &str) -> String {
     p.replace('/', "\\").trim_end_matches('\\').to_lowercase()
 }
 
-pub fn list(cwd: &str) -> Result<WorktreeList, String> {
-    let Ok(porcelain) = git(cwd, &["worktree", "list", "--porcelain"]) else {
-        return Ok(WorktreeList { is_repo: false, main_path: None, main_branch: None, worktrees: vec![] });
-    };
-
-    let mut raw: Vec<(String, Option<String>)> = Vec::new();
-    for block in porcelain.split("\n\n").filter(|b| !b.trim().is_empty()) {
+/// `git worktree list --porcelain` → (Windows path, branch) pairs, main worktree first.
+/// Worktrees whose folder is gone ("prunable") are skipped.
+pub(crate) fn parse_porcelain(porcelain: &str) -> Vec<(String, Option<String>)> {
+    let mut raw = Vec::new();
+    for block in porcelain.replace("\r\n", "\n").split("\n\n").filter(|b| !b.trim().is_empty()) {
         let mut path = None;
         let mut branch = None;
         let mut prunable = false;
@@ -71,6 +69,15 @@ pub fn list(cwd: &str) -> Result<WorktreeList, String> {
             raw.push((path, branch));
         }
     }
+    raw
+}
+
+pub fn list(cwd: &str) -> Result<WorktreeList, String> {
+    let Ok(porcelain) = git(cwd, &["worktree", "list", "--porcelain"]) else {
+        return Ok(WorktreeList { is_repo: false, main_path: None, main_branch: None, worktrees: vec![] });
+    };
+
+    let raw = parse_porcelain(&porcelain);
     let Some((main_path, main_branch)) = raw.first().cloned() else {
         return Ok(WorktreeList { is_repo: false, main_path: None, main_branch: None, worktrees: vec![] });
     };

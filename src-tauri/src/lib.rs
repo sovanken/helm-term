@@ -11,6 +11,9 @@ mod shell;
 mod toast;
 mod worktrees;
 
+#[cfg(test)]
+mod tests;
+
 use std::path::{Path, PathBuf};
 
 use tauri::ipc::{Channel, InvokeResponseBody};
@@ -92,12 +95,19 @@ fn resolve_path(cwd: String, path: String) -> Option<String> {
 /// Opens a file at a line in VS Code. Returns false when VS Code is not available.
 #[tauri::command]
 fn open_in_editor(path: String, line: Option<u32>, column: Option<u32>) -> bool {
+    if !Path::new(&path).exists() {
+        return false;
+    }
     let target = match (line, column) {
         (Some(l), Some(c)) => format!("{path}:{l}:{c}"),
         (Some(l), None) => format!("{path}:{l}"),
         _ => path,
     };
-    git::hidden("cmd").args(["/C", "code", "-g", &target]).status().is_ok_and(|s| s.success())
+    // Never go through `cmd /C`: a file name containing `&` or `|` would run as a command.
+    // Launching code.cmd directly lets Rust apply its safe batch-file argument escaping, which
+    // refuses arguments it can't pass through unchanged.
+    let Ok(code) = which::which("code") else { return false };
+    git::hidden(&code.to_string_lossy()).args(["-g", &target]).status().is_ok_and(|s| s.success())
 }
 
 /// Windows build number (e.g. 26100); the terminal uses it to match ConPTY's line reflow.
@@ -135,11 +145,6 @@ async fn session_stats(transcript_path: Option<String>, session_id: Option<Strin
     .await
     .ok()
     .flatten()
-}
-
-#[tauri::command]
-async fn git_branch(cwd: String) -> Option<String> {
-    tauri::async_runtime::spawn_blocking(move || git::branch(&cwd)).await.ok().flatten()
 }
 
 #[tauri::command]
@@ -341,7 +346,6 @@ pub fn run() {
         }))
         .plugin(tauri_plugin_window_state::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
-        .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_clipboard_manager::init())
@@ -373,7 +377,6 @@ pub fn run() {
             list_sessions,
             search_sessions,
             session_stats,
-            git_branch,
             git_summary,
             git_changes,
             git_diff,

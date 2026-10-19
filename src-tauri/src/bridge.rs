@@ -152,7 +152,7 @@ fn short_duration(secs: i64) -> String {
 }
 
 /// e.g. "ctx 8% · 5h 23% (resets 2h 10m) · week 41%"
-fn status_line(data: &Value) -> String {
+pub(crate) fn status_line(data: &Value) -> String {
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_secs() as i64)

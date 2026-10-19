@@ -77,7 +77,7 @@ pub fn session_cwd(session_id: &str) -> Option<String> {
 }
 
 /// Text of a human-typed prompt, or None for tool results, meta and command noise.
-fn human_prompt(line: &Value) -> Option<String> {
+pub(crate) fn human_prompt(line: &Value) -> Option<String> {
     if line.get("type")?.as_str()? != "user" || line.get("isMeta").and_then(Value::as_bool) == Some(true) {
         return None;
     }
@@ -118,7 +118,7 @@ fn read_lines(path: &Path, from: u64, len: u64) -> Vec<Value> {
     lines.filter_map(|l| serde_json::from_str(l).ok()).collect()
 }
 
-fn truncate(s: &str, max: usize) -> String {
+pub(crate) fn truncate(s: &str, max: usize) -> String {
     let one_line = s.split_whitespace().collect::<Vec<_>>().join(" ");
     if one_line.chars().count() <= max {
         one_line

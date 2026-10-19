@@ -130,7 +130,6 @@ export const ipc = {
   searchSessions: (query: string) => invoke<SearchHit[]>("search_sessions", { query }),
   sessionStats: (transcriptPath?: string, sessionId?: string) =>
     invoke<SessionStats | null>("session_stats", { transcriptPath, sessionId }),
-  gitBranch: (cwd: string) => invoke<string | null>("git_branch", { cwd }),
   gitSummary: (cwd: string) =>
     invoke<{ branch?: string; changed: number; ahead?: number; behind?: number } | null>("git_summary", { cwd }),
   gitChanges: (cwd: string) => invoke<Changes>("git_changes", { cwd }),

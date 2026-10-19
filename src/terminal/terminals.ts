@@ -257,9 +257,19 @@ async function launch(paneId: string, entry: Entry) {
   if (!pane) return;
 
   let { resumeSessionId, sessionId } = pane;
-  if (resumeSessionId && !(await ipc.sessionExists(resumeSessionId).catch(() => false))) {
-    resumeSessionId = undefined;
-    sessionId = crypto.randomUUID();
+  let cwd = pane.cwd;
+  if (resumeSessionId) {
+    if (!(await ipc.sessionExists(resumeSessionId).catch(() => false))) {
+      resumeSessionId = undefined;
+      sessionId = crypto.randomUUID();
+    } else {
+      // Claude only resumes a conversation from the folder it started in (or its worktree).
+      const original = await ipc.sessionCwd(resumeSessionId).catch(() => null);
+      if (original && original.toLowerCase() !== cwd.toLowerCase() && !cwd.toLowerCase().startsWith(original.toLowerCase())) {
+        cwd = original;
+        store.updatePane(paneId, { cwd });
+      }
+    }
   }
   store.updatePane(paneId, { resumeSessionId: undefined, worktree: undefined, sessionId: resumeSessionId ?? sessionId });
 
@@ -272,8 +282,12 @@ async function launch(paneId: string, entry: Entry) {
     await ipc.launch(
       {
         paneId,
-        cwd: pane.cwd,
+        cwd,
         kind: pane.kind,
+        shell: pane.shell ?? store.settings.shell,
+        windowsHints: store.settings.windowsHints,
+        approvals: store.settings.approvals,
+        usage: store.settings.usageCockpit,
         newSessionId: pane.kind === "claude" && !resumeSessionId ? sessionId : undefined,
         resumeSessionId,
         worktree: resumeSessionId ? undefined : pane.worktree,

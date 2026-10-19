@@ -95,6 +95,16 @@ pub fn write_settings_key(scope: &str, cwd: &str, key: &str, value: Value) -> Re
     std::fs::write(&path, text + "\n").map_err(|e| e.to_string())
 }
 
+/// True when the user configured their own status line, which Helm must not replace.
+pub fn has_own_status_line(cwd: &str) -> bool {
+    ["user", "project", "local"].iter().any(|scope| {
+        settings_path(scope, cwd)
+            .ok()
+            .and_then(|p| read_json(&p).ok())
+            .is_some_and(|m| m.get("statusLine").is_some_and(|v| !v.is_null()))
+    })
+}
+
 // ---------- CLAUDE.md ----------
 
 #[derive(Serialize)]

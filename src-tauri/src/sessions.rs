@@ -68,6 +68,14 @@ pub fn find_transcript(session_id: &str) -> Option<PathBuf> {
         .find(|p| p.is_file())
 }
 
+/// The folder a session was started in (Claude only resumes a session from its own project).
+pub fn session_cwd(session_id: &str) -> Option<String> {
+    let path = find_transcript(session_id)?;
+    read_lines(&path, 0, HEAD_BYTES)
+        .iter()
+        .find_map(|l| l.get("cwd").and_then(Value::as_str).map(String::from))
+}
+
 /// Text of a human-typed prompt, or None for tool results, meta and command noise.
 fn human_prompt(line: &Value) -> Option<String> {
     if line.get("type")?.as_str()? != "user" || line.get("isMeta").and_then(Value::as_bool) == Some(true) {

@@ -1,7 +1,8 @@
 import { type ReactNode, useEffect, useState } from "react";
 import { getVersion } from "@tauri-apps/api/app";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { Bell, Info, Keyboard, Palette } from "lucide-react";
+import { Bell, Bot, Info, Keyboard, Palette } from "lucide-react";
+import { useShells } from "../lib/shells";
 import { SHORTCUTS } from "../lib/shortcuts";
 import { DEFAULT_FONT, type ThemeMode } from "../lib/themes";
 import { checkForUpdate } from "../lib/updater";
@@ -12,6 +13,7 @@ import { HelmMark } from "./Welcome";
 const HELM_SECTIONS: { id: SettingsSection; label: string; icon: ReactNode }[] = [
   { id: "appearance", label: "Appearance", icon: <Palette size={15} /> },
   { id: "behavior", label: "Behavior", icon: <Bell size={15} /> },
+  { id: "claude-in-helm", label: "Claude in Helm", icon: <Bot size={15} /> },
   { id: "shortcuts", label: "Keyboard shortcuts", icon: <Keyboard size={15} /> },
   { id: "about", label: "About & updates", icon: <Info size={15} /> },
 ];
@@ -110,6 +112,39 @@ function Behavior() {
   );
 }
 
+function ClaudeInHelm() {
+  const settings = useStore((s) => s.settings);
+  const { updateSettings } = useStore.getState();
+  const shells = useShells();
+  return (
+    <>
+      <Heading title="Claude in Helm" hint="How Helm works with the Claude sessions it starts. Changes apply to new Claude sessions." />
+      <Row label="Answer approvals in Helm" hint="When a tab you're not looking at needs permission, ask in Helm and in a Windows notification with Allow / Deny. The tab you're looking at always asks in its terminal.">
+        <Toggle label="Approvals in Helm" checked={settings.approvals} onChange={(v) => updateSettings({ approvals: v })} />
+      </Row>
+      <Row label="Track usage limits" hint="Show your 5-hour and weekly limits, pace and warnings. Uses Claude's status line, so it's skipped if you set up your own status line.">
+        <Toggle label="Usage limits" checked={settings.usageCockpit} onChange={(v) => updateSettings({ usageCockpit: v })} />
+      </Row>
+      <Row label="Windows hints for Claude" hint="Tell Claude it's on Windows and which shell syntax to use, so it stops mixing PowerShell and Bash commands.">
+        <Toggle label="Windows hints" checked={settings.windowsHints} onChange={(v) => updateSettings({ windowsHints: v })} />
+      </Row>
+      <Row label="Shell for new tabs" hint="You can also pick a shell per tab from the + menu.">
+        <select
+          value={settings.shell}
+          onChange={(e) => updateSettings({ shell: e.target.value })}
+          className="rounded-md border border-line bg-bg px-2.5 py-1.5 outline-none focus:border-accent"
+        >
+          {shells.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.label}
+            </option>
+          ))}
+        </select>
+      </Row>
+    </>
+  );
+}
+
 function Shortcuts() {
   return (
     <>
@@ -187,6 +222,7 @@ export function SettingsPage() {
         <div className="mx-auto flex min-h-full max-w-3xl flex-col px-8 py-7">
           {section === "appearance" && <Appearance />}
           {section === "behavior" && <Behavior />}
+          {section === "claude-in-helm" && <ClaudeInHelm />}
           {section === "shortcuts" && <Shortcuts />}
           {section === "about" && <About />}
           {isClaude && <ClaudeSection key={section} section={section as ClaudeSectionId} />}

@@ -4,6 +4,8 @@ import { quotePath } from "./lib/ipc";
 import { resolveTheme } from "./lib/themes";
 import { activePane, useStore } from "./state/store";
 import { applyThemeToAll, insertText } from "./terminal/terminals";
+import { AgentsPage } from "./components/AgentsPage";
+import { ApprovalBar } from "./components/Approvals";
 import { ChangesPanel } from "./components/ChangesPanel";
 import { NewTaskDialog } from "./components/Tasks";
 import { ToastView } from "./components/Toast";
@@ -72,6 +74,12 @@ export default function App() {
               <SettingsPage />
             </div>
           )}
+          {view === "agents" && (
+            <div className="absolute inset-0 z-20 bg-surface">
+              <AgentsPage />
+            </div>
+          )}
+          <ApprovalBar />
         </main>
         {changesOpen && view === "terminal" && <ChangesPanel />}
       </div>

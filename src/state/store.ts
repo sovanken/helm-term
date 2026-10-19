@@ -30,11 +30,65 @@ export interface Pane {
   attentionMessage?: string;
   /** Transcript file of the running Claude session (from hook payloads). */
   transcriptPath?: string;
+  /** Shell this pane runs ("pwsh", "powershell", "bash"); defaults to the settings choice. */
+  shell?: string;
+  /** Live numbers from Claude's status line. */
+  stats?: PaneStats;
+  /** What Claude is doing right now, e.g. "Bash: npm test". */
+  doing?: string;
+  /** Running subagents. */
+  subagents?: number;
+  /** Last time Claude reported anything (ms). */
+  lastActivity?: number;
+}
+
+export interface PaneStats {
+  model?: string;
+  contextPct?: number;
+  costUsd?: number;
+  linesAdded?: number;
+  linesRemoved?: number;
+}
+
+export interface Approval {
+  id: string;
+  paneId: string;
+  tool: string;
+  summary: string;
+  input: unknown;
+  /** Claude's suggested "always allow" rules, used as-is for the Always button. */
+  suggestions: unknown[];
+  at: number;
+}
+
+export interface LimitWindow {
+  pct: number;
+  /** Unix seconds. */
+  resetsAt?: number;
+}
+
+export interface Usage {
+  fiveHour?: LimitWindow;
+  sevenDay?: LimitWindow;
+  spend?: LimitWindow & { usedUsd?: number; limitUsd?: number };
+  updatedAt: number;
+  /** Recent five-hour readings for the burn rate. */
+  samples: { t: number; pct: number }[];
+}
+
+export interface ClosedTab {
+  cwd: string;
+  kind: PaneKind;
+  sessionId?: string;
+  shell?: string;
+  title?: string;
+  closedAt: number;
 }
 
 export type SettingsSection =
   | "appearance"
   | "behavior"
+  | "claude-in-helm"
   | "shortcuts"
   | "about"
   | "permissions"
@@ -74,6 +128,14 @@ export interface Settings {
   fontFamily: string;
   notifications: boolean;
   restoreTabs: boolean;
+  /** Default shell for new tabs. */
+  shell: string;
+  /** Answer permission requests from background tabs in Helm. */
+  approvals: boolean;
+  /** Track usage limits through Claude's status line. */
+  usageCockpit: boolean;
+  /** Tell Claude it is on Windows and which shell syntax to use. */
+  windowsHints: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -82,6 +144,10 @@ export const DEFAULT_SETTINGS: Settings = {
   fontFamily: DEFAULT_FONT,
   notifications: true,
   restoreTabs: true,
+  shell: "pwsh",
+  approvals: true,
+  usageCockpit: true,
+  windowsHints: true,
 };
 
 export interface RecentProject {
@@ -106,17 +172,27 @@ interface State {
   changesOpen: boolean;
   /** The Settings tab exists in the tab bar. */
   settingsOpen: boolean;
-  /** What the main area shows: the active terminal tab, or the Settings tab. */
-  view: "terminal" | "settings";
+  /** The Agents tab exists in the tab bar. */
+  agentsOpen: boolean;
+  /** What the main area shows: the active terminal tab, the Settings tab or the Agents tab. */
+  view: "terminal" | "settings" | "agents";
   settingsSection: SettingsSection;
   newTaskOpen: boolean;
   toast: Toast | null;
   update: AvailableUpdate | null;
   /** Bumped whenever Claude does something that may change files or stats. */
   activity: number;
+  approvals: Approval[];
+  usage: Usage | null;
+  /** Approximate share of the five-hour limit each pane used (percentage points). */
+  usageByPane: Record<string, number>;
+  closedTabs: ClosedTab[];
   homeDir: string;
 
-  openTab: (cwd: string, kind: PaneKind, opts?: { resumeSessionId?: string; worktree?: string }) => string;
+  openTab: (cwd: string, kind: PaneKind, opts?: { resumeSessionId?: string; worktree?: string; shell?: string }) => string;
+  reopenClosedTab: () => void;
+  openAgents: () => void;
+  closeAgents: () => void;
   /** Focuses the pane already running this session, or opens a tab that resumes it. */
   resumeSession: (session: { id: string; cwd: string }) => void;
   closeTab: (tabId: string) => void;
@@ -164,20 +240,37 @@ export const useStore = create<State>((set, get) => ({
   paletteOpen: false,
   promptsOpen: false,
   changesOpen: false,
+  agentsOpen: false,
   view: "terminal",
   settingsSection: "appearance",
   newTaskOpen: false,
   toast: null,
   update: null,
   activity: 0,
+  approvals: [],
+  usage: null,
+  usageByPane: {},
+  closedTabs: [],
   homeDir: "",
 
   openTab: (cwd, kind, opts) => {
-    const pane = { ...newPane(cwd, kind, opts?.resumeSessionId), worktree: opts?.worktree };
+    const pane = { ...newPane(cwd, kind, opts?.resumeSessionId), worktree: opts?.worktree, shell: opts?.shell };
     const tab: Tab = { id: crypto.randomUUID(), root: leaf(pane.id), activePaneId: pane.id };
     set((s) => ({ tabs: [...s.tabs, tab], activeTabId: tab.id, view: "terminal", panes: { ...s.panes, [pane.id]: pane } }));
     return tab.id;
   },
+
+  reopenClosedTab: () => {
+    const [last, ...rest] = get().closedTabs;
+    if (!last) return;
+    set({ closedTabs: rest });
+    const resume = last.kind === "claude" && last.sessionId ? last.sessionId : undefined;
+    get().openTab(last.cwd, resume ? "claude" : "shell", { resumeSessionId: resume, shell: last.shell });
+  },
+
+  openAgents: () => set({ agentsOpen: true, view: "agents" }),
+
+  closeAgents: () => set((s) => ({ agentsOpen: false, view: s.view === "agents" ? "terminal" : s.view })),
 
   resumeSession: ({ id, cwd }) => {
     const s = get();
@@ -200,18 +293,34 @@ export const useStore = create<State>((set, get) => ({
   closePane: (paneId) => {
     set((s) => {
       const tab = s.tabs.find((t) => paneIds(t.root).includes(paneId));
-      const { [paneId]: _removed, ...panes } = s.panes;
-      if (!tab) return { panes };
+      const { [paneId]: removed, ...panes } = s.panes;
+      // Remember closed panes so they can be reopened (Claude ones resume their conversation).
+      const claude = removed && (removed.claudeActive || removed.kind === "claude") && removed.sessionId;
+      const closedTabs = removed
+        ? [
+            {
+              cwd: removed.cwd,
+              kind: claude ? ("claude" as const) : ("shell" as const),
+              sessionId: claude ? removed.sessionId : undefined,
+              shell: removed.shell,
+              title: cleanTitle(removed.title),
+              closedAt: Date.now(),
+            },
+            ...s.closedTabs,
+          ].slice(0, 20)
+        : s.closedTabs;
+      const approvals = s.approvals.filter((a) => a.paneId !== paneId);
+      if (!tab) return { panes, closedTabs, approvals };
       const root = remove(tab.root, paneId);
       if (!root) {
         const idx = s.tabs.indexOf(tab);
         const tabs = s.tabs.filter((t) => t.id !== tab.id);
         const activeTabId =
           s.activeTabId === tab.id ? (tabs[Math.min(idx, tabs.length - 1)]?.id ?? null) : s.activeTabId;
-        return { panes, tabs, activeTabId };
+        return { panes, tabs, activeTabId, closedTabs, approvals };
       }
       const activePaneId = tab.activePaneId === paneId ? paneIds(root)[0] : tab.activePaneId;
-      return { panes, tabs: s.tabs.map((t) => (t.id === tab.id ? { ...t, root, activePaneId } : t)) };
+      return { panes, closedTabs, approvals, tabs: s.tabs.map((t) => (t.id === tab.id ? { ...t, root, activePaneId } : t)) };
     });
   },
 
@@ -219,8 +328,8 @@ export const useStore = create<State>((set, get) => ({
     const s = get();
     const tab = s.tabs.find((t) => t.id === s.activeTabId);
     if (!tab) return;
-    const cwd = s.panes[tab.activePaneId]?.cwd ?? s.homeDir;
-    const pane = newPane(cwd, kind);
+    const current = s.panes[tab.activePaneId];
+    const pane = { ...newPane(current?.cwd ?? s.homeDir, kind), shell: current?.shell };
     set({
       panes: { ...s.panes, [pane.id]: pane },
       tabs: s.tabs.map((t) =>

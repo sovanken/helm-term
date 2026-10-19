@@ -151,6 +151,29 @@ pub fn diff(root: &str, path: &str, status: &str) -> Result<String, String> {
     git_ok(root, &["diff", "--no-color", "--no-ext-diff", "-M", base(root), "--", path])
 }
 
+/// Undoes one hunk: `patch` is the file's diff header plus that single hunk, applied in reverse.
+pub fn revert_hunk(root: &str, patch: &str) -> Result<(), String> {
+    use std::io::Write;
+    let mut child = hidden("git")
+        .args(["apply", "--reverse", "--whitespace=nowarn", "--recount", "-"])
+        .current_dir(root)
+        .stdin(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .spawn()
+        .map_err(|_| "Git is not installed or not on PATH".to_string())?;
+    child.stdin.take().ok_or("no stdin")?.write_all(patch.as_bytes()).map_err(|e| e.to_string())?;
+    let out = child.wait_with_output().map_err(|e| e.to_string())?;
+    if out.status.success() {
+        Ok(())
+    } else {
+        Err(format!(
+            "This part changed again since the diff was shown. Refresh and try again. ({})",
+            String::from_utf8_lossy(&out.stderr).trim()
+        ))
+    }
+}
+
 pub fn revert(root: &str, path: &str, status: &str) -> Result<(), String> {
     safe_relative(path)?;
     let full = Path::new(root).join(path);

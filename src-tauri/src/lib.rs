@@ -8,6 +8,7 @@ mod projects;
 mod pty;
 mod sessions;
 mod shell;
+mod toast;
 mod worktrees;
 
 use std::path::{Path, PathBuf};
@@ -31,8 +32,12 @@ fn pty_launch(
     req: shell::LaunchRequest,
     on_data: Channel<InvokeResponseBody>,
 ) -> Result<(), String> {
-    let settings = bridge.write_settings(&req.pane_id, &req.launch_id)?;
-    let spec = shell::build(&req, &settings.to_string_lossy())?;
+    let opts = bridge::SettingsOptions {
+        approvals: req.approvals,
+        status_line: req.usage && !claude_settings::has_own_status_line(&req.cwd),
+    };
+    let settings = bridge.write_settings(&req.pane_id, &req.launch_id, &opts)?;
+    let spec = shell::build(&req, &settings)?;
     ptys.spawn(&app, req.pane_id.clone(), spec, on_data)
 }
 
@@ -240,6 +245,32 @@ async fn export_session(
     })
 }
 
+/// Answers a permission request held by the bridge. `None` hands it back to the terminal prompt.
+#[tauri::command]
+fn permission_respond(bridge: State<Bridge>, id: String, decision: Option<serde_json::Value>) -> bool {
+    bridge.respond(&id, decision)
+}
+
+#[tauri::command]
+fn show_approval_toast(app: AppHandle, id: String, title: String, body: String, detail: String) -> Result<(), String> {
+    toast::show_approval(&app, &id, &title, &body, &detail)
+}
+
+#[tauri::command]
+fn list_shells() -> Vec<shell::ShellInfo> {
+    shell::available_shells()
+}
+
+#[tauri::command]
+async fn git_revert_hunk(root: String, patch: String) -> Result<(), String> {
+    blocking!(git::revert_hunk(&root, &patch))
+}
+
+#[tauri::command]
+async fn session_cwd(session_id: String) -> Option<String> {
+    tauri::async_runtime::spawn_blocking(move || sessions::session_cwd(&session_id)).await.ok().flatten()
+}
+
 #[tauri::command]
 fn home_dir() -> String {
     dirs::home_dir().map(|p| p.to_string_lossy().into_owned()).unwrap_or_else(|| "C:\\".into())
@@ -303,6 +334,11 @@ pub fn run() {
             mcp_add,
             mcp_remove,
             export_session,
+            permission_respond,
+            show_approval_toast,
+            list_shells,
+            git_revert_hunk,
+            session_cwd,
             home_dir,
         ])
         .build(tauri::generate_context!())

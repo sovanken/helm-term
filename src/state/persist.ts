@@ -2,7 +2,7 @@
 
 import { load, type Store } from "@tauri-apps/plugin-store";
 import type { LayoutNode } from "../lib/layout";
-import { DEFAULT_SETTINGS, type Pane, type PaneKind, type SavedPrompt, type Settings, useStore } from "./store";
+import { type ClosedTab, DEFAULT_SETTINGS, type Pane, type PaneKind, type SavedPrompt, type Settings, useStore } from "./store";
 
 /** A few useful prompts so the library isn't empty on first run; users can edit or delete them. */
 const STARTER_PROMPTS: SavedPrompt[] = [
@@ -16,6 +16,7 @@ interface SavedPane {
   kind: PaneKind;
   cwd: string;
   sessionId?: string;
+  shell?: string;
 }
 
 interface SavedSession {
@@ -35,7 +36,8 @@ export async function restore() {
   const sidebarOpen = (await store.get<boolean>("sidebarOpen")) ?? true;
   const sidebarView = (await store.get<"projects" | "history">("sidebarView")) ?? "projects";
   const prompts = (await store.get<SavedPrompt[]>("prompts")) ?? STARTER_PROMPTS;
-  useStore.getState().set({ settings, pinned, sidebarOpen, sidebarView, prompts });
+  const closedTabs = (await store.get<ClosedTab[]>("closedTabs")) ?? [];
+  useStore.getState().set({ settings, pinned, sidebarOpen, sidebarView, prompts, closedTabs });
 
   const session = settings.restoreTabs ? await store.get<SavedSession>("session") : undefined;
   if (session?.tabs?.length) {
@@ -49,6 +51,7 @@ export async function restore() {
         cwd: p.cwd,
         claudeActive: false,
         resumeSessionId: resume ? p.sessionId : undefined,
+        shell: p.shell,
         status: "idle",
       };
     }
@@ -63,6 +66,7 @@ export async function restore() {
     if (s.sidebarOpen !== prev.sidebarOpen) void store.set("sidebarOpen", s.sidebarOpen);
     if (s.sidebarView !== prev.sidebarView) void store.set("sidebarView", s.sidebarView);
     if (s.prompts !== prev.prompts) void store.set("prompts", s.prompts);
+    if (s.closedTabs !== prev.closedTabs) void store.set("closedTabs", s.closedTabs);
     if (s.tabs !== prev.tabs || s.panes !== prev.panes || s.activeTabId !== prev.activeTabId) {
       void store.set("session", snapshot());
     }
@@ -74,7 +78,7 @@ function snapshot(): SavedSession {
   const panes: Record<string, SavedPane> = {};
   for (const p of Object.values(s.panes)) {
     const claude = p.claudeActive || (p.kind === "claude" && !!p.sessionId);
-    panes[p.id] = { kind: claude ? "claude" : "shell", cwd: p.cwd, sessionId: claude ? p.sessionId : undefined };
+    panes[p.id] = { kind: claude ? "claude" : "shell", cwd: p.cwd, sessionId: claude ? p.sessionId : undefined, shell: p.shell };
   }
   return {
     tabs: s.tabs.map(({ root, activePaneId }) => ({ root, activePaneId })),

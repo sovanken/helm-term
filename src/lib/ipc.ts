@@ -89,6 +89,12 @@ export interface McpServer {
   managed: boolean;
 }
 
+export interface ShellInfo {
+  id: string;
+  label: string;
+  path: string;
+}
+
 export interface LaunchRequest {
   paneId: string;
   cwd: string;
@@ -97,6 +103,10 @@ export interface LaunchRequest {
   resumeSessionId?: string;
   worktree?: string;
   launchId: string;
+  shell?: string;
+  windowsHints: boolean;
+  approvals: boolean;
+  usage: boolean;
   cols: number;
   rows: number;
 }
@@ -124,6 +134,12 @@ export const ipc = {
   gitRevert: (root: string, path: string, status: string) => invoke<void>("git_revert", { root, path, status }),
   slashCommands: (cwd: string) => invoke<SlashCommand[]>("slash_commands", { cwd }),
   osBuild: () => invoke<number>("os_build"),
+  permissionRespond: (id: string, decision: unknown | null) => invoke<boolean>("permission_respond", { id, decision }),
+  showApprovalToast: (id: string, title: string, body: string, detail: string) =>
+    invoke<void>("show_approval_toast", { id, title, body, detail }),
+  listShells: () => invoke<ShellInfo[]>("list_shells"),
+  gitRevertHunk: (root: string, patch: string) => invoke<void>("git_revert_hunk", { root, patch }),
+  sessionCwd: (sessionId: string) => invoke<string | null>("session_cwd", { sessionId }),
   worktreeList: (cwd: string) => invoke<WorktreeList>("worktree_list", { cwd }),
   worktreeMerge: (mainPath: string, branch: string) => invoke<string>("worktree_merge", { mainPath, branch }),
   worktreeRemove: (mainPath: string, path: string, branch: string | undefined, force: boolean, deleteBranch: boolean) =>

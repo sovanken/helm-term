@@ -16,6 +16,15 @@ and run it. Helm keeps itself up to date after that.
 Windows may show a SmartScreen warning because the installer isn't code-signed yet: click
 **More info → Run anyway**. Updates themselves are cryptographically signed and verified.
 
+## Why switch
+
+- **Approve from anywhere.** When a Claude tab you're not looking at needs permission, answer it from a Windows notification (Allow / Deny) or Helm's approval inbox, with "Always allow" for things you trust. No more hunting for the tab that's been waiting.
+- **Never get surprised by usage limits.** Live 5-hour and weekly limit meters, reset countdown, your current pace, which tab is using the most, and a warning at 80% and 95%.
+- **See every agent at once.** The Agents tab shows every Claude session grouped into *Needs you*, *Working* and *Done*, with what each is doing right now, context used and cost.
+- **Review like a pull request.** Comment on lines in the diff and send all comments to Claude in one go, and undo a single part of a file instead of the whole file.
+- **Sessions you can't lose.** Tabs come back after a crash or restart and resume in the right folder; reopen closed tabs with Ctrl+Alt+Shift+T.
+- **Windows done right.** PowerShell 7, Windows PowerShell or Git Bash per tab, and Helm tells Claude which shell syntax to use so it stops mixing them up.
+
 ## Features
 
 **Working with Claude**
@@ -54,6 +63,8 @@ Windows may show a SmartScreen warning because the installer isn't code-signed y
 | Ctrl+Tab, Ctrl+1…9 | Switch tabs |
 | Ctrl+Shift+P | Command palette |
 | Ctrl+Shift+H | Conversation history |
+| Ctrl+Shift+A | Agents: sessions, approvals and usage |
+| Ctrl+Alt+Shift+T | Reopen closed tab |
 | Ctrl+Shift+G | Changes panel |
 | Ctrl+Shift+F | Find in output |
 | Ctrl+C / Ctrl+V | Copy selection / paste text or screenshot |
@@ -65,7 +76,10 @@ Windows may show a SmartScreen warning because the installer isn't code-signed y
 Every pane is PowerShell running in a ConPTY pseudo-terminal, rendered with xterm.js (WebGL).
 Helm wraps the `claude` command in each pane so it starts with `--settings <file>` that adds
 status hooks for that pane only. The hooks send small JSON events to a local, key-protected
-HTTP endpoint on `127.0.0.1`, which drives the tab status and notifications.
+HTTP endpoint on `127.0.0.1`, which drives the tab status and notifications. Permission
+requests from background tabs use an `http` `PermissionRequest` hook that Helm answers (or hands
+back to the terminal prompt if you don't), and the usage meters come from Claude's status-line
+data. Helm only adds its status line when you haven't configured your own.
 
 History, export and the status bar read the transcripts Claude Code already keeps in
 `~/.claude/projects`. The changes panel and parallel tasks use plain git (parallel tasks are
@@ -99,8 +113,8 @@ Bump the version in `package.json`, `src-tauri/Cargo.toml` and `src-tauri/tauri.
 then push a matching tag:
 
 ```powershell
-git tag v0.3.0
-git push origin v0.3.0
+git tag v0.4.0
+git push origin v0.4.0
 ```
 
 The **Release** workflow builds the installer, signs the update with the

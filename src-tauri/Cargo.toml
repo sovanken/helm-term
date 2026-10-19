@@ -1,6 +1,6 @@
 [package]
 name = "helm"
-version = "0.3.0"
+version = "0.4.0"
 description = "A terminal made for Claude Code"
 authors = ["Helm contributors"]
 license = "MIT"
@@ -30,13 +30,16 @@ serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = ["preserve_order"] }
 portable-pty = "0.9"
 axum = "0.8"
-tokio = { version = "1", features = ["net", "rt"] }
+tokio = { version = "1", features = ["net", "rt", "sync", "time"] }
 arboard = "3"
 png = "0.18"
 uuid = { version = "1", features = ["v4"] }
 dirs = "7"
 which = "8"
 base64 = "0.22"
+
+[target."cfg(windows)".dependencies]
+tauri-winrt-notification = "0.8"
 
 [profile.release]
 codegen-units = 1

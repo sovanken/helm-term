@@ -3,6 +3,8 @@ import { Cpu, FileDiff, GitBranch, Sparkles, SquareTerminal } from "lucide-react
 import { ipc, type SessionStats } from "../lib/ipc";
 import { activePane, folderName, useStore } from "../state/store";
 import { typeCommand } from "../terminal/terminals";
+import { UsageMini } from "./Usage";
+import { shellLabel, useShells } from "../lib/shells";
 
 /** "claude-opus-5-5" → "Opus 5.5" */
 export function modelLabel(model?: string) {
@@ -26,6 +28,7 @@ export function StatusBar() {
   const pane = useMemo(() => activePane(), [activeTabId, panes]);
   const [stats, setStats] = useState<SessionStats | null>(null);
   const [branch, setBranch] = useState<string | null>(null);
+  const shells = useShells();
 
   const claude = !!pane && (pane.claudeActive || pane.kind === "claude");
   const cwd = pane?.cwd;
@@ -57,7 +60,17 @@ export function StatusBar() {
 
   if (!pane) return <footer className="h-6 shrink-0 bg-bg" />;
 
-  const pct = stats && stats.contextWindow ? Math.min(100, Math.round((stats.contextTokens / stats.contextWindow) * 100)) : 0;
+  // Prefer the live status-line numbers; fall back to reading the transcript.
+  const live = pane.stats;
+  const pct =
+    live?.contextPct !== undefined
+      ? Math.round(live.contextPct)
+      : stats && stats.contextWindow
+        ? Math.min(100, Math.round((stats.contextTokens / stats.contextWindow) * 100))
+        : 0;
+  const cost = live?.costUsd ?? stats?.costUsd;
+  const added = live?.linesAdded ?? stats?.linesAdded;
+  const removed = live?.linesRemoved ?? stats?.linesRemoved;
   const meterColor = pct >= 85 ? "bg-danger" : pct >= 65 ? "bg-attention" : "bg-accent";
   const item = "flex h-full items-center gap-1.5 px-2 rounded hover:bg-hover hover:text-fg";
 
@@ -70,7 +83,7 @@ export function StatusBar() {
         </span>
       ) : (
         <span className={`${item} hover:bg-transparent`}>
-          <SquareTerminal size={12} /> PowerShell
+          <SquareTerminal size={12} /> {shellLabel(pane.shell ?? useStore.getState().settings.shell, shells)}
         </span>
       )}
       <span className={`${item} hover:bg-transparent`} title={cwd}>
@@ -85,23 +98,24 @@ export function StatusBar() {
 
       <div className="flex-1" />
 
-      {claude && stats && (
+      <UsageMini />
+      {claude && (stats || live) && (
         <>
-          {!!(stats.linesAdded || stats.linesRemoved) && (
+          {!!(added || removed) && (
             <span className={`${item} hover:bg-transparent`} title="Lines Claude added and removed this session">
-              <span className="text-done">+{stats.linesAdded ?? 0}</span>
-              <span className="text-danger">−{stats.linesRemoved ?? 0}</span>
+              <span className="text-done">+{added ?? 0}</span>
+              <span className="text-danger">−{removed ?? 0}</span>
             </span>
           )}
-          {stats.costUsd !== undefined && (
-            <span className={`${item} hover:bg-transparent`} title="Session cost at API prices (as last recorded by Claude Code)">
-              ${stats.costUsd.toFixed(2)}
+          {cost !== undefined && (
+            <span className={`${item} hover:bg-transparent`} title="Session cost at API prices">
+              ${cost.toFixed(2)}
             </span>
           )}
-          {stats.contextTokens > 0 && (
+          {(pct > 0 || (stats?.contextTokens ?? 0) > 0) && (
             <button
               className={item}
-              title={`${formatTokens(stats.contextTokens)} of ${formatTokens(stats.contextWindow)} tokens used. Click to see what's using it (/context).`}
+              title={stats ? `${formatTokens(stats.contextTokens)} of ${formatTokens(stats.contextWindow)} tokens used. Click to see what's using it (/context).` : `${pct}% of the context window used. Click to see what's using it (/context).`}
               onClick={() => typeCommand(pane.id, "/context", true)}
             >
               <span className="relative h-1.5 w-14 overflow-hidden rounded-full bg-hover">
@@ -110,10 +124,10 @@ export function StatusBar() {
               {pct}% context
             </button>
           )}
-          {stats.model && (
+          {(live?.model ?? stats?.model) && (
             <button className={item} title="Switch model (/model)" onClick={() => typeCommand(pane.id, "/model", true)}>
-              <Cpu size={12} /> {modelLabel(stats.model)}
-              {stats.contextWindow >= 1_000_000 && <span className="text-faint">1M</span>}
+              <Cpu size={12} /> {modelLabel((live?.model ?? stats?.model)!.replace(/\[1m\]$/, ""))}
+              {((live?.model ?? "").includes("[1m]") || (stats?.contextWindow ?? 0) >= 1_000_000) && <span className="text-faint">1M</span>}
             </button>
           )}
         </>

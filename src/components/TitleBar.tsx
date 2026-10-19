@@ -10,6 +10,7 @@ import {
   Plus,
   Rows2,
   Columns2,
+  Bot,
   Command,
   Download,
   FileDiff,
@@ -22,6 +23,7 @@ import {
 import { paneIds } from "../lib/layout";
 import { activePane, cleanTitle, folderName, type PaneStatus, type Tab, useStore } from "../state/store";
 import { Menu, type MenuItem } from "./Menu";
+import { useShells } from "../lib/shells";
 import { StatusDot } from "./StatusDot";
 
 const appWindow = getCurrentWindow();
@@ -82,6 +84,61 @@ function TabButton({ tab, index }: { tab: Tab; index: number }) {
         className={`ml-auto flex size-5 shrink-0 items-center justify-center rounded text-muted hover:bg-hover hover:text-fg ${
           active ? "opacity-100" : "opacity-0 group-hover:opacity-100"
         }`}
+      >
+        <X size={13} />
+      </button>
+    </div>
+  );
+}
+
+/** Number of sessions that need the user: pending approvals plus tabs waiting for input. */
+function useNeedsYou() {
+  const approvals = useStore((s) => s.approvals.length);
+  const waiting = useStore((s) => Object.values(s.panes).filter((p) => p.status === "attention").length);
+  return Math.max(approvals, waiting);
+}
+
+function AgentsButton() {
+  const count = useNeedsYou();
+  const active = useStore((s) => s.view === "agents");
+  return (
+    <button
+      aria-label="Agents"
+      title="Agents: every Claude session and your usage limits (Ctrl+Shift+A)"
+      onClick={() => useStore.getState().openAgents()}
+      className={`relative flex size-8 items-center justify-center rounded-md hover:bg-hover ${active ? "bg-hover text-fg" : "text-muted hover:text-fg"}`}
+    >
+      <Bot size={16} />
+      {count > 0 && (
+        <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-attention px-1 text-[10px] font-semibold text-black">{count}</span>
+      )}
+    </button>
+  );
+}
+
+function AgentsTab() {
+  const open = useStore((s) => s.agentsOpen);
+  const active = useStore((s) => s.view === "agents");
+  const count = useNeedsYou();
+  if (!open) return null;
+  const { openAgents, closeAgents } = useStore.getState();
+  return (
+    <div
+      role="tab"
+      aria-selected={active}
+      onPointerDown={(e) => e.button === 0 && openAgents()}
+      onAuxClick={(e) => e.button === 1 && closeAgents()}
+      className={`group relative flex h-8 shrink-0 items-center gap-2 rounded-md px-2.5 ${active ? "bg-surface text-fg" : "text-muted hover:bg-hover hover:text-fg"}`}
+    >
+      {active && <span className="absolute inset-x-2.5 -bottom-1 h-0.5 rounded-full bg-accent" />}
+      <Bot size={14} className={active ? "text-accent" : ""} />
+      <span className="font-medium">Agents</span>
+      {count > 0 && <span className="rounded-full bg-attention px-1.5 text-[10px] font-semibold text-black">{count}</span>}
+      <button
+        aria-label="Close agents"
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={closeAgents}
+        className="flex size-5 items-center justify-center rounded text-muted hover:bg-hover hover:text-fg"
       >
         <X size={13} />
       </button>
@@ -155,6 +212,7 @@ export function TitleBar() {
   const sidebarOpen = useStore((s) => s.sidebarOpen);
   const [maximized, setMaximized] = useState(false);
   const [menu, setMenu] = useState(false);
+  const shells = useShells();
 
   useEffect(() => {
     void appWindow.isMaximized().then(setMaximized);
@@ -166,7 +224,18 @@ export function TitleBar() {
   const cwd = () => activePane()?.cwd ?? s.homeDir;
   const items: MenuItem[] = [
     { label: "New Claude tab", hint: "Ctrl+Shift+T", icon: <Sparkles size={14} />, onSelect: () => s.openTab(cwd(), "claude") },
-    { label: "New PowerShell tab", hint: "Ctrl+Shift+N", icon: <SquareTerminal size={14} />, onSelect: () => s.openTab(cwd(), "shell") },
+    ...shells.map((sh, i) => ({
+      label: `New ${sh.label} tab`,
+      hint: sh.id === s.settings.shell ? "Ctrl+Shift+N" : undefined,
+      icon: <SquareTerminal size={14} />,
+      onSelect: () => s.openTab(cwd(), "shell", { shell: sh.id }),
+      separatorBefore: i === 0,
+    })),
+    ...(shells.length > 1
+      ? shells
+          .filter((sh) => sh.id !== s.settings.shell)
+          .map((sh) => ({ label: `New Claude tab in ${sh.label}`, icon: <Sparkles size={14} />, onSelect: () => s.openTab(cwd(), "claude", { shell: sh.id }) }))
+      : []),
     { label: "Open folder with Claude…", icon: <FolderOpen size={14} />, onSelect: () => void chooseFolder("claude") },
     ...(tabs.length
       ? [
@@ -192,6 +261,7 @@ export function TitleBar() {
         {tabs.map((t, i) => (
           <TabButton key={t.id} tab={t} index={i} />
         ))}
+        <AgentsTab />
         <SettingsTab />
       </nav>
 
@@ -227,6 +297,7 @@ export function TitleBar() {
         <kbd className="font-sans text-[10px] text-faint">Ctrl+Shift+P</kbd>
       </button>
       <UpdateButton />
+      <AgentsButton />
       <ChangesToggle />
       <button
         aria-label="Settings"

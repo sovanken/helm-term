@@ -1,6 +1,8 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import {
   BookmarkPlus,
+  Bot,
+  RotateCcw,
   Download,
   FileDown,
   Layers,
@@ -134,6 +136,9 @@ export function CommandPalette() {
     action("new-claude", "New Claude tab", <Sparkles size={15} />, () => s.openTab(cwd, "claude"), "Ctrl+Shift+T");
     action("new-shell", "New PowerShell tab", <SquareTerminal size={15} />, () => s.openTab(cwd, "shell"), "Ctrl+Shift+N");
     action("open-folder", "Open folder with Claude…", <FolderOpen size={15} />, () => void chooseFolder("claude"));
+    action("agents", "Agents: sessions, approvals and usage", <Bot size={15} />, () => s.openAgents(), "Ctrl+Shift+A", "dashboard limits quota approve");
+    if (s.closedTabs.length)
+      action("reopen", `Reopen closed tab (${s.closedTabs[0].title || folderName(s.closedTabs[0].cwd)})`, <RotateCcw size={15} />, () => s.reopenClosedTab(), "Ctrl+Alt+Shift+T", "restore undo close");
     action("new-task", "New parallel task…", <Layers size={15} />, () => s.set({ newTaskOpen: true }), undefined, "worktree branch parallel");
     if (pane) {
       action("split-right", "Split right", <Columns2 size={15} />, () => s.splitActive("row", "shell"), "Alt+Shift+=");

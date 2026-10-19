@@ -20,6 +20,8 @@ export const SHORTCUTS: Shortcut[] = [
   { keys: "Ctrl+1…9", label: "Go to tab" },
   { keys: "Ctrl+Shift+P", label: "Command palette: prompts, Claude commands, actions" },
   { keys: "Ctrl+Shift+H", label: "Conversation history" },
+  { keys: "Ctrl+Shift+A", label: "Agents: all sessions, approvals and usage limits" },
+  { keys: "Ctrl+Alt+Shift+T", label: "Reopen closed tab" },
   { keys: "Ctrl+Shift+G", label: "Show changes (git)" },
   { keys: "Ctrl+Shift+F", label: "Find in output" },
   { keys: "Ctrl+Shift+B", label: "Show or hide projects" },
@@ -42,11 +44,13 @@ function run(e: KeyboardEvent): boolean {
       case "KeyN": s.openTab(cwd, "shell"); return true;
       case "KeyW":
         if (s.view === "settings") s.closeSettings();
+        else if (s.view === "agents") s.closeAgents();
         else if (pane) s.closePane(pane.id);
         return true;
       case "KeyF": if (pane) s.set({ searchOpen: true }); return true;
       case "KeyB": s.set({ sidebarOpen: !s.sidebarOpen }); return true;
       case "KeyP": s.set({ paletteOpen: !s.paletteOpen }); return true;
+      case "KeyA": if (s.view === "agents") s.closeAgents(); else s.openAgents(); return true;
       case "KeyG": s.set({ changesOpen: !s.changesOpen }); return true;
       case "KeyH":
         s.set(s.sidebarOpen && s.sidebarView === "history" ? { sidebarOpen: false } : { sidebarOpen: true, sidebarView: "history" });
@@ -54,6 +58,10 @@ function run(e: KeyboardEvent): boolean {
       case "KeyK": if (pane) clearTerminal(pane.id); return true;
       case "Tab": s.cycleTab(-1); return true;
     }
+  }
+  if (e.ctrlKey && e.altKey && e.shiftKey && e.code === "KeyT") {
+    s.reopenClosedTab();
+    return true;
   }
   if (e.altKey && e.shiftKey && !e.ctrlKey) {
     if (e.code === "Equal") { s.splitActive("row", "shell"); return true; }

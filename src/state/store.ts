@@ -1,0 +1,223 @@
+import { create } from "zustand";
+import { type Direction, type LayoutNode, type SplitDir, leaf, neighbor, paneIds, remove, setRatio, split } from "../lib/layout";
+import type { ThemeMode } from "../lib/themes";
+import { DEFAULT_FONT } from "../lib/themes";
+
+export type PaneKind = "claude" | "shell";
+
+/**
+ * idle: nothing running / seen · working: Claude is busy · attention: Claude is waiting on you
+ * (usually a permission prompt) · done: Claude finished and you have not looked yet.
+ */
+export type PaneStatus = "idle" | "working" | "attention" | "done";
+
+export interface Pane {
+  id: string;
+  /** How the pane was opened. */
+  kind: PaneKind;
+  cwd: string;
+  /** True while a Claude session is running in the pane (reported by hooks). */
+  claudeActive: boolean;
+  sessionId?: string;
+  /** Set when restoring a tab: resume this Claude session on launch. */
+  resumeSessionId?: string;
+  status: PaneStatus;
+  /** Terminal title set by the running program (Claude Code puts its task summary here). */
+  title?: string;
+  attentionMessage?: string;
+}
+
+export interface Tab {
+  id: string;
+  root: LayoutNode;
+  activePaneId: string;
+}
+
+export interface Settings {
+  theme: ThemeMode;
+  fontSize: number;
+  fontFamily: string;
+  notifications: boolean;
+  restoreTabs: boolean;
+}
+
+export const DEFAULT_SETTINGS: Settings = {
+  theme: "dark",
+  fontSize: 14,
+  fontFamily: DEFAULT_FONT,
+  notifications: true,
+  restoreTabs: true,
+};
+
+export interface RecentProject {
+  path: string;
+  lastUsed: number;
+}
+
+interface State {
+  tabs: Tab[];
+  activeTabId: string | null;
+  panes: Record<string, Pane>;
+  settings: Settings;
+  pinned: string[];
+  recent: RecentProject[];
+  sidebarOpen: boolean;
+  searchOpen: boolean;
+  settingsOpen: boolean;
+  homeDir: string;
+
+  openTab: (cwd: string, kind: PaneKind, opts?: { resumeSessionId?: string }) => string;
+  closeTab: (tabId: string) => void;
+  closePane: (paneId: string) => void;
+  splitActive: (dir: SplitDir, kind: PaneKind) => void;
+  focusPane: (paneId: string) => void;
+  focusNeighbor: (dir: Direction) => void;
+  setActiveTab: (tabId: string) => void;
+  cycleTab: (delta: number) => void;
+  resizeSplit: (tabId: string, splitId: string, ratio: number) => void;
+  updatePane: (paneId: string, patch: Partial<Pane>) => void;
+  markSeen: () => void;
+  updateSettings: (patch: Partial<Settings>) => void;
+  togglePin: (path: string) => void;
+  set: (patch: Partial<State>) => void;
+}
+
+function newPane(cwd: string, kind: PaneKind, resumeSessionId?: string): Pane {
+  return {
+    id: crypto.randomUUID(),
+    kind,
+    cwd,
+    claudeActive: false,
+    resumeSessionId,
+    sessionId: kind === "claude" && !resumeSessionId ? crypto.randomUUID() : undefined,
+    status: "idle",
+  };
+}
+
+export const useStore = create<State>((set, get) => ({
+  tabs: [],
+  activeTabId: null,
+  panes: {},
+  settings: DEFAULT_SETTINGS,
+  pinned: [],
+  recent: [],
+  sidebarOpen: true,
+  searchOpen: false,
+  settingsOpen: false,
+  homeDir: "",
+
+  openTab: (cwd, kind, opts) => {
+    const pane = newPane(cwd, kind, opts?.resumeSessionId);
+    const tab: Tab = { id: crypto.randomUUID(), root: leaf(pane.id), activePaneId: pane.id };
+    set((s) => ({ tabs: [...s.tabs, tab], activeTabId: tab.id, panes: { ...s.panes, [pane.id]: pane } }));
+    return tab.id;
+  },
+
+  closeTab: (tabId) => {
+    const tab = get().tabs.find((t) => t.id === tabId);
+    if (!tab) return;
+    for (const id of paneIds(tab.root)) get().closePane(id);
+  },
+
+  closePane: (paneId) => {
+    set((s) => {
+      const tab = s.tabs.find((t) => paneIds(t.root).includes(paneId));
+      const { [paneId]: _removed, ...panes } = s.panes;
+      if (!tab) return { panes };
+      const root = remove(tab.root, paneId);
+      if (!root) {
+        const idx = s.tabs.indexOf(tab);
+        const tabs = s.tabs.filter((t) => t.id !== tab.id);
+        const activeTabId =
+          s.activeTabId === tab.id ? (tabs[Math.min(idx, tabs.length - 1)]?.id ?? null) : s.activeTabId;
+        return { panes, tabs, activeTabId };
+      }
+      const activePaneId = tab.activePaneId === paneId ? paneIds(root)[0] : tab.activePaneId;
+      return { panes, tabs: s.tabs.map((t) => (t.id === tab.id ? { ...t, root, activePaneId } : t)) };
+    });
+  },
+
+  splitActive: (dir, kind) => {
+    const s = get();
+    const tab = s.tabs.find((t) => t.id === s.activeTabId);
+    if (!tab) return;
+    const cwd = s.panes[tab.activePaneId]?.cwd ?? s.homeDir;
+    const pane = newPane(cwd, kind);
+    set({
+      panes: { ...s.panes, [pane.id]: pane },
+      tabs: s.tabs.map((t) =>
+        t.id === tab.id ? { ...t, root: split(t.root, t.activePaneId, dir, pane.id), activePaneId: pane.id } : t,
+      ),
+    });
+  },
+
+  focusPane: (paneId) => {
+    set((s) => ({
+      tabs: s.tabs.map((t) => (paneIds(t.root).includes(paneId) ? { ...t, activePaneId: paneId } : t)),
+    }));
+    get().markSeen();
+  },
+
+  focusNeighbor: (dir) => {
+    const s = get();
+    const tab = s.tabs.find((t) => t.id === s.activeTabId);
+    if (!tab) return;
+    const next = neighbor(tab.root, tab.activePaneId, dir);
+    if (next) get().focusPane(next);
+  },
+
+  setActiveTab: (tabId) => {
+    set({ activeTabId: tabId });
+    get().markSeen();
+  },
+
+  cycleTab: (delta) => {
+    const { tabs, activeTabId } = get();
+    if (tabs.length < 2) return;
+    const idx = tabs.findIndex((t) => t.id === activeTabId);
+    get().setActiveTab(tabs[(idx + delta + tabs.length) % tabs.length].id);
+  },
+
+  resizeSplit: (tabId, splitId, ratio) =>
+    set((s) => ({ tabs: s.tabs.map((t) => (t.id === tabId ? { ...t, root: setRatio(t.root, splitId, ratio) } : t)) })),
+
+  updatePane: (paneId, patch) =>
+    set((s) => (s.panes[paneId] ? { panes: { ...s.panes, [paneId]: { ...s.panes[paneId], ...patch } } } : {})),
+
+  /** "done" turns back to idle once the user is looking at the pane. */
+  markSeen: () => {
+    if (!document.hasFocus()) return;
+    const s = get();
+    const tab = s.tabs.find((t) => t.id === s.activeTabId);
+    if (!tab) return;
+    const pane = s.panes[tab.activePaneId];
+    if (pane?.status === "done") get().updatePane(pane.id, { status: "idle" });
+  },
+
+  updateSettings: (patch) => set((s) => ({ settings: { ...s.settings, ...patch } })),
+
+  togglePin: (path) =>
+    set((s) => ({
+      pinned: s.pinned.some((p) => p.toLowerCase() === path.toLowerCase())
+        ? s.pinned.filter((p) => p.toLowerCase() !== path.toLowerCase())
+        : [...s.pinned, path],
+    })),
+
+  set: (patch) => set(patch),
+}));
+
+export function activePane(): Pane | undefined {
+  const s = useStore.getState();
+  const tab = s.tabs.find((t) => t.id === s.activeTabId);
+  return tab ? s.panes[tab.activePaneId] : undefined;
+}
+
+export function folderName(path: string): string {
+  const parts = path.replace(/[\\/]+$/, "").split(/[\\/]/);
+  return parts[parts.length - 1] || path;
+}
+
+/** Strips the spinner/status glyphs Claude Code puts in front of its terminal title. */
+export function cleanTitle(title?: string): string {
+  return (title ?? "").replace(/^[^\p{L}\p{N}]+/u, "").trim();
+}

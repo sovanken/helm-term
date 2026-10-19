@@ -32,6 +32,12 @@ pub struct LaunchRequest {
     pub approvals: bool,
     /// Feed the usage cockpit from Claude's status line (skipped if the user has their own).
     pub usage: bool,
+    /// Extra options appended when Helm starts Claude (Settings → Advanced).
+    #[serde(default)]
+    pub extra_args: String,
+    /// Extra environment variables for the shell (Settings → Advanced).
+    #[serde(default)]
+    pub env: Vec<(String, String)>,
     pub cols: u16,
     pub rows: u16,
 }
@@ -78,12 +84,23 @@ fn claude_line(req: &LaunchRequest) -> Option<String> {
     if req.kind != "claude" {
         return None;
     }
-    Some(match (&req.resume_session_id, &req.new_session_id, &req.worktree) {
+    let base = match (&req.resume_session_id, &req.new_session_id, &req.worktree) {
         (Some(id), _, _) => format!("claude --resume {id}"),
         (None, Some(id), Some(name)) => format!("claude --session-id {id} --worktree {name}"),
         (None, Some(id), None) => format!("claude --session-id {id}"),
         _ => "claude".into(),
-    })
+    };
+    // The user's own extra options, typed exactly as they would in their shell. Line breaks are
+    // removed so the value can't add further commands to the init script.
+    let extra = req.extra_args.replace(['\r', '\n'], " ");
+    Some(if extra.trim().is_empty() { base } else { format!("{base} {}", extra.trim()) })
+}
+
+fn valid_env_name(name: &str) -> bool {
+    !name.is_empty()
+        && name.len() <= 128
+        && name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
+        && !name.starts_with("HELM_")
 }
 
 fn windows_hint(shell_label: &str) -> String {
@@ -170,6 +187,11 @@ pub fn build(req: &LaunchRequest, settings_path: &Path) -> Result<SpawnSpec, Str
     ];
     if req.windows_hints {
         env.push(("HELM_APPEND".into(), windows_hint(&shell.label)));
+    }
+    for (k, v) in &req.env {
+        if valid_env_name(k) {
+            env.push((k.clone(), v.clone()));
+        }
     }
 
     let (program, args) = if shell.id == "bash" {

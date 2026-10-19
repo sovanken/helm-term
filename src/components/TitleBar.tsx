@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { open } from "@tauri-apps/plugin-dialog";
 import {
@@ -21,9 +21,10 @@ import {
   X,
 } from "lucide-react";
 import { paneIds } from "../lib/layout";
-import { activePane, cleanTitle, folderName, type PaneStatus, type Tab, useStore } from "../state/store";
+import { activePane, cleanTitle, defaultFolder, folderName, type PaneStatus, type Tab, useStore } from "../state/store";
 import { Menu, type MenuItem } from "./Menu";
 import { useShells } from "../lib/shells";
+import { closeTabSafely, confirmClosePanes } from "../lib/actions";
 import { StatusDot } from "./StatusDot";
 
 const appWindow = getCurrentWindow();
@@ -40,10 +41,45 @@ export async function chooseFolder(kind: "claude" | "shell") {
   if (typeof dir === "string") useStore.getState().openTab(dir, kind);
 }
 
+/** Drag a tab sideways to reorder it; a short click just selects it. */
+function startTabDrag(e: React.PointerEvent<HTMLDivElement>, tabId: string) {
+  const nav = e.currentTarget.parentElement;
+  if (!nav) return;
+  const startX = e.clientX;
+  let dragging = false;
+  const el = e.currentTarget;
+  const move = (ev: PointerEvent) => {
+    if (!dragging && Math.abs(ev.clientX - startX) < 6) return;
+    dragging = true;
+    el.dataset.dragging = "";
+    const s = useStore.getState();
+    const from = s.tabs.findIndex((t) => t.id === tabId);
+    const rects = [...nav.querySelectorAll<HTMLElement>("[data-tab-id]")].map((n) => ({ id: n.dataset.tabId!, r: n.getBoundingClientRect() }));
+    const to = rects.findIndex(({ r }) => ev.clientX >= r.left && ev.clientX <= r.right);
+    if (to >= 0 && to !== from) {
+      const target = rects[to].r;
+      // Only swap once the pointer passes the neighbour's middle, so tabs don't flicker.
+      const passed = to > from ? ev.clientX > target.left + target.width / 2 : ev.clientX < target.right - target.width / 2;
+      if (passed) s.moveTab(from, to);
+    }
+  };
+  const up = () => {
+    delete el.dataset.dragging;
+    window.removeEventListener("pointermove", move);
+    window.removeEventListener("pointerup", up);
+  };
+  window.addEventListener("pointermove", move);
+  window.addEventListener("pointerup", up);
+}
+
 function TabButton({ tab, index }: { tab: Tab; index: number }) {
   const panes = useStore((s) => s.panes);
   const active = useStore((s) => s.activeTabId === tab.id && s.view === "terminal");
-  const { setActiveTab, closeTab } = useStore.getState();
+  const { setActiveTab } = useStore.getState();
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (active) ref.current?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }, [active]);
   const pane = panes[tab.activePaneId];
   if (!pane) return null;
   const claude = pane.claudeActive || pane.kind === "claude";
@@ -53,16 +89,21 @@ function TabButton({ tab, index }: { tab: Tab; index: number }) {
 
   return (
     <div
+      ref={ref}
       role="tab"
+      data-tab-id={tab.id}
       aria-selected={active}
       title={`${pane.cwd}${title ? `\n${title}` : ""}${index < 9 ? `\nCtrl+${index + 1}` : ""}`}
-      onPointerDown={(e) => e.button === 0 && setActiveTab(tab.id)}
-      onAuxClick={(e) => e.button === 1 && closeTab(tab.id)}
-      className={`group relative flex h-8 min-w-28 max-w-60 shrink items-center gap-2 rounded-md px-2.5 ${
-        active ? "bg-surface text-fg" : "text-muted hover:bg-hover hover:text-fg"
+      onPointerDown={(e) => {
+        if (e.button !== 0) return;
+        setActiveTab(tab.id);
+        startTabDrag(e, tab.id);
+      }}
+      onAuxClick={(e) => e.button === 1 && void closeTabSafely(tab.id)}
+      className={`anim-fade group relative flex h-8 min-w-28 max-w-60 shrink-0 items-center gap-2 rounded-md px-2.5 data-[dragging]:z-10 data-[dragging]:cursor-grabbing data-[dragging]:bg-raised ${
+        active ? "border border-line bg-surface text-fg" : "border border-transparent text-muted hover:bg-hover hover:text-fg"
       }`}
     >
-      {active && <span className="absolute inset-x-2.5 -bottom-1 h-0.5 rounded-full bg-accent" />}
       <span className="flex size-4 shrink-0 items-center justify-center">
         {tabStatus(tab, panes) !== "idle" ? (
           <StatusDot status={tabStatus(tab, panes)} claude={claude} />
@@ -80,7 +121,7 @@ function TabButton({ tab, index }: { tab: Tab; index: number }) {
       <button
         aria-label="Close tab"
         onPointerDown={(e) => e.stopPropagation()}
-        onClick={() => closeTab(tab.id)}
+        onClick={() => void closeTabSafely(tab.id)}
         className={`ml-auto flex size-5 shrink-0 items-center justify-center rounded text-muted hover:bg-hover hover:text-fg ${
           active ? "opacity-100" : "opacity-0 group-hover:opacity-100"
         }`}
@@ -128,9 +169,8 @@ function AgentsTab() {
       aria-selected={active}
       onPointerDown={(e) => e.button === 0 && openAgents()}
       onAuxClick={(e) => e.button === 1 && closeAgents()}
-      className={`group relative flex h-8 shrink-0 items-center gap-2 rounded-md px-2.5 ${active ? "bg-surface text-fg" : "text-muted hover:bg-hover hover:text-fg"}`}
+      className={`group relative flex h-8 shrink-0 items-center gap-2 rounded-md px-2.5 ${active ? "border border-line bg-surface text-fg" : "border border-transparent text-muted hover:bg-hover hover:text-fg"}`}
     >
-      {active && <span className="absolute inset-x-2.5 -bottom-1 h-0.5 rounded-full bg-accent" />}
       <Bot size={14} className={active ? "text-accent" : ""} />
       <span className="font-medium">Agents</span>
       {count > 0 && <span className="rounded-full bg-attention px-1.5 text-[10px] font-semibold text-black">{count}</span>}
@@ -157,9 +197,8 @@ function SettingsTab() {
       aria-selected={active}
       onPointerDown={(e) => e.button === 0 && openSettings()}
       onAuxClick={(e) => e.button === 1 && closeSettings()}
-      className={`group relative flex h-8 shrink-0 items-center gap-2 rounded-md px-2.5 ${active ? "bg-surface text-fg" : "text-muted hover:bg-hover hover:text-fg"}`}
+      className={`group relative flex h-8 shrink-0 items-center gap-2 rounded-md px-2.5 ${active ? "border border-line bg-surface text-fg" : "border border-transparent text-muted hover:bg-hover hover:text-fg"}`}
     >
-      {active && <span className="absolute inset-x-2.5 -bottom-1 h-0.5 rounded-full bg-accent" />}
       <Settings size={14} className={active ? "text-accent" : ""} />
       <span className="font-medium">Settings</span>
       <button
@@ -221,7 +260,7 @@ export function TitleBar() {
   }, []);
 
   const s = useStore.getState();
-  const cwd = () => activePane()?.cwd ?? s.homeDir;
+  const cwd = () => activePane()?.cwd ?? defaultFolder();
   const items: MenuItem[] = [
     { label: "New Claude tab", hint: "Ctrl+Shift+T", icon: <Sparkles size={14} />, onSelect: () => s.openTab(cwd(), "claude") },
     ...shells.map((sh, i) => ({
@@ -257,7 +296,15 @@ export function TitleBar() {
         <PanelLeft size={16} />
       </button>
 
-      <nav role="tablist" data-tauri-drag-region className="flex min-w-0 items-center gap-0.5 overflow-hidden">
+      <nav
+        role="tablist"
+        data-tauri-drag-region
+        onWheel={(e) => {
+          // Scroll the tab strip sideways with the mouse wheel when tabs overflow.
+          if (!e.ctrlKey && Math.abs(e.deltaY) > Math.abs(e.deltaX)) e.currentTarget.scrollLeft += e.deltaY;
+        }}
+        className="no-scrollbar flex min-w-0 items-center gap-0.5 overflow-x-auto py-1"
+      >
         {tabs.map((t, i) => (
           <TabButton key={t.id} tab={t} index={i} />
         ))}
@@ -315,7 +362,11 @@ export function TitleBar() {
         <button aria-label={maximized ? "Restore" : "Maximize"} onClick={() => void appWindow.toggleMaximize()} className="flex h-full w-11 items-center justify-center text-muted hover:bg-hover hover:text-fg">
           {maximized ? <Copy size={12} className="-scale-x-100" /> : <Square size={12} />}
         </button>
-        <button aria-label="Close" onClick={() => void appWindow.close()} className="flex h-full w-11 items-center justify-center text-muted hover:bg-[#c42b1c] hover:text-white">
+        <button
+          aria-label="Close"
+          onClick={async () => {
+            if (await confirmClosePanes(Object.keys(useStore.getState().panes), "one or more tabs")) void appWindow.close();
+          }} className="flex h-full w-11 items-center justify-center text-muted hover:bg-[#c42b1c] hover:text-white">
           <X size={16} />
         </button>
       </div>

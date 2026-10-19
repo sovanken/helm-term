@@ -4,6 +4,7 @@ import { computeRects, type DividerRect, type Rect } from "../lib/layout";
 import { cleanTitle, folderName, type Tab, useStore } from "../state/store";
 import { SearchBar } from "./SearchBar";
 import { StatusDot } from "./StatusDot";
+import { beginLiveResize, endLiveResize } from "../terminal/terminals";
 import { TerminalView } from "./TerminalView";
 
 const pct = (n: number) => `${n * 100}%`;
@@ -50,6 +51,7 @@ function Divider({ tabId, d }: { tabId: string; d: DividerRect }) {
     const area = ref.current?.parentElement?.getBoundingClientRect();
     if (!area) return;
     e.currentTarget.setPointerCapture(e.pointerId);
+    beginLiveResize();
     const move = (ev: PointerEvent) => {
       const p = d.parent;
       const ratio = row
@@ -60,6 +62,7 @@ function Divider({ tabId, d }: { tabId: string; d: DividerRect }) {
     const up = () => {
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
+      endLiveResize();
     };
     window.addEventListener("pointermove", move);
     window.addEventListener("pointerup", up);

@@ -257,8 +257,13 @@ fn permission_respond(bridge: State<Bridge>, id: String, decision: Option<serde_
 }
 
 #[tauri::command]
-fn show_approval_toast(app: AppHandle, id: String, title: String, body: String, detail: String) -> Result<(), String> {
-    toast::show_approval(&app, &id, &title, &body, &detail)
+fn show_approval_toast(app: AppHandle, id: String, title: String, body: String, detail: String, silent: Option<bool>) -> Result<(), String> {
+    toast::show_approval(&app, &id, &title, &body, &detail, silent.unwrap_or(false))
+}
+
+#[tauri::command]
+fn show_toast(app: AppHandle, title: String, body: String, silent: Option<bool>) -> Result<(), String> {
+    toast::show(&app, &title, &body, silent.unwrap_or(false))
 }
 
 #[tauri::command]
@@ -274,6 +279,50 @@ async fn git_revert_hunk(root: String, patch: String) -> Result<(), String> {
 #[tauri::command]
 async fn session_cwd(session_id: String) -> Option<String> {
     tauri::async_runtime::spawn_blocking(move || sessions::session_cwd(&session_id)).await.ok().flatten()
+}
+
+/// Helm's own data folder (settings, hook files, pasted screenshots).
+#[tauri::command]
+fn data_dir_path(app: AppHandle) -> String {
+    data_dir(&app).to_string_lossy().into_owned()
+}
+
+/// Size in bytes and number of pasted screenshots Helm keeps (they're pruned after a week).
+#[tauri::command]
+fn screenshots_info(app: AppHandle) -> (u64, u32) {
+    let mut bytes = 0;
+    let mut count = 0;
+    for entry in std::fs::read_dir(data_dir(&app).join("screenshots")).into_iter().flatten().flatten() {
+        bytes += entry.metadata().map(|m| m.len()).unwrap_or(0);
+        count += 1;
+    }
+    (bytes, count)
+}
+
+#[tauri::command]
+fn clear_screenshots(app: AppHandle) -> u32 {
+    let mut removed = 0;
+    for entry in std::fs::read_dir(data_dir(&app).join("screenshots")).into_iter().flatten().flatten() {
+        if std::fs::remove_file(entry.path()).is_ok() {
+            removed += 1;
+        }
+    }
+    removed
+}
+
+/// Export / import of settings to a file the user picked in a save/open dialog.
+#[tauri::command]
+fn write_text_file(path: String, content: String) -> Result<(), String> {
+    std::fs::write(path, content).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn read_text_file(path: String) -> Result<String, String> {
+    let meta = std::fs::metadata(&path).map_err(|e| e.to_string())?;
+    if meta.len() > 2 * 1024 * 1024 {
+        return Err("That file is too large to be a Helm settings file".into());
+    }
+    std::fs::read_to_string(path).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -298,6 +347,7 @@ pub fn run() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_autostart::Builder::new().build())
         .manage(PtyManager::default())
         .manage(SessionCache::default())
         .setup(|app| {
@@ -342,9 +392,15 @@ pub fn run() {
             export_session,
             permission_respond,
             show_approval_toast,
+            show_toast,
             list_shells,
             git_revert_hunk,
             session_cwd,
+            data_dir_path,
+            screenshots_info,
+            clear_screenshots,
+            write_text_file,
+            read_text_file,
             home_dir,
         ])
         .build(tauri::generate_context!())

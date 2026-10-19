@@ -13,7 +13,7 @@ export function ToastView() {
       <Info size={15} className="shrink-0 text-working" />
     );
   return (
-    <div role="status" className="fixed bottom-9 left-1/2 z-50 flex max-w-[min(560px,calc(100vw-32px))] -translate-x-1/2 items-center gap-2.5 rounded-lg border border-line bg-raised py-2 pr-2 pl-3 text-fg shadow-lg shadow-black/20">
+    <div key={toast.id} role="status" className="anim-rise fixed bottom-10 left-1/2 z-50 flex max-w-[min(560px,calc(100vw-32px))] -translate-x-1/2 items-center gap-2.5 rounded-lg border border-line bg-raised py-2 pr-2 pl-3 text-fg shadow-lg shadow-black/20">
       {icon}
       <span className="min-w-0 flex-1 text-[13px] leading-snug">{toast.text}</span>
       {toast.action && (

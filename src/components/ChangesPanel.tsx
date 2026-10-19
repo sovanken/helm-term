@@ -77,7 +77,7 @@ export function ChangesPanel() {
 
   return (
     <>
-      <aside className="flex w-80 shrink-0 flex-col border-l border-line bg-bg">
+      <aside className="flex w-full min-w-0 flex-col bg-bg">
         <div className="flex items-center gap-2 px-3 py-2.5">
           <FileDiff size={15} className="text-muted" />
           <div className="min-w-0 flex-1">
@@ -341,7 +341,7 @@ function DiffView({
   };
 
   return (
-    <div className="absolute inset-0 z-30 flex flex-col bg-surface">
+    <div className="anim-fade absolute inset-0 z-30 flex flex-col bg-surface">
       <div className="flex items-center gap-2 border-b border-line px-4 py-2.5">
         <span className={`text-[11px] font-semibold ${STATUS[file.status].className}`}>{STATUS[file.status].label}</span>
         <span className="min-w-0 flex-1 truncate font-medium text-fg">{file.path}</span>

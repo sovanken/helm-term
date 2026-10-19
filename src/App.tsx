@@ -1,9 +1,10 @@
 import { useEffect } from "react";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
+import { Effect, getCurrentWindow } from "@tauri-apps/api/window";
 import { quotePath } from "./lib/ipc";
-import { resolveTheme } from "./lib/themes";
-import { activePane, useStore } from "./state/store";
-import { applyThemeToAll, insertText } from "./terminal/terminals";
+import { accentColor, resolveTheme, uiFontStack } from "./lib/themes";
+import { activePane, DEFAULT_SETTINGS, useStore } from "./state/store";
+import { applyThemeToAll, currentTerminalTheme, insertText, windowsBuildNumber } from "./terminal/terminals";
 import { AgentsPage } from "./components/AgentsPage";
 import { ApprovalBar } from "./components/Approvals";
 import { ChangesPanel } from "./components/ChangesPanel";
@@ -11,6 +12,7 @@ import { NewTaskDialog } from "./components/Tasks";
 import { ToastView } from "./components/Toast";
 import { CommandPalette } from "./components/CommandPalette";
 import { PromptsDialog } from "./components/PromptsDialog";
+import { ResizeHandle } from "./components/ResizeHandle";
 import { SettingsPage } from "./components/SettingsPage";
 import { StatusBar } from "./components/StatusBar";
 import { Sidebar } from "./components/Sidebar";
@@ -18,18 +20,69 @@ import { TabView } from "./components/TabView";
 import { TitleBar } from "./components/TitleBar";
 import { Welcome } from "./components/Welcome";
 
-function useTheme() {
-  const mode = useStore((s) => s.settings.theme);
+/** Applies theme, accent, fonts, interface size and Mica from settings. */
+function useAppearance() {
+  const s = useStore((st) => st.settings);
   useEffect(() => {
+    const root = document.documentElement;
     const apply = () => {
-      document.documentElement.dataset.theme = resolveTheme(mode);
+      const mode = resolveTheme(s.theme);
+      root.dataset.theme = mode;
+      const accent = accentColor(s.accent, mode);
+      root.style.setProperty("--accent", accent);
+      root.style.setProperty("--accent-soft", `${accent}1f`);
+      root.style.setProperty("--on-accent", mode === "dark" ? "#14110b" : "#ffffff");
+      root.style.setProperty("--ui-font", uiFontStack(s.uiFont));
+      root.style.setProperty("--term-bg", String(currentTerminalTheme(s).background));
       applyThemeToAll();
     };
     apply();
     const mq = window.matchMedia("(prefers-color-scheme: light)");
     mq.addEventListener("change", apply);
     return () => mq.removeEventListener("change", apply);
-  }, [mode]);
+  }, [s.theme, s.accent, s.uiFont, s.terminalScheme]);
+
+  useEffect(() => {
+    void getCurrentWebview().setZoom(s.uiScale).catch(() => {});
+  }, [s.uiScale]);
+
+  useEffect(() => {
+    const win = getCurrentWindow();
+    // Mica needs Windows 11 (build 22000+); elsewhere the window stays opaque.
+    const on = s.mica && windowsBuildNumber() >= 22000;
+    if (on) {
+      document.documentElement.dataset.mica = "";
+      void win.setEffects({ effects: [Effect.Mica] }).catch(() => {});
+    } else {
+      delete document.documentElement.dataset.mica;
+      void win.clearEffects().catch(() => {});
+    }
+  }, [s.mica]);
+}
+
+/**
+ * Ctrl + mouse wheel: over a terminal it changes the text size, anywhere else the interface size.
+ * (WebView2's own page zoom is turned off in tauri.conf.json.)
+ */
+function useWheelZoom() {
+  useEffect(() => {
+    const onWheel = (e: WheelEvent) => {
+      if (!e.ctrlKey) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const s = useStore.getState();
+      const up = e.deltaY < 0;
+      if ((e.target as HTMLElement | null)?.closest?.(".term-host")) {
+        const size = Math.min(32, Math.max(8, s.settings.fontSize + (up ? 1 : -1)));
+        if (size !== s.settings.fontSize) s.updateSettings({ fontSize: size });
+      } else {
+        const scale = Math.round(Math.min(1.5, Math.max(0.8, s.settings.uiScale + (up ? 0.05 : -0.05))) * 100) / 100;
+        if (scale !== s.settings.uiScale) s.updateSettings({ uiScale: scale });
+      }
+    };
+    window.addEventListener("wheel", onWheel, { passive: false, capture: true });
+    return () => window.removeEventListener("wheel", onWheel, { capture: true });
+  }, []);
 }
 
 /** Dropping files inserts their paths into the active terminal. */
@@ -53,35 +106,72 @@ export default function App() {
   const promptsOpen = useStore((s) => s.promptsOpen);
   const changesOpen = useStore((s) => s.changesOpen);
   const newTaskOpen = useStore((s) => s.newTaskOpen);
-  useTheme();
+  const sidebarWidth = useStore((s) => s.settings.sidebarWidth);
+  const changesWidth = useStore((s) => s.settings.changesWidth);
+  const { updateSettings } = useStore.getState();
+  useAppearance();
+  useWheelZoom();
   useFileDrop();
+
+  const showSidebar = sidebarOpen && view === "terminal";
+  const showChanges = changesOpen && view === "terminal";
 
   return (
     <div className="flex h-full flex-col">
       <TitleBar />
       <div className="flex min-h-0 flex-1">
-        {sidebarOpen && view === "terminal" && <Sidebar />}
+        {showSidebar && (
+          <>
+            <div className="flex shrink-0" style={{ width: sidebarWidth }}>
+              <Sidebar />
+            </div>
+            <ResizeHandle
+              side="left"
+              label="Resize sidebar"
+              width={sidebarWidth}
+              min={200}
+              max={480}
+              defaultWidth={DEFAULT_SETTINGS.sidebarWidth}
+              onChange={(w) => updateSettings({ sidebarWidth: w })}
+            />
+          </>
+        )}
         <main
           id="main-area"
-          className={`relative min-w-0 flex-1 overflow-hidden border-line bg-surface ${sidebarOpen && view === "terminal" ? "rounded-tl-lg border-t border-l" : "border-t"} ${changesOpen && view === "terminal" ? "rounded-tr-lg border-r" : ""}`}
+          className={`relative min-w-0 flex-1 overflow-hidden border-line ${view === "terminal" && tabs.length ? "bg-[var(--term-bg)]" : "bg-surface"} ${showSidebar ? "rounded-tl-lg border-t border-l" : "border-t"} ${showChanges ? "rounded-tr-lg border-r" : ""}`}
         >
           {tabs.map((t) => (
             <TabView key={t.id} tab={t} visible={view === "terminal" && t.id === activeTabId} />
           ))}
           {tabs.length === 0 && view === "terminal" && <Welcome />}
           {view === "settings" && (
-            <div className="absolute inset-0 z-20 bg-surface">
+            <div className="anim-fade absolute inset-0 z-20 bg-surface">
               <SettingsPage />
             </div>
           )}
           {view === "agents" && (
-            <div className="absolute inset-0 z-20 bg-surface">
+            <div className="anim-fade absolute inset-0 z-20 bg-surface">
               <AgentsPage />
             </div>
           )}
           <ApprovalBar />
         </main>
-        {changesOpen && view === "terminal" && <ChangesPanel />}
+        {showChanges && (
+          <>
+            <ResizeHandle
+              side="right"
+              label="Resize changes panel"
+              width={changesWidth}
+              min={260}
+              max={640}
+              defaultWidth={DEFAULT_SETTINGS.changesWidth}
+              onChange={(w) => updateSettings({ changesWidth: w })}
+            />
+            <div className="flex shrink-0" style={{ width: changesWidth }}>
+              <ChangesPanel />
+            </div>
+          </>
+        )}
       </div>
       <StatusBar />
       {paletteOpen && <CommandPalette />}

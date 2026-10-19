@@ -1,7 +1,38 @@
-import { save } from "@tauri-apps/plugin-dialog";
+import { ask, save } from "@tauri-apps/plugin-dialog";
+import { paneIds } from "./layout";
 import { openPath } from "@tauri-apps/plugin-opener";
 import { ipc } from "./ipc";
 import { activePane, cleanTitle, folderName, showToast, useStore } from "../state/store";
+
+/** True when any of these panes has Claude working or waiting on the user. */
+function busy(paneIdsToCheck: string[]) {
+  const s = useStore.getState();
+  return paneIdsToCheck.some((id) => {
+    const p = s.panes[id];
+    return p && (p.status === "working" || p.status === "attention");
+  });
+}
+
+/** Asks before closing panes where Claude is still working (Settings → General). */
+export async function confirmClosePanes(ids: string[], what: string): Promise<boolean> {
+  if (!useStore.getState().settings.confirmClose || !busy(ids)) return true;
+  return ask(`Claude is still working in ${what}. Closing stops it.`, {
+    title: "Close while Claude is working?",
+    kind: "warning",
+    okLabel: "Close",
+    cancelLabel: "Keep open",
+  });
+}
+
+export async function closeTabSafely(tabId: string) {
+  const s = useStore.getState();
+  const tab = s.tabs.find((t) => t.id === tabId);
+  if (tab && (await confirmClosePanes(paneIds(tab.root), "this tab"))) useStore.getState().closeTab(tabId);
+}
+
+export async function closePaneSafely(paneId: string) {
+  if (await confirmClosePanes([paneId], "this pane")) useStore.getState().closePane(paneId);
+}
 
 function fileSafe(text: string) {
   return text.replace(/[<>:"/\\|?*\u0000-\u001f]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 80) || "conversation";

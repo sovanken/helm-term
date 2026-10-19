@@ -9,9 +9,10 @@ import { WebLinksAddon } from "@xterm/addon-web-links";
 import { UnicodeGraphemesAddon } from "@xterm/addon-unicode-graphemes";
 import { Channel } from "@tauri-apps/api/core";
 import { readText, writeText } from "@tauri-apps/plugin-clipboard-manager";
+import { ask } from "@tauri-apps/plugin-dialog";
 import { openPath, openUrl } from "@tauri-apps/plugin-opener";
 import { ipc, quotePath } from "../lib/ipc";
-import { fontStack, resolveTheme, terminalThemes } from "../lib/themes";
+import { fontStack, resolveTheme, terminalTheme } from "../lib/themes";
 import { type Settings, useStore } from "../state/store";
 
 interface Entry {
@@ -22,6 +23,7 @@ interface Entry {
   opened: boolean;
   launched: boolean;
   resizeTimer?: number;
+  webgl?: WebglAddon;
 }
 
 const entries = new Map<string, Entry>();
@@ -33,18 +35,67 @@ export function isCurrentLaunch(paneId: string, launchId?: string | null) {
 }
 let windowsBuild = 22621;
 
+export function windowsBuildNumber() {
+  return windowsBuild;
+}
+
 export async function initTerminals() {
   windowsBuild = await ipc.osBuild().catch(() => windowsBuild);
+}
+
+export function currentTerminalTheme(settings: Settings) {
+  return terminalTheme(settings.terminalScheme, resolveTheme(settings.theme), settings.accent);
 }
 
 function terminalOptions(settings: Settings) {
   return {
     fontFamily: fontStack(settings.fontFamily),
     fontSize: settings.fontSize,
-    lineHeight: 1.15,
-    theme: terminalThemes[resolveTheme(settings.theme)],
+    lineHeight: settings.lineHeight,
+    theme: currentTerminalTheme(settings),
+    cursorStyle: settings.cursorStyle,
+    cursorBlink: settings.cursorBlink,
+    scrollback: settings.scrollback,
   };
 }
+
+function loadWebgl(entry: Entry) {
+  if (entry.webgl || !useStore.getState().settings.gpu) return;
+  try {
+    const webgl = new WebglAddon();
+    webgl.onContextLoss(() => {
+      webgl.dispose();
+      entry.webgl = undefined;
+    });
+    entry.term.loadAddon(webgl);
+    entry.webgl = webgl;
+  } catch {
+    // DOM renderer fallback.
+  }
+}
+
+/** Short visual "bell" flash on the pane, or the system sound, per settings. */
+function ring(entry: Entry) {
+  const bell = useStore.getState().settings.bell;
+  if (bell === "flash") {
+    entry.host.classList.remove("term-bell");
+    void entry.host.offsetWidth; // restart the animation
+    entry.host.classList.add("term-bell");
+  } else if (bell === "sound") {
+    audio ??= new AudioContext();
+    const ctx = audio;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.frequency.value = 880;
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.15);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.16);
+  }
+}
+
+let audio: AudioContext | undefined;
 
 function ensure(paneId: string): Entry {
   const existing = entries.get(paneId);
@@ -53,9 +104,6 @@ function ensure(paneId: string): Entry {
   const term = new Terminal({
     ...terminalOptions(useStore.getState().settings),
     allowProposedApi: true,
-    cursorBlink: true,
-    cursorStyle: "bar",
-    scrollback: 10000,
     smoothScrollDuration: 80,
     rescaleOverlappingGlyphs: true,
     windowsPty: { backend: "conpty", buildNumber: windowsBuild },
@@ -77,7 +125,12 @@ function ensure(paneId: string): Entry {
   return entry;
 }
 
-function wire(paneId: string, { term }: Entry) {
+function wire(paneId: string, entry: Entry) {
+  const { term } = entry;
+  term.onBell(() => ring(entry));
+  term.onSelectionChange(() => {
+    if (useStore.getState().settings.copyOnSelect && term.hasSelection()) void writeText(term.getSelection());
+  });
   term.onData((data) => void ipc.write(paneId, data).catch(() => {}));
   term.onBinary((data) => void ipc.write(paneId, data).catch(() => {}));
   term.onTitleChange((title) => useStore.getState().updatePane(paneId, { title }));
@@ -176,6 +229,20 @@ export async function pasteInto(paneId: string) {
   if (!entry) return;
   const text = await readText().catch(() => "");
   if (text) {
+    // In a plain shell every pasted line runs as a command; Claude's prompt pastes safely.
+    const s = useStore.getState();
+    const pane = s.panes[paneId];
+    const claude = pane && (pane.claudeActive || pane.kind === "claude");
+    const lines = text.replace(/\r?\n$/, "").split(/\r?\n/).length;
+    if (lines > 1 && !claude && s.settings.pasteWarning) {
+      const ok = await ask(`You're pasting ${lines} lines into a shell. Each line runs as its own command.\n\n${text.slice(0, 300)}${text.length > 300 ? "…" : ""}`, {
+        title: "Paste multiple lines?",
+        kind: "warning",
+        okLabel: "Paste",
+        cancelLabel: "Cancel",
+      });
+      if (!ok) return focusTerminal(paneId);
+    }
     entry.term.paste(text);
     return;
   }
@@ -201,7 +268,7 @@ export function insertText(paneId: string, text: string) {
 export async function copySelectionOrPaste(paneId: string) {
   const entry = entries.get(paneId);
   if (!entry) return;
-  if (entry.term.hasSelection()) {
+  if (entry.term.hasSelection() && useStore.getState().settings.rightClick === "smart") {
     await writeText(entry.term.getSelection());
     entry.term.clearSelection();
   } else {
@@ -217,13 +284,7 @@ export function attach(paneId: string, container: HTMLElement) {
   if (!entry.opened) {
     entry.term.open(entry.host);
     entry.opened = true;
-    try {
-      const webgl = new WebglAddon();
-      webgl.onContextLoss(() => webgl.dispose());
-      entry.term.loadAddon(webgl);
-    } catch {
-      // DOM renderer fallback.
-    }
+    loadWebgl(entry);
   }
   refit(paneId);
 }
@@ -233,9 +294,29 @@ export function detach(paneId: string, container: HTMLElement) {
   if (entry && entry.host.parentElement === container) container.removeChild(entry.host);
 }
 
+/**
+ * While a panel edge or split divider is being dragged, terminals keep their size and re-fit once
+ * at the end. Re-wrapping the text on every pixel of the drag is what makes terminals jump.
+ */
+let liveResize = false;
+
+export function beginLiveResize() {
+  liveResize = true;
+  document.documentElement.dataset.resizing = "";
+}
+
+export function endLiveResize() {
+  liveResize = false;
+  delete document.documentElement.dataset.resizing;
+  requestAnimationFrame(() => {
+    for (const id of entries.keys()) refit(id);
+  });
+}
+
 export function refit(paneId: string) {
   const entry = entries.get(paneId);
   if (!entry?.opened || !entry.host.isConnected || entry.host.clientWidth === 0) return;
+  if (liveResize && entry.launched) return;
   const dims = entry.fit.proposeDimensions();
   if (!dims || !Number.isFinite(dims.cols) || dims.cols < 2) return;
   if (dims.cols !== entry.term.cols || dims.rows !== entry.term.rows) entry.term.resize(dims.cols, dims.rows);
@@ -249,6 +330,15 @@ export function refit(paneId: string) {
   entry.resizeTimer = window.setTimeout(() => {
     void ipc.resize(paneId, entry.term.cols, entry.term.rows).catch(() => {});
   }, 60);
+}
+
+/** "NAME=value" lines → pairs (blank lines and # comments ignored). */
+function parseEnv(text: string): [string, string][] {
+  return text
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l && !l.startsWith("#") && l.includes("="))
+    .map((l) => [l.slice(0, l.indexOf("=")).trim(), l.slice(l.indexOf("=") + 1)] as [string, string]);
 }
 
 async function launch(paneId: string, entry: Entry) {
@@ -288,6 +378,8 @@ async function launch(paneId: string, entry: Entry) {
         windowsHints: store.settings.windowsHints,
         approvals: store.settings.approvals,
         usage: store.settings.usageCockpit,
+        extraArgs: store.settings.extraClaudeArgs,
+        env: parseEnv(store.settings.extraEnv),
         newSessionId: pane.kind === "claude" && !resumeSessionId ? sessionId : undefined,
         resumeSessionId,
         worktree: resumeSessionId ? undefined : pane.worktree,
@@ -342,15 +434,37 @@ useStore.subscribe((state, prev) => {
   if (state.settings !== prev.settings) {
     const opts = terminalOptions(state.settings);
     for (const [id, entry] of entries) {
-      entry.term.options.fontFamily = opts.fontFamily;
-      entry.term.options.fontSize = opts.fontSize;
-      entry.term.options.theme = opts.theme;
+      const o = entry.term.options;
+      if (o.fontFamily !== opts.fontFamily) o.fontFamily = opts.fontFamily;
+      if (o.fontSize !== opts.fontSize) o.fontSize = opts.fontSize;
+      if (o.lineHeight !== opts.lineHeight) o.lineHeight = opts.lineHeight;
+      if (o.cursorStyle !== opts.cursorStyle) o.cursorStyle = opts.cursorStyle;
+      if (o.cursorBlink !== opts.cursorBlink) o.cursorBlink = opts.cursorBlink;
+      if (o.scrollback !== opts.scrollback) o.scrollback = opts.scrollback;
+      o.theme = opts.theme;
+      if (state.settings.gpu !== prev.settings.gpu) {
+        if (state.settings.gpu) loadWebgl(entry);
+        else {
+          entry.webgl?.dispose();
+          entry.webgl = undefined;
+        }
+      }
       refit(id);
     }
   }
 });
 
 export function applyThemeToAll() {
-  const theme = terminalOptions(useStore.getState().settings).theme;
+  const theme = currentTerminalTheme(useStore.getState().settings);
   for (const entry of entries.values()) entry.term.options.theme = theme;
+}
+
+/** Re-measures every terminal after web fonts finish loading. */
+export function remeasureAll() {
+  for (const [id, entry] of entries) {
+    const family = entry.term.options.fontFamily;
+    entry.term.options.fontFamily = `${family} `; // forces xterm to re-measure the cell size
+    entry.term.options.fontFamily = family;
+    refit(id);
+  }
 }

@@ -2,7 +2,9 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "Permissions for the main Helm window",
-  "windows": ["main"],
+  "windows": [
+    "main"
+  ],
   "permissions": [
     "core:default",
     "core:window:allow-start-dragging",
@@ -17,7 +19,11 @@
     "opener:allow-reveal-item-in-dir",
     {
       "identifier": "opener:allow-open-path",
-      "allow": [{ "path": "**" }]
+      "allow": [
+        {
+          "path": "**"
+        }
+      ]
     },
     "notification:default",
     "store:default",
@@ -28,6 +34,11 @@
     "process:allow-restart",
     "clipboard-manager:allow-read-text",
     "clipboard-manager:allow-write-text",
-    "window-state:default"
+    "window-state:default",
+    "core:window:allow-set-effects",
+    "core:webview:allow-set-webview-zoom",
+    "autostart:allow-enable",
+    "autostart:allow-disable",
+    "autostart:allow-is-enabled"
   ]
 }

@@ -4,6 +4,7 @@ import { GitBranch, GitMerge, Layers, MoreHorizontal, Plus, Sparkles, SquareTerm
 import { ipc, type WorktreeList } from "../lib/ipc";
 import { activePane, folderName, showToast, useStore } from "../state/store";
 import { Menu } from "./Menu";
+import { Section } from "./Sidebar";
 
 /** Lowercase words joined by dashes, safe as a folder and branch name. */
 function slug(text: string) {
@@ -23,6 +24,8 @@ export function NewTaskDialog() {
 
   useEffect(() => {
     dialog.current?.showModal();
+    // showModal focuses the first button (the ✕); put the cursor in the task field instead.
+    dialog.current?.querySelector<HTMLInputElement>("input")?.focus();
     void ipc.worktreeList(cwd).then(setRepo).catch(() => setRepo({ isRepo: false, worktrees: [] }));
   }, []);
 
@@ -176,11 +179,10 @@ export function TasksSection() {
   };
 
   return (
-    <section className="mb-3">
-      <div className="flex items-center px-2 pt-2 pb-1">
-        <h2 className="flex-1 truncate text-[11px] font-semibold tracking-wide text-faint uppercase" title={main}>
-          Tasks in {folderName(main)}
-        </h2>
+    <Section
+      title={`Tasks in ${folderName(main)}`}
+      count={tasks.length || undefined}
+      actions={
         <button
           aria-label="New parallel task"
           title="New parallel task"
@@ -189,13 +191,17 @@ export function TasksSection() {
         >
           <Plus size={13} />
         </button>
-      </div>
+      }
+    >
       {tasks.length === 0 && (
         <button
           onClick={() => set({ newTaskOpen: true })}
-          className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[12px] text-faint hover:bg-hover hover:text-fg"
+          className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-[12px] text-faint hover:bg-hover hover:text-fg"
         >
-          <Layers size={13} /> Run Claude on a second task in parallel
+          <span className="flex size-7 shrink-0 items-center justify-center rounded-lg border border-dashed border-line">
+            <Layers size={13} />
+          </span>
+          Run Claude on a second task in parallel
         </button>
       )}
       {tasks.map((w) => {
@@ -260,6 +266,6 @@ export function TasksSection() {
           </div>
         );
       })}
-    </section>
+    </Section>
   );
 }

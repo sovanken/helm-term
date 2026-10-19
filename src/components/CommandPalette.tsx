@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { fuzzyScore, timeAgo } from "../lib/fuzzy";
 import { ipc, type SlashCommand } from "../lib/ipc";
-import { activePane, folderName, useStore } from "../state/store";
+import { activePane, defaultFolder, folderName, useStore } from "../state/store";
 import { focusTerminal, insertText, typeCommand } from "../terminal/terminals";
 import { chooseFolder } from "./TitleBar";
 import { exportActiveConversation } from "../lib/actions";
@@ -92,7 +92,7 @@ export function CommandPalette() {
 
   const items = useMemo<Item[]>(() => {
     const out: Item[] = [];
-    const cwd = pane?.cwd ?? s.homeDir;
+    const cwd = pane?.cwd ?? defaultFolder();
 
     for (const p of s.prompts) {
       out.push({
@@ -219,8 +219,8 @@ export function CommandPalette() {
   };
 
   return (
-    <div className="fixed inset-0 z-40 flex justify-center bg-black/30 pt-[12vh]" onPointerDown={(e) => e.target === e.currentTarget && close()}>
-      <div role="dialog" aria-label="Command palette" className="flex h-fit max-h-[70vh] w-[620px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-xl border border-line bg-raised shadow-2xl shadow-black/30">
+    <div className="anim-fade fixed inset-0 z-40 flex justify-center bg-black/30 pt-[12vh]" onPointerDown={(e) => e.target === e.currentTarget && close()}>
+      <div role="dialog" aria-label="Command palette" className="anim-pop flex h-fit max-h-[70vh] w-[620px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-xl border border-line bg-raised shadow-2xl shadow-black/30">
         <div className="flex items-center gap-2.5 border-b border-line px-4">
           <Search size={16} className="text-faint" />
           <input

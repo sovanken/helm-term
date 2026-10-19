@@ -38,6 +38,7 @@ export async function checkForUpdate(manual = false) {
 /** Background checks: shortly after start, then every six hours. Off in development builds. */
 export function startUpdateChecks() {
   if (import.meta.env.DEV) return;
-  setTimeout(() => void checkForUpdate(), 8000);
-  setInterval(() => void checkForUpdate(), 6 * 60 * 60 * 1000);
+  const auto = () => useStore.getState().settings.autoUpdate && void checkForUpdate();
+  setTimeout(auto, 8000);
+  setInterval(auto, 6 * 60 * 60 * 1000);
 }

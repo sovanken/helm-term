@@ -7,9 +7,25 @@ import { installShortcuts } from "./lib/shortcuts";
 import { startUpdateChecks } from "./lib/updater";
 import { initEvents } from "./state/events";
 import { restore } from "./state/persist";
-import { useStore } from "./state/store";
-import { initTerminals, readBuffer } from "./terminal/terminals";
+import { getVersion } from "@tauri-apps/api/app";
+import { showToast, useStore } from "./state/store";
+import { initTerminals, readBuffer, remeasureAll } from "./terminal/terminals";
+import "@fontsource-variable/inter";
+import "@fontsource-variable/geist";
+import "@fontsource-variable/jetbrains-mono";
+import "@fontsource-variable/geist-mono";
 import "./styles.css";
+
+/** After an update, tell the user once what changed. A fresh install just records the version. */
+async function announceUpdate() {
+  const version = await getVersion().catch(() => "");
+  const s = useStore.getState();
+  if (!version || s.settings.lastSeenVersion === version) return;
+  if (s.settings.lastSeenVersion) {
+    setTimeout(() => showToast(`Helm was updated to ${version}.`, "success", { label: "What's new", run: () => useStore.getState().openSettings("whats-new") }), 1500);
+  }
+  s.updateSettings({ lastSeenVersion: version });
+}
 
 async function boot() {
   // A reloaded page can't see terminals started by the previous one; stop them first.
@@ -17,6 +33,15 @@ async function boot() {
   const [homeDir] = await Promise.all([ipc.homeDir(), initTerminals(), initEvents()]);
   useStore.getState().set({ homeDir });
   await restore().catch((err) => console.error("Could not restore session", err));
+  // Terminals measure their cell size from the font, so load the bundled fonts first.
+  await Promise.race([
+    Promise.all(
+      ["Inter Variable", "Geist Variable", "JetBrains Mono Variable", "Geist Mono Variable"].map((f) => document.fonts.load(`14px "${f}"`)),
+    ),
+    new Promise((r) => setTimeout(r, 1500)),
+  ]).catch(() => {});
+  document.fonts.addEventListener("loadingdone", () => remeasureAll());
+  void announceUpdate();
   installShortcuts();
   void refreshRecent();
   void refreshSessions();

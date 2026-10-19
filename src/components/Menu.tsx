@@ -70,7 +70,7 @@ export function Menu({
           ref={ref}
           role="menu"
           style={style}
-          className="fixed z-50 min-w-60 rounded-lg border border-line bg-raised p-1 shadow-lg shadow-black/20"
+          className="anim-pop fixed z-50 min-w-60 rounded-lg border border-line bg-raised p-1 shadow-lg shadow-black/20"
         >
           {items.map((item) => (
             <div key={item.label}>

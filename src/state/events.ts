@@ -2,7 +2,6 @@
 
 import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow, UserAttentionType } from "@tauri-apps/api/window";
-import { isPermissionGranted, requestPermission, sendNotification } from "@tauri-apps/plugin-notification";
 import { toolSummary, toolVerb } from "../lib/agents";
 import { ipc } from "../lib/ipc";
 import { paneIds } from "../lib/layout";
@@ -30,19 +29,24 @@ function isVisible(paneId: string) {
   return document.hasFocus() && s.view === "terminal" && !!tab && paneIds(tab.root).includes(paneId);
 }
 
-let notifyAllowed: boolean | null = null;
+type NotifyKind = "finished" | "approval" | "usage";
 
-async function systemNotify(title: string, body: string) {
-  if (!useStore.getState().settings.notifications) return;
-  if (notifyAllowed === null) {
-    notifyAllowed = (await isPermissionGranted()) || (await requestPermission()) === "granted";
-  }
-  if (notifyAllowed) sendNotification({ title, body });
+function notifyEnabled(kind: NotifyKind) {
+  const s = useStore.getState().settings;
+  if (!s.notifications) return false;
+  return kind === "finished" ? s.notifyFinished : kind === "approval" ? s.notifyApproval : s.notifyUsage;
 }
 
-async function notify(pane: Pane, title: string, body: string) {
+/** Windows notification through Helm's own toast (so the sound setting is honoured). */
+async function systemNotify(kind: NotifyKind, title: string, body: string) {
+  if (!notifyEnabled(kind)) return;
+  const silent = !useStore.getState().settings.notifySound;
+  await ipc.showToast(title, body, silent).catch(() => {});
+}
+
+async function notify(kind: NotifyKind, pane: Pane, title: string, body: string) {
   if (isVisible(pane.id)) return;
-  await systemNotify(title, body);
+  await systemNotify(kind, title, body);
   if (!document.hasFocus()) void getCurrentWindow().requestUserAttention(UserAttentionType.Informational);
 }
 
@@ -104,20 +108,20 @@ function onHook({ paneId, launchId, event, data }: HookEvent) {
       // Permission prompts that Helm already holds are shown in the approval inbox instead.
       if (type === "permission_prompt" && useStore.getState().approvals.some((a) => a.paneId === paneId)) break;
       updatePane(paneId, { status: "attention", attentionMessage: message, lastActivity: now });
-      void notify(pane, `Claude needs you · ${where}`, message);
+      void notify("approval", pane, `Claude needs you · ${where}`, message);
       break;
     }
     case "Stop": {
       const seen = isVisible(paneId);
       updatePane(paneId, { status: seen ? "idle" : "done", attentionMessage: undefined, doing: undefined, lastActivity: now });
-      void notify(pane, `Claude finished · ${where}`, cleanTitle(pane.title) || "Ready for your next message");
+      void notify("finished", pane, `Claude finished · ${where}`, cleanTitle(pane.title) || "Ready for your next message");
       break;
     }
     case "StopFailure": {
       const reason = str(data?.error_type) ?? str(data?.reason) ?? "an error";
       const message = reason === "rate_limit" ? "Usage limit reached" : `Stopped: ${reason.replace(/_/g, " ")}`;
       updatePane(paneId, { status: "attention", attentionMessage: message, doing: undefined, lastActivity: now });
-      void notify(pane, `Claude stopped · ${where}`, message);
+      void notify("finished", pane, `Claude stopped · ${where}`, message);
       break;
     }
   }
@@ -149,10 +153,10 @@ function onPermission({ id, paneId, launchId, data }: PermissionEvent) {
 
   if (!document.hasFocus()) {
     void getCurrentWindow().requestUserAttention(UserAttentionType.Critical);
-    if (s.settings.notifications) {
+    if (notifyEnabled("approval")) {
       ipc
-        .showApprovalToast(id, `Claude wants to ${toolVerb(tool)}`, `${where}${cleanTitle(pane.title) ? ` · ${cleanTitle(pane.title)}` : ""}`, approval.summary || tool)
-        .catch(() => void systemNotify(`Claude needs approval · ${where}`, approval.summary || tool));
+        .showApprovalToast(id, `Claude wants to ${toolVerb(tool)}`, `${where}${cleanTitle(pane.title) ? ` · ${cleanTitle(pane.title)}` : ""}`, approval.summary || tool, !s.settings.notifySound)
+        .catch(() => void systemNotify("approval", `Claude needs approval · ${where}`, approval.summary || tool));
     }
   }
 }
@@ -243,7 +247,7 @@ function onStatus({ paneId, launchId, data }: HookEvent) {
         warned.add(key);
         const text = `You've used ${Math.round(win.pct)}% of your ${label} Claude limit.`;
         showToast(text, level >= 95 ? "error" : "info", { label: "Details", run: () => useStore.getState().openAgents() });
-        void systemNotify("Claude usage limit", text);
+        void systemNotify("usage", "Claude usage limit", text);
       }
     }
   }

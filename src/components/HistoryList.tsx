@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
-import { Copy, FileDown, MessageSquare, MoreHorizontal, Play, Search, SquareTerminal, X } from "lucide-react";
+import { Copy, FileDown, MessageSquare, MoreHorizontal, Play, SquareTerminal } from "lucide-react";
 import { ipc, type SearchHit, type SessionInfo } from "../lib/ipc";
 import { fuzzyScore, timeAgo } from "../lib/fuzzy";
 import { activePane, folderName, useStore } from "../state/store";
 import { exportConversation } from "../lib/actions";
 import { Menu } from "./Menu";
+import { ItemIcon, SidebarSearch } from "./Sidebar";
 
 let refreshing: Promise<void> | null = null;
 
@@ -36,27 +37,26 @@ function SessionRow({ session, snippet, open }: { session: SessionInfo; snippet?
       <button
         onClick={() => resumeSession(session)}
         title={`${session.title}\n${session.cwd}\n\nClick to continue this conversation`}
-        className="flex w-full flex-col gap-0.5 rounded-md px-2 py-1.5 text-left hover:bg-hover"
+        className="flex w-full items-start gap-2.5 rounded-lg px-2 py-2 text-left hover:bg-hover"
       >
-        <span className="flex w-full items-center gap-1.5">
-          {open && <span className="size-1.5 shrink-0 rounded-full bg-accent" title="Open in a tab" />}
-          <span className="truncate pr-6 text-fg">{session.title}</span>
-        </span>
-        {snippet && <span className="line-clamp-2 text-[11px] text-muted">{snippet}</span>}
-        <span className="flex items-center gap-1.5 text-[11px] text-faint">
-          <span className="truncate">{folderName(session.cwd)}</span>
-          <span>·</span>
-          <span className="shrink-0">{timeAgo(session.lastUsed)}</span>
-          <span className="flex shrink-0 items-center gap-0.5" title={`${session.prompts} messages from you`}>
-            · <MessageSquare size={10} /> {session.prompts}
+        <ItemIcon kind="conversation" size={24} active={open} />
+        <span className="min-w-0 flex-1">
+          <span className={`block truncate pr-6 text-[13px] ${open ? "font-medium text-fg" : "text-fg"}`}>{session.title}</span>
+          {snippet && <span className="mt-0.5 line-clamp-2 block rounded bg-accent-soft px-1.5 py-0.5 text-[11px] text-muted">{snippet}</span>}
+          <span className="mt-0.5 flex items-center gap-1.5 text-[11px] text-faint">
+            <span className="truncate">{folderName(session.cwd)}</span>
+            <span className="shrink-0">· {timeAgo(session.lastUsed)}</span>
+            <span className="flex shrink-0 items-center gap-0.5" title={`${session.prompts} messages from you`}>
+              · <MessageSquare size={10} /> {session.prompts}
+            </span>
           </span>
         </span>
       </button>
-      <div className={`absolute top-1.5 right-1 ${menu ? "block" : "hidden group-hover:block"}`}>
+      <div className={`absolute top-1.5 right-1.5 ${menu ? "block" : "hidden group-hover:block"}`}>
         <button
           aria-label="More actions"
           onClick={() => setMenu((m) => !m)}
-          className="flex size-6 items-center justify-center rounded bg-hover text-muted hover:text-fg"
+          className="flex size-6 items-center justify-center rounded-md bg-raised text-muted hover:text-fg"
         >
           <MoreHorizontal size={14} />
         </button>
@@ -135,35 +135,27 @@ export function HistoryList() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="px-2 pb-2">
-        <div className="flex items-center gap-1.5 rounded-md border border-line bg-surface px-2 focus-within:border-accent">
-          <Search size={13} className="shrink-0 text-faint" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => e.key === "Escape" && setQuery("")}
-            placeholder="Search conversations"
-            className="min-w-0 flex-1 bg-transparent py-1.5 text-fg outline-none placeholder:text-faint"
-          />
-          {searching && <span className="status-working size-3 shrink-0 rounded-full border border-faint border-t-transparent" />}
-          {query && !searching && (
-            <button aria-label="Clear search" onClick={() => setQuery("")} className="text-faint hover:text-fg">
-              <X size={13} />
+      <SidebarSearch value={query} onChange={setQuery} placeholder="Search conversations" busy={searching} />
+      {projectCwd && (
+        <div className="mx-2 mt-1 mb-1 flex gap-1">
+          {[false, true].map((only) => (
+            <button
+              key={String(only)}
+              onClick={() => setThisProject(only)}
+              className={`max-w-full truncate rounded-full border px-2.5 py-0.5 text-[11px] ${thisProject === only ? "border-accent bg-accent-soft text-accent" : "border-line text-muted hover:text-fg"}`}
+            >
+              {only ? folderName(projectCwd) : "All projects"}
             </button>
-          )}
+          ))}
         </div>
-        {projectCwd && (
-          <label className="mt-2 flex cursor-pointer items-center gap-2 px-0.5 text-[12px] text-muted">
-            <input type="checkbox" checked={thisProject} onChange={(e) => setThisProject(e.target.checked)} className="accent-[var(--accent)]" />
-            Only {folderName(projectCwd)}
-          </label>
-        )}
-      </div>
+      )}
 
-      <div className="scroll-thin flex-1 overflow-y-auto px-2 pb-3">
+      <div className="scroll-thin flex-1 overflow-y-auto px-1.5 pb-3">
         {groups.map((g) => (
-          <section key={g.label} className="mb-2">
-            <h2 className="px-2 pt-1 pb-1 text-[11px] font-semibold tracking-wide text-faint uppercase">{g.label}</h2>
+          <section key={g.label} className="mb-1">
+            <h2 className="sticky top-0 z-10 bg-bg px-2 pt-2 pb-1 text-[11px] font-semibold tracking-wide text-faint uppercase">
+              {g.label} <span className="font-normal normal-case">{g.rows.length}</span>
+            </h2>
             {g.rows.map(({ session, snippet }) => (
               <SessionRow key={session.id} session={session} snippet={snippet} open={openIds.has(session.id)} />
             ))}

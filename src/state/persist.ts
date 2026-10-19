@@ -32,6 +32,11 @@ export async function restore() {
   const settings = { ...DEFAULT_SETTINGS, ...((await store.get<Partial<Settings>>("settings")) ?? {}) };
   // Early versions saved the whole font stack; keep only the chosen font's name.
   settings.fontFamily = settings.fontFamily.split(",")[0].replace(/"/g, "").trim() || DEFAULT_SETTINGS.fontFamily;
+  // v2: the bundled JetBrains Mono replaces the old default (Cascadia Mono) for people who never changed it.
+  if ((settings.settingsVersion ?? 1) < 2) {
+    if (settings.fontFamily === "Cascadia Mono") settings.fontFamily = DEFAULT_SETTINGS.fontFamily;
+    settings.settingsVersion = 2;
+  }
   const pinned = (await store.get<string[]>("pinned")) ?? [];
   const sidebarOpen = (await store.get<boolean>("sidebarOpen")) ?? true;
   const sidebarView = (await store.get<"projects" | "history">("sidebarView")) ?? "projects";

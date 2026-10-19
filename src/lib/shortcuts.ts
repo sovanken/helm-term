@@ -1,8 +1,9 @@
 // App shortcuts use Ctrl+Shift / Alt+Shift so they never steal keys Claude Code uses
 // (Ctrl+T, Ctrl+B, Ctrl+R, Ctrl+O, Ctrl+L, …).
 
-import { activePane, useStore } from "../state/store";
+import { activePane, defaultFolder, useStore } from "../state/store";
 import { clearTerminal, focusTerminal } from "../terminal/terminals";
+import { closePaneSafely } from "./actions";
 
 export interface Shortcut {
   keys: string;
@@ -36,7 +37,7 @@ function run(e: KeyboardEvent): boolean {
   const s = useStore.getState();
   const key = e.key.toLowerCase();
   const pane = activePane();
-  const cwd = pane?.cwd ?? s.homeDir;
+  const cwd = pane?.cwd ?? defaultFolder();
 
   if (e.ctrlKey && e.shiftKey && !e.altKey) {
     switch (e.code) {
@@ -45,7 +46,7 @@ function run(e: KeyboardEvent): boolean {
       case "KeyW":
         if (s.view === "settings") s.closeSettings();
         else if (s.view === "agents") s.closeAgents();
-        else if (pane) s.closePane(pane.id);
+        else if (pane) void closePaneSafely(pane.id);
         return true;
       case "KeyF": if (pane) s.set({ searchOpen: true }); return true;
       case "KeyB": s.set({ sidebarOpen: !s.sidebarOpen }); return true;

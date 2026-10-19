@@ -86,7 +86,7 @@ export function ApprovalBar() {
   return (
     <div className="pointer-events-none absolute top-3 right-4 z-30 flex w-[380px] max-w-[calc(100%-32px)] flex-col gap-2">
       {shown.map((a) => (
-        <div key={a.id} className="pointer-events-auto shadow-lg shadow-black/20">
+        <div key={a.id} className="anim-slide-in pointer-events-auto shadow-lg shadow-black/20">
           <ApprovalCard approval={a} compact />
         </div>
       ))}

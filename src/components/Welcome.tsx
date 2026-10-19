@@ -1,5 +1,5 @@
 import { FolderOpen, Sparkles, SquareTerminal } from "lucide-react";
-import { folderName, useStore } from "../state/store";
+import { defaultFolder, folderName, useStore } from "../state/store";
 import { chooseFolder } from "./TitleBar";
 
 export function HelmMark({ size = 40 }: { size?: number }) {
@@ -21,7 +21,6 @@ export function HelmMark({ size = 40 }: { size?: number }) {
 export function Welcome() {
   const recent = useStore((s) => s.recent);
   const pinned = useStore((s) => s.pinned);
-  const homeDir = useStore((s) => s.homeDir);
   const { openTab } = useStore.getState();
   const list = [...pinned.map((path) => ({ path })), ...recent.filter((r) => !pinned.includes(r.path))].slice(0, 6);
 
@@ -44,7 +43,7 @@ export function Welcome() {
             <FolderOpen size={16} /> Open folder with Claude
           </button>
           <button
-            onClick={() => openTab(homeDir, "shell")}
+            onClick={() => openTab(defaultFolder(), "shell")}
             className="flex items-center gap-2.5 rounded-lg border border-line px-3 py-2.5 font-medium text-fg hover:bg-hover"
           >
             <SquareTerminal size={16} /> New PowerShell tab

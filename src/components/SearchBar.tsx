@@ -44,7 +44,7 @@ export function SearchBar({ paneId }: { paneId: string }) {
   };
 
   return (
-    <div className="absolute top-2 right-4 z-20 flex items-center gap-1 rounded-lg border border-line bg-raised p-1 shadow-lg shadow-black/20">
+    <div className="anim-pop absolute top-2 right-4 z-20 flex items-center gap-1 rounded-lg border border-line bg-raised p-1 shadow-lg shadow-black/20">
       <input
         ref={input}
         value={query}

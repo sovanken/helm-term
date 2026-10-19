@@ -96,8 +96,13 @@ export interface ClosedTab {
 }
 
 export type SettingsSection =
+  | "general"
   | "appearance"
-  | "behavior"
+  | "terminal"
+  | "notifications"
+  | "advanced"
+  | "privacy"
+  | "whats-new"
   | "claude-in-helm"
   | "shortcuts"
   | "about"
@@ -148,7 +153,54 @@ export interface Settings {
   windowsHints: boolean;
   /** Status bar items the user switched off (right-click the status bar). */
   hiddenStatusItems: string[];
+
+  // ---- appearance ----
+  accent: AccentId;
+  /** "helm" follows the app theme; otherwise a named terminal color scheme. */
+  terminalScheme: string;
+  uiFont: "inter" | "geist" | "system";
+  /** Interface zoom, 0.8–1.5 (Ctrl + mouse wheel outside the terminal). */
+  uiScale: number;
+  lineHeight: number;
+  cursorStyle: "bar" | "block" | "underline";
+  cursorBlink: boolean;
+  /** Windows 11 Mica see-through window background. */
+  mica: boolean;
+  sidebarWidth: number;
+  changesWidth: number;
+
+  // ---- general ----
+  /** Folder for new tabs when no tab is open: "home", "last" or a custom path. */
+  startFolder: string;
+  lastFolder?: string;
+  confirmClose: boolean;
+
+  // ---- terminal ----
+  scrollback: number;
+  copyOnSelect: boolean;
+  /** Right-click: copy the selection or paste ("smart"), or always paste. */
+  rightClick: "smart" | "paste";
+  bell: "none" | "flash" | "sound";
+  pasteWarning: boolean;
+  gpu: boolean;
+
+  // ---- notifications ----
+  notifyFinished: boolean;
+  notifyApproval: boolean;
+  notifyUsage: boolean;
+  notifySound: boolean;
+
+  // ---- updates / advanced ----
+  autoUpdate: boolean;
+  extraClaudeArgs: string;
+  /** KEY=value lines added to every new tab's environment. */
+  extraEnv: string;
+  settingsVersion: number;
+  /** Last Helm version whose "What's new" the user was told about. */
+  lastSeenVersion?: string;
 }
+
+export type AccentId = "brass" | "blue" | "violet" | "green" | "rose" | "teal";
 
 export const DEFAULT_SETTINGS: Settings = {
   theme: "dark",
@@ -161,6 +213,32 @@ export const DEFAULT_SETTINGS: Settings = {
   usageCockpit: true,
   windowsHints: true,
   hiddenStatusItems: [],
+  accent: "brass",
+  terminalScheme: "helm",
+  uiFont: "inter",
+  uiScale: 1,
+  lineHeight: 1.2,
+  cursorStyle: "bar",
+  cursorBlink: true,
+  mica: false,
+  sidebarWidth: 256,
+  changesWidth: 320,
+  startFolder: "home",
+  confirmClose: true,
+  scrollback: 10000,
+  copyOnSelect: false,
+  rightClick: "smart",
+  bell: "flash",
+  pasteWarning: true,
+  gpu: true,
+  notifyFinished: true,
+  notifyApproval: true,
+  notifyUsage: true,
+  notifySound: true,
+  autoUpdate: true,
+  extraClaudeArgs: "",
+  extraEnv: "",
+  settingsVersion: 2,
 };
 
 export interface RecentProject {
@@ -204,6 +282,7 @@ interface State {
 
   openTab: (cwd: string, kind: PaneKind, opts?: { resumeSessionId?: string; worktree?: string; shell?: string }) => string;
   reopenClosedTab: () => void;
+  moveTab: (from: number, to: number) => void;
   openAgents: () => void;
   closeAgents: () => void;
   /** Focuses the pane already running this session, or opens a tab that resumes it. */
@@ -255,7 +334,7 @@ export const useStore = create<State>((set, get) => ({
   changesOpen: false,
   agentsOpen: false,
   view: "terminal",
-  settingsSection: "appearance",
+  settingsSection: "general",
   newTaskOpen: false,
   toast: null,
   update: null,
@@ -269,6 +348,7 @@ export const useStore = create<State>((set, get) => ({
   openTab: (cwd, kind, opts) => {
     const pane = { ...newPane(cwd, kind, opts?.resumeSessionId), worktree: opts?.worktree, shell: opts?.shell };
     const tab: Tab = { id: crypto.randomUUID(), root: leaf(pane.id), activePaneId: pane.id };
+    if (cwd && cwd !== get().settings.lastFolder) get().updateSettings({ lastFolder: cwd });
     set((s) => ({ tabs: [...s.tabs, tab], activeTabId: tab.id, view: "terminal", panes: { ...s.panes, [pane.id]: pane } }));
     return tab.id;
   },
@@ -280,6 +360,15 @@ export const useStore = create<State>((set, get) => ({
     const resume = last.kind === "claude" && last.sessionId ? last.sessionId : undefined;
     get().openTab(last.cwd, resume ? "claude" : "shell", { resumeSessionId: resume, shell: last.shell });
   },
+
+  moveTab: (from, to) =>
+    set((s) => {
+      if (from === to || from < 0 || to < 0 || from >= s.tabs.length || to >= s.tabs.length) return {};
+      const tabs = [...s.tabs];
+      const [tab] = tabs.splice(from, 1);
+      tabs.splice(to, 0, tab);
+      return { tabs };
+    }),
 
   openAgents: () => set({ agentsOpen: true, view: "agents" }),
 
@@ -437,4 +526,13 @@ export function showToast(text: string, kind: Toast["kind"] = "info", action?: T
   clearTimeout(toastTimer);
   useStore.setState({ toast: { id: Date.now(), text, kind, action } });
   toastTimer = window.setTimeout(() => useStore.setState({ toast: null }), kind === "error" ? 8000 : 4500);
+}
+
+/** Folder for a new tab when there's no active tab to copy it from (Settings → General). */
+export function defaultFolder(): string {
+  const s = useStore.getState();
+  const start = s.settings.startFolder;
+  if (start === "last") return s.settings.lastFolder || s.homeDir;
+  if (start && start !== "home") return start;
+  return s.homeDir;
 }

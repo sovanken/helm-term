@@ -107,6 +107,8 @@ export interface LaunchRequest {
   windowsHints: boolean;
   approvals: boolean;
   usage: boolean;
+  extraArgs: string;
+  env: [string, string][];
   cols: number;
   rows: number;
 }
@@ -137,8 +139,14 @@ export const ipc = {
   slashCommands: (cwd: string) => invoke<SlashCommand[]>("slash_commands", { cwd }),
   osBuild: () => invoke<number>("os_build"),
   permissionRespond: (id: string, decision: unknown | null) => invoke<boolean>("permission_respond", { id, decision }),
-  showApprovalToast: (id: string, title: string, body: string, detail: string) =>
-    invoke<void>("show_approval_toast", { id, title, body, detail }),
+  showApprovalToast: (id: string, title: string, body: string, detail: string, silent = false) =>
+    invoke<void>("show_approval_toast", { id, title, body, detail, silent }),
+  showToast: (title: string, body: string, silent = false) => invoke<void>("show_toast", { title, body, silent }),
+  dataDirPath: () => invoke<string>("data_dir_path"),
+  screenshotsInfo: () => invoke<[number, number]>("screenshots_info"),
+  clearScreenshots: () => invoke<number>("clear_screenshots"),
+  writeTextFile: (path: string, content: string) => invoke<void>("write_text_file", { path, content }),
+  readTextFile: (path: string) => invoke<string>("read_text_file", { path }),
   listShells: () => invoke<ShellInfo[]>("list_shells"),
   gitRevertHunk: (root: string, patch: string) => invoke<void>("git_revert_hunk", { root, patch }),
   sessionCwd: (sessionId: string) => invoke<string | null>("session_cwd", { sessionId }),

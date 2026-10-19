@@ -22,7 +22,9 @@
         "decorations": false,
         "shadow": true,
         "backgroundColor": "#0c0d0f",
-        "dragDropEnabled": true
+        "dragDropEnabled": true,
+        "transparent": true,
+        "zoomHotkeysEnabled": false
       }
     ],
     "security": {

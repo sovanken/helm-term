@@ -316,6 +316,26 @@ textarea {
   }
 }
 
+/* Thin vertical dividers between tabs, hidden next to the selected or hovered tab. */
+nav[role="tablist"] > [role="tab"]:not(:first-child)::before {
+  content: "";
+  position: absolute;
+  left: -2px;
+  top: 25%;
+  height: 50%;
+  width: 1px;
+  background: var(--faint);
+  opacity: 0.45;
+  transition: opacity 140ms ease;
+}
+
+nav[role="tablist"] > [role="tab"][aria-selected="true"]::before,
+nav[role="tablist"] > [role="tab"][aria-selected="true"] + [role="tab"]::before,
+nav[role="tablist"] > [role="tab"]:hover::before,
+nav[role="tablist"] > [role="tab"]:hover + [role="tab"]::before {
+  opacity: 0;
+}
+
 .no-scrollbar {
   scrollbar-width: none;
 }

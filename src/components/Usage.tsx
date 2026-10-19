@@ -105,26 +105,3 @@ export function UsageCockpit() {
     </div>
   );
 }
-
-/** Compact five-hour meter for the status bar. */
-export function UsageMini() {
-  useTick();
-  const usage = useStore((s) => s.usage);
-  const win = usage?.fiveHour ?? usage?.spend;
-  if (!win) return null;
-  const label = usage?.fiveHour ? "5h" : "spend";
-  const reset = formatCountdown(win.resetsAt);
-  return (
-    <button
-      onClick={() => useStore.getState().openAgents()}
-      title={`${Math.round(win.pct)}% of your ${label === "5h" ? "5-hour" : "spend"} limit used${reset ? `, resets in ${reset}` : ""}${usage?.sevenDay ? ` · weekly ${Math.round(usage.sevenDay.pct)}%` : ""}. Click for details.`}
-      className="flex h-full items-center gap-1.5 rounded px-2 hover:bg-hover hover:text-fg"
-    >
-      <Gauge size={12} />
-      <span className="relative h-1.5 w-10 overflow-hidden rounded-full bg-hover">
-        <span className={`absolute inset-y-0 left-0 rounded-full ${limitTone(win.pct)}`} style={{ width: `${Math.max(win.pct, 2)}%` }} />
-      </span>
-      {label} {Math.round(win.pct)}%
-    </button>
-  );
-}

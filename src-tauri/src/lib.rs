@@ -143,6 +143,11 @@ async fn git_branch(cwd: String) -> Option<String> {
 }
 
 #[tauri::command]
+async fn git_summary(cwd: String) -> Option<git::GitSummary> {
+    tauri::async_runtime::spawn_blocking(move || git::summary(&cwd)).await.ok().flatten()
+}
+
+#[tauri::command]
 async fn git_changes(cwd: String) -> Result<git::Changes, String> {
     tauri::async_runtime::spawn_blocking(move || git::changes(&cwd)).await.map_err(|e| e.to_string())?
 }
@@ -319,6 +324,7 @@ pub fn run() {
             search_sessions,
             session_stats,
             git_branch,
+            git_summary,
             git_changes,
             git_diff,
             git_revert,

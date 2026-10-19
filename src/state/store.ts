@@ -38,6 +38,8 @@ export interface Pane {
   doing?: string;
   /** Running subagents. */
   subagents?: number;
+  /** Claude's permission mode (default, acceptEdits, plan, auto, bypassPermissions, dontAsk). */
+  permissionMode?: string;
   /** Last time Claude reported anything (ms). */
   lastActivity?: number;
 }
@@ -48,6 +50,14 @@ export interface PaneStats {
   costUsd?: number;
   linesAdded?: number;
   linesRemoved?: number;
+  effort?: string;
+  thinking?: boolean;
+  fastMode?: boolean;
+  cache?: { warm: boolean; observed: boolean; expiresAt?: number; ttl?: string; hitRatio?: number };
+  pr?: { number: number; url?: string; reviewState?: string; kind?: string };
+  /** Worktree / parallel task name. */
+  task?: string;
+  durationMs?: number;
 }
 
 export interface Approval {
@@ -136,6 +146,8 @@ export interface Settings {
   usageCockpit: boolean;
   /** Tell Claude it is on Windows and which shell syntax to use. */
   windowsHints: boolean;
+  /** Status bar items the user switched off (right-click the status bar). */
+  hiddenStatusItems: string[];
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -148,6 +160,7 @@ export const DEFAULT_SETTINGS: Settings = {
   approvals: true,
   usageCockpit: true,
   windowsHints: true,
+  hiddenStatusItems: [],
 };
 
 export interface RecentProject {

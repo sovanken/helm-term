@@ -60,6 +60,8 @@ function onHook({ paneId, launchId, event, data }: HookEvent) {
   }
   const where = folderName(cwd ?? pane.cwd);
   const now = Date.now();
+  const mode = str(data?.permission_mode);
+  if (mode && mode !== pane.permissionMode) updatePane(paneId, { permissionMode: mode });
 
   switch (event) {
     case "SessionStart":
@@ -187,6 +189,21 @@ function onStatus({ paneId, launchId, data }: HookEvent) {
       costUsd: typeof d.cost?.total_cost_usd === "number" ? d.cost.total_cost_usd : undefined,
       linesAdded: d.cost?.total_lines_added,
       linesRemoved: d.cost?.total_lines_removed,
+      effort: str(d.effort?.level),
+      thinking: typeof d.thinking?.enabled === "boolean" ? d.thinking.enabled : undefined,
+      fastMode: typeof d.fast_mode === "boolean" ? d.fast_mode : undefined,
+      cache: d.prompt_cache
+        ? {
+            warm: !!d.prompt_cache.warm,
+            observed: !!d.prompt_cache.caching_observed,
+            expiresAt: typeof d.prompt_cache.expires_at === "number" ? d.prompt_cache.expires_at : undefined,
+            ttl: str(d.prompt_cache.ttl),
+            hitRatio: typeof d.prompt_cache.hit_ratio === "number" ? d.prompt_cache.hit_ratio : undefined,
+          }
+        : pane.stats?.cache,
+      pr: typeof d.pr?.number === "number" ? { number: d.pr.number, url: str(d.pr.url), reviewState: str(d.pr.review_state), kind: str(d.pr.kind) } : undefined,
+      task: str(d.worktree?.name) ?? str(d.workspace?.git_worktree),
+      durationMs: typeof d.cost?.total_duration_ms === "number" ? d.cost.total_duration_ms : undefined,
     },
   });
 

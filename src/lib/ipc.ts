@@ -129,6 +129,8 @@ export const ipc = {
   sessionStats: (transcriptPath?: string, sessionId?: string) =>
     invoke<SessionStats | null>("session_stats", { transcriptPath, sessionId }),
   gitBranch: (cwd: string) => invoke<string | null>("git_branch", { cwd }),
+  gitSummary: (cwd: string) =>
+    invoke<{ branch?: string; changed: number; ahead?: number; behind?: number } | null>("git_summary", { cwd }),
   gitChanges: (cwd: string) => invoke<Changes>("git_changes", { cwd }),
   gitDiff: (root: string, path: string, status: string) => invoke<string>("git_diff", { root, path, status }),
   gitRevert: (root: string, path: string, status: string) => invoke<void>("git_revert", { root, path, status }),

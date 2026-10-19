@@ -49,6 +49,39 @@ pub fn branch(cwd: &str) -> Option<String> {
     (!name.is_empty()).then_some(name)
 }
 
+#[derive(Serialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct GitSummary {
+    pub branch: Option<String>,
+    /// Files with uncommitted changes (including untracked).
+    pub changed: u32,
+    /// Commits not yet pushed / not yet pulled; None when the branch has no upstream.
+    pub ahead: Option<u32>,
+    pub behind: Option<u32>,
+}
+
+/// Branch, uncommitted file count and ahead/behind in a single `git status` call.
+pub fn summary(cwd: &str) -> Option<GitSummary> {
+    let out = git_ok(cwd, &["status", "--porcelain=v2", "--branch", "--untracked-files=normal"]).ok()?;
+    let mut s = GitSummary::default();
+    for line in out.lines() {
+        if let Some(head) = line.strip_prefix("# branch.head ") {
+            s.branch = (head != "(detached)").then(|| head.to_string());
+        } else if let Some(oid) = line.strip_prefix("# branch.oid ") {
+            if s.branch.is_none() && oid != "(initial)" {
+                s.branch = Some(oid.chars().take(7).collect());
+            }
+        } else if let Some(ab) = line.strip_prefix("# branch.ab ") {
+            let mut parts = ab.split_whitespace();
+            s.ahead = parts.next().and_then(|a| a.trim_start_matches('+').parse().ok());
+            s.behind = parts.next().and_then(|b| b.trim_start_matches('-').parse().ok());
+        } else if !line.starts_with('#') && !line.is_empty() {
+            s.changed += 1;
+        }
+    }
+    Some(s)
+}
+
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ChangedFile {

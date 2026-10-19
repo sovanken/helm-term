@@ -7,6 +7,12 @@ export interface MenuItem {
   icon?: ReactNode;
   onSelect: () => void;
   separatorBefore?: boolean;
+  /** Shows a check mark column; used for on/off options. */
+  checked?: boolean;
+  /** Keep the menu open after selecting (for toggling several options). */
+  keepOpen?: boolean;
+  /** Small non-clickable heading shown above this item. */
+  heading?: string;
 }
 
 /**
@@ -69,15 +75,26 @@ export function Menu({
           {items.map((item) => (
             <div key={item.label}>
               {item.separatorBefore && <div className="my-1 h-px bg-line" />}
+              {item.heading && <div className="px-2.5 pt-1.5 pb-1 text-[11px] font-semibold tracking-wide text-faint uppercase">{item.heading}</div>}
               <button
-                role="menuitem"
+                role={item.checked === undefined ? "menuitem" : "menuitemcheckbox"}
+                aria-checked={item.checked}
                 onClick={() => {
-                  onClose();
+                  if (!item.keepOpen) onClose();
                   item.onSelect();
                 }}
                 className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-fg hover:bg-hover"
               >
-                <span className="flex size-4 items-center justify-center text-muted">{item.icon}</span>
+                {item.checked !== undefined && (
+                  <span className={`flex size-4 items-center justify-center rounded border ${item.checked ? "border-accent bg-accent text-on-accent" : "border-line"}`}>
+                    {item.checked && (
+                      <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden>
+                        <path d="M2.5 6.5l2.5 2.5 4.5-5" />
+                      </svg>
+                    )}
+                  </span>
+                )}
+                {(item.icon || item.checked === undefined) && <span className="flex size-4 items-center justify-center text-muted">{item.icon}</span>}
                 <span className="flex-1">{item.label}</span>
                 {item.hint && <span className="text-[11px] text-faint">{item.hint}</span>}
               </button>

@@ -110,7 +110,7 @@ function TabButton({ tab, index }: { tab: Tab; index: number }) {
         startTabDrag(e, tab.id);
       }}
       onAuxClick={(e) => e.button === 1 && void closeTabSafely(tab.id)}
-      className={`anim-fade group relative flex h-8 w-60 min-w-32 shrink items-center gap-2 rounded-md px-2.5 data-[dragging]:z-10 data-[dragging]:cursor-grabbing data-[dragging]:bg-raised ${
+      className={`anim-fade group relative flex h-8 w-52 min-w-32 shrink items-center gap-2 rounded-md px-2.5 data-[dragging]:z-10 data-[dragging]:cursor-grabbing data-[dragging]:bg-raised ${
         active ? "border border-line bg-surface text-fg" : "border border-transparent text-muted hover:bg-hover hover:text-fg"
       }`}
     >
@@ -181,7 +181,7 @@ function AgentsTab() {
       aria-selected={active}
       onPointerDown={(e) => e.button === 0 && openAgents()}
       onAuxClick={(e) => e.button === 1 && closeAgents()}
-      className={`anim-fade group relative flex h-8 w-40 min-w-32 shrink items-center gap-2 rounded-md px-2.5 ${active ? "border border-line bg-surface text-fg" : "border border-transparent text-muted hover:bg-hover hover:text-fg"}`}
+      className={`anim-fade group relative flex h-8 w-52 min-w-32 shrink items-center gap-2 rounded-md px-2.5 ${active ? "border border-line bg-surface text-fg" : "border border-transparent text-muted hover:bg-hover hover:text-fg"}`}
     >
       <Bot size={14} className={active ? "text-accent" : ""} />
       <span className="truncate font-medium">Agents</span>
@@ -218,7 +218,7 @@ function FileTabButton({ file }: { file: FileTab }) {
       title={file.path}
       onPointerDown={(e) => e.button === 0 && showFile(file.id)}
       onAuxClick={(e) => e.button === 1 && closeFile(file.id)}
-      className={`anim-fade group relative flex h-8 w-48 min-w-32 shrink items-center gap-2 rounded-md px-2.5 ${active ? "border border-line bg-surface text-fg" : "border border-transparent text-muted hover:bg-hover hover:text-fg"}`}
+      className={`anim-fade group relative flex h-8 w-52 min-w-32 shrink items-center gap-2 rounded-md px-2.5 ${active ? "border border-line bg-surface text-fg" : "border border-transparent text-muted hover:bg-hover hover:text-fg"}`}
     >
       <Icon size={14} className={active ? "text-accent" : ""} />
       <span className="truncate font-medium">{name}</span>
@@ -245,7 +245,7 @@ function SettingsTab() {
       aria-selected={active}
       onPointerDown={(e) => e.button === 0 && openSettings()}
       onAuxClick={(e) => e.button === 1 && closeSettings()}
-      className={`anim-fade group relative flex h-8 w-40 min-w-32 shrink items-center gap-2 rounded-md px-2.5 ${active ? "border border-line bg-surface text-fg" : "border border-transparent text-muted hover:bg-hover hover:text-fg"}`}
+      className={`anim-fade group relative flex h-8 w-52 min-w-32 shrink items-center gap-2 rounded-md px-2.5 ${active ? "border border-line bg-surface text-fg" : "border border-transparent text-muted hover:bg-hover hover:text-fg"}`}
     >
       <Settings size={14} className={active ? "text-accent" : ""} />
       <span className="truncate font-medium">Settings</span>

@@ -128,7 +128,7 @@ function DetailsTab() {
         ))}
       </Group>
       {preview && (
-        <div className="anim-fade fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-10" onClick={() => setPreview(null)}>
+        <div data-overlay className="anim-fade fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-10" onClick={() => setPreview(null)}>
           <img src={preview} alt="Screenshot" className="anim-pop max-h-full max-w-full rounded-lg border border-line" />
         </div>
       )}

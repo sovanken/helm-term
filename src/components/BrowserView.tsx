@@ -30,10 +30,12 @@ import { type PageProblem, showToast, useStore } from "../state/store";
 import { Menu, type MenuItem } from "./Menu";
 import { bezelFor, DeviceFrame } from "./DeviceFrame";
 
-const OVERLAYS = '[role="menu"],[role="dialog"],[role="alertdialog"],[data-overlay]';
+const OVERLAYS = '[role="menu"],[role="dialog"],[role="alertdialog"],[role="listbox"],dialog[open],[data-overlay]';
 
 /** True when a menu, dialog or approval card overlaps the page (native views draw above them). */
 function covered(r: DOMRect) {
+  // A modal dialog dims the whole window, so every page steps aside while it's open.
+  if (document.querySelector("dialog[open]:modal")) return true;
   for (const el of document.querySelectorAll(OVERLAYS)) {
     const o = el.getBoundingClientRect();
     if (o.width && o.height && o.left < r.right && o.right > r.left && o.top < r.bottom && o.bottom > r.top) return true;
@@ -435,7 +437,7 @@ export function BrowserView({ paneId, visible }: { paneId: string; visible: bool
           <div ref={frame} data-browser-frame className="absolute inset-0 bg-white" />
         )}
         {hiddenByOverlay && !blank && (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-surface/80 text-[12px] text-faint">The page is paused while a menu is open</div>
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-surface/80 text-[12px] text-faint">The page is paused while this is open</div>
         )}
       </div>
 

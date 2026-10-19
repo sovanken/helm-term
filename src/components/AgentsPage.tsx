@@ -99,7 +99,8 @@ export function AgentsPage() {
   }, []);
 
   const claude = useMemo(() => Object.values(panes).filter((p) => p.claudeActive || p.kind === "claude"), [panes]);
-  const needsYou = claude.filter((p) => p.status === "attention");
+  // Tabs with a pending approval already have a card above, so they aren't listed twice.
+  const needsYou = claude.filter((p) => p.status === "attention" && !approvals.some((a) => a.paneId === p.id));
   const working = claude.filter((p) => p.status === "working");
   const rest = claude.filter((p) => p.status === "done" || p.status === "idle");
   const { openTab, set, homeDir } = useStore.getState();
@@ -113,7 +114,7 @@ export function AgentsPage() {
             <p className="text-muted">
               {claude.length === 0
                 ? "No Claude sessions are running."
-                : `${claude.length} Claude ${claude.length === 1 ? "session" : "sessions"} · ${working.length} working · ${needsYou.length} waiting for you`}
+                : `${claude.length} Claude ${claude.length === 1 ? "session" : "sessions"} · ${working.length} working · ${needsYou.length + new Set(approvals.map((a) => a.paneId)).size} waiting for you`}
             </p>
           </div>
           <button onClick={() => set({ newTaskOpen: true })} className="flex items-center gap-1.5 rounded-md border border-line px-3 py-1.5 text-fg hover:bg-hover">

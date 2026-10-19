@@ -44,10 +44,12 @@ export async function answerApproval(approval: Approval, choice: ApprovalChoice)
 export function describeSuggestions(suggestions: unknown[]): string {
   const rules: string[] = [];
   for (const s of suggestions as { type?: string; rules?: { toolName: string; ruleContent?: string }[]; mode?: string; destination?: string }[]) {
-    if (s?.rules) for (const r of s.rules) rules.push(r.ruleContent ? `${r.toolName}(${r.ruleContent})` : r.toolName);
-    if (s?.mode) rules.push(`mode: ${s.mode}`);
+    const where = s?.destination === "session" ? " for the rest of this session" : s?.destination === "localSettings" ? " in this project (only you)" : s?.destination === "projectSettings" ? " in this project" : s?.destination === "userSettings" ? " everywhere" : "";
+    if (s?.rules) for (const r of s.rules) rules.push(`${r.ruleContent ? `${r.toolName}(${r.ruleContent})` : `all ${r.toolName}`}${where}`);
+    if (s?.mode === "acceptEdits") rules.push(`accept file edits${where}`);
+    else if (s?.mode) rules.push(`switch to ${s.mode} mode${where}`);
   }
-  return rules.join(", ");
+  return rules.join("; ");
 }
 
 // ---------- usage ----------

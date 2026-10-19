@@ -313,6 +313,15 @@ function dispose(paneId: string) {
   entry.host.remove();
 }
 
+/** Dev/test helper: the last `lines` lines of a pane's terminal as text. */
+export function readBuffer(paneId: string, lines = 40): string {
+  const buf = entries.get(paneId)?.term.buffer.active;
+  if (!buf) return "";
+  const out: string[] = [];
+  for (let i = Math.max(0, buf.length - lines); i < buf.length; i++) out.push(buf.getLine(i)?.translateToString(true) ?? "");
+  return out.join("\n");
+}
+
 export function focusTerminal(paneId: string) {
   entries.get(paneId)?.term.focus();
 }

@@ -8,7 +8,7 @@ import { startUpdateChecks } from "./lib/updater";
 import { initEvents } from "./state/events";
 import { restore } from "./state/persist";
 import { useStore } from "./state/store";
-import { initTerminals } from "./terminal/terminals";
+import { initTerminals, readBuffer } from "./terminal/terminals";
 import "./styles.css";
 
 async function boot() {
@@ -29,5 +29,8 @@ async function boot() {
 import.meta.hot?.on("vite:beforeUpdate", ({ updates }) => {
   if (updates.some((u) => /\/src\/(state|terminal)\//.test(u.path))) location.reload();
 });
+
+// Dev only: lets automated UI tests drive the app state.
+if (import.meta.env.DEV) Object.assign(window, { __helm: useStore, __helmRead: readBuffer });
 
 void boot();

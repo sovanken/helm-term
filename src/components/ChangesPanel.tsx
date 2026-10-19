@@ -109,7 +109,14 @@ export function ChangesPanel() {
             <button onClick={() => setComments([])} className="text-muted hover:text-fg">
               Clear
             </button>
-            <button onClick={() => sendReview(changes.root!, comments) && setComments([])} className="rounded bg-accent px-2 py-0.5 font-medium text-on-accent">
+            <button
+              onClick={() => {
+                if (!sendReview(changes.root!, comments)) return;
+                setComments([]);
+                setOpen(null);
+              }}
+              className="rounded bg-accent px-2 py-0.5 font-medium text-on-accent"
+            >
               Send to Claude
             </button>
           </div>
@@ -340,7 +347,11 @@ function DiffView({
         <span className="min-w-0 flex-1 truncate font-medium text-fg">{file.path}</span>
         {comments.length > 0 && (
           <button
-            onClick={() => sendReview(root, comments) && setComments([])}
+            onClick={() => {
+              if (!sendReview(root, comments)) return;
+              setComments([]);
+              onClose(); // show Claude's tab so the reply is visible
+            }}
             className="flex items-center gap-1.5 rounded-md bg-accent px-2.5 py-1 font-medium text-on-accent hover:opacity-90"
           >
             <Send size={13} /> Send {comments.length} {comments.length === 1 ? "comment" : "comments"} to Claude

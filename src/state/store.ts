@@ -413,7 +413,7 @@ export function folderName(path: string): string {
 export function cleanTitle(title?: string): string {
   const t = (title ?? "").trim();
   // Shells set the title to their own program path ("C:\WINDOWS\...\powershell.exe"); that's noise.
-  if (/\.exe$/i.test(t) || /^(Windows )?PowerShell$/i.test(t)) return "";
+  if (/\.exe$/i.test(t) || /^(Windows )?PowerShell$/i.test(t) || /^MINGW(32|64):/.test(t)) return "";
   return t.replace(/^[^\p{L}\p{N}]+/u, "").trim();
 }
 

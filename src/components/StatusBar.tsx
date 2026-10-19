@@ -9,7 +9,7 @@ import { shellLabel, useShells } from "../lib/shells";
 /** "claude-opus-5-5" → "Opus 5.5" */
 export function modelLabel(model?: string) {
   if (!model) return null;
-  const m = /^claude-([a-z]+)-(\d+)(?:-(\d{1,2}))?(?:-|$)/.exec(model);
+  const m = /^claude-([a-z]+)-(\d+)(?:-(\d{1,2}))?(?:-|\[|$)/.exec(model);
   if (!m) return model;
   return `${m[1][0].toUpperCase()}${m[1].slice(1)} ${m[2]}${m[3] ? `.${m[3]}` : ""}`;
 }

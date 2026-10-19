@@ -95,12 +95,58 @@ textarea {
 
 .term-host .xterm-viewport {
   background-color: transparent !important;
+  /* xterm draws its own scrollbar; the native one would only leave stray arrow buttons. */
+  scrollbar-width: none;
 }
 
-/* Thin, quiet scrollbars for app UI lists. */
-.scroll-thin {
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
+.term-host .xterm-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+/* xterm's own scrollbar: always visible while the pointer is over the terminal. */
+.term-host:hover .xterm .xterm-scrollable-element > .scrollbar.vertical.invisible {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 120ms linear;
+}
+
+.term-host .xterm .xterm-scrollable-element > .scrollbar.vertical > .slider {
+  border-radius: 999px;
+  left: 3px !important;
+  width: 8px !important;
+}
+
+/* The inset shadow under the top edge reads as a stray line in a flat UI. */
+.term-host .xterm .xterm-scrollable-element > .shadow {
+  display: none !important;
+}
+
+/* One quiet scrollbar style for every app list: thin rounded thumb, no arrow buttons. */
+.scroll-thin::-webkit-scrollbar,
+.scroll-thin *::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.scroll-thin::-webkit-scrollbar-button,
+.scroll-thin *::-webkit-scrollbar-button {
+  display: none;
+}
+
+.scroll-thin::-webkit-scrollbar-track,
+.scroll-thin::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.scroll-thin::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  border-radius: 999px;
+}
+
+.scroll-thin::-webkit-scrollbar-thumb:hover {
+  background-color: var(--faint);
 }
 
 @keyframes helm-spin {

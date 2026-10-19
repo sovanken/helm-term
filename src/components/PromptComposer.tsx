@@ -1,24 +1,37 @@
 import { useEffect, useRef, useState } from "react";
 import { BookmarkPlus, CornerDownLeft, Sparkles, Undo2, Wand2, X } from "lucide-react";
 import { ipc } from "../lib/ipc";
-import { activePane, folderName, showToast, useStore } from "../state/store";
+import { paneIds } from "../lib/layout";
+import { activePane, folderName, type Pane, showToast, useStore } from "../state/store";
 import { focusTerminal, insertText } from "../terminal/terminals";
 
 /**
  * Write a prompt in a roomy editor, optionally let Claude Haiku make it clearer, then send it to
  * the active Claude tab. Clearer prompts mean fewer back-and-forth turns, which saves usage.
  */
+const isClaude = (p?: Pane) => !!p && p.kind !== "browser" && (p.claudeActive || p.kind === "claude");
+
+/** The Claude pane to write to: the active pane, or the Claude pane beside it (e.g. next to a browser). */
+function claudeTarget(): Pane | undefined {
+  const s = useStore.getState();
+  const active = activePane();
+  if (isClaude(active)) return active;
+  const tab = s.tabs.find((t) => t.id === s.activeTabId);
+  return tab ? paneIds(tab.root).map((id) => s.panes[id]).find(isClaude) : undefined;
+}
+
 export function PromptComposer() {
   const dialog = useRef<HTMLDialogElement>(null);
   const area = useRef<HTMLTextAreaElement>(null);
   const [text, setText] = useState("");
   const [original, setOriginal] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const pane = activePane();
-  const claude = !!pane && (pane.claudeActive || pane.kind === "claude");
+  const [pane] = useState(claudeTarget);
+  const claude = !!pane;
   const close = () => {
     useStore.getState().set({ composerOpen: false });
-    if (pane) focusTerminal(pane.id);
+    const back = pane ?? activePane();
+    if (back) focusTerminal(back.id);
   };
 
   useEffect(() => {
@@ -30,7 +43,7 @@ export function PromptComposer() {
     if (!text.trim() || busy) return;
     setBusy(true);
     try {
-      const better = await ipc.improvePrompt(text, pane ? folderName(pane.cwd) : "");
+      const better = await ipc.improvePrompt(text, folderName((pane ?? activePane())?.cwd ?? ""));
       setOriginal(text);
       setText(better);
     } catch (e) {
@@ -41,8 +54,10 @@ export function PromptComposer() {
   };
 
   const send = (submit: boolean) => {
-    if (!pane || !text.trim()) return;
+    // Only ever into a Claude pane: a shell would run the text as a command.
+    if (!pane || !text.trim() || busy) return;
     useStore.getState().set({ composerOpen: false });
+    useStore.getState().focusPane(pane.id);
     insertText(pane.id, text);
     if (submit) setTimeout(() => void ipc.write(pane.id, "\r"), 150);
   };

@@ -2,6 +2,7 @@
 
 import { check } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
+import { t } from "../i18n";
 import { showToast, useStore } from "../state/store";
 
 let checking = false;
@@ -13,7 +14,7 @@ export async function checkForUpdate(manual = false) {
   try {
     const update = await check();
     if (!update) {
-      if (manual) showToast("Helm is up to date.", "success");
+      if (manual) showToast(t("updater.upToDate"), "success");
       return;
     }
     useStore.getState().set({
@@ -21,15 +22,15 @@ export async function checkForUpdate(manual = false) {
         version: update.version,
         notes: update.body,
         install: async () => {
-          showToast(`Downloading Helm ${update.version}…`);
+          showToast(t("updater.downloading", { version: update.version }));
           await update.downloadAndInstall();
           await relaunch();
         },
       },
     });
-    if (manual) showToast(`Helm ${update.version} is available.`, "info");
+    if (manual) showToast(t("updater.available", { version: update.version }), "info");
   } catch (e) {
-    if (manual) showToast(`Couldn't check for updates: ${String(e)}`, "error");
+    if (manual) showToast(t("updater.checkFailed", { error: String(e) }), "error");
   } finally {
     checking = false;
   }

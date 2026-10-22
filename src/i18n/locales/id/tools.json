@@ -1,0 +1,478 @@
+{
+  "tools": {
+    "groups": {
+      "design": "Desain",
+      "data": "Data",
+      "generators": "Generator",
+      "system": "Sistem"
+    },
+    "list": {
+      "color": {
+        "label": "Pemilih warna",
+        "blurb": "Pilih, konversi, dan periksa kontras"
+      },
+      "image": {
+        "label": "Alat gambar",
+        "blurb": "Ubah ukuran, kompres, konversi"
+      },
+      "ruler": {
+        "label": "Penggaris layar",
+        "blurb": "Ukur apa saja di layar"
+      },
+      "json": {
+        "label": "Alat JSON",
+        "blurb": "Format, periksa, YAML, TypeScript"
+      },
+      "encode": {
+        "label": "Encode / decode",
+        "blurb": "Base64, URL, HTML, JWT"
+      },
+      "regex": {
+        "label": "Penguji regex",
+        "blurb": "Kecocokan dan grup secara langsung"
+      },
+      "diff": {
+        "label": "Bandingkan teks",
+        "blurb": "Lihat apa yang berubah"
+      },
+      "generate": {
+        "label": "UUID / kata sandi / hash",
+        "blurb": "ID, kata sandi, checksum"
+      },
+      "time": {
+        "label": "Konverter waktu",
+        "blurb": "Waktu Unix dan tanggal"
+      },
+      "placeholder": {
+        "label": "Teks placeholder",
+        "blurb": "Lorem ipsum dan data uji"
+      },
+      "ports": {
+        "label": "Port yang digunakan",
+        "blurb": "Apa yang ada di port 3000?"
+      },
+      "http": {
+        "label": "Penguji permintaan API",
+        "blurb": "Kirim permintaan, lihat respons"
+      },
+      "env": {
+        "label": "Variabel lingkungan",
+        "blurb": "PATH dan variabel lainnya"
+      },
+      "scratchpad": {
+        "label": "Catatan cepat",
+        "blurb": "Catatan yang disimpan per proyek"
+      }
+    },
+    "page": {
+      "navLabel": "Alat pengembang",
+      "opening": "Membuka…"
+    },
+    "ui": {
+      "copyValue": "Salin {{label}}"
+    },
+    "shared": {
+      "swap": "Tukar",
+      "clear": "Hapus",
+      "new": "Baru",
+      "howMany": "Berapa banyak",
+      "nothingMatches": "Tidak ada yang cocok.",
+      "saveAs": "Simpan sebagai…",
+      "savedFile": "{{name}} disimpan"
+    },
+    "color": {
+      "color": "Warna",
+      "choose": "Pilih warna…",
+      "pickTitle": "Ambil warna dari mana saja di layar",
+      "pick": "Ambil dari layar",
+      "invalid": "Itu bukan warna yang dipahami Helm.",
+      "contrast": "Kontras teks",
+      "textColor": "Warna teks",
+      "text": "Teks",
+      "swapLabel": "Tukar teks dan latar belakang",
+      "background": "Latar belakang",
+      "sampleHeading": "Teks judul besar",
+      "sampleBody": "Teks isi normal terlihat seperti ini dengan warna Anda.",
+      "passBody": "Teks isi",
+      "passLarge": "Teks besar",
+      "passBest": "Terbaik (AAA)",
+      "contrastHint": "Teks isi memerlukan 4.5:1 agar mudah dibaca; teks besar atau tebal memerlukan 3:1.",
+      "recent": "Warna terbaru",
+      "recentEmpty": "Warna yang Anda pilih atau ketik disimpan di sini."
+    },
+    "diff": {
+      "before": "Sebelum",
+      "beforePlaceholder": "Tempel teks asli",
+      "after": "Sesudah",
+      "afterPlaceholder": "Tempel teks yang diubah",
+      "swapLabel": "Tukar kedua teks",
+      "differences": "Perbedaan",
+      "noDifferences": "Tidak ada perbedaan",
+      "changedLines_other": "{{count}} baris berubah",
+      "ignoreSpaces": "Abaikan spasi",
+      "ignoreCase": "Abaikan huruf besar/kecil",
+      "empty": "Tempel dua versi di atas untuk membandingkannya baris demi baris."
+    },
+    "encode": {
+      "dateWithRelative": "{{date}} ({{relative}})",
+      "jwtParts": "JWT memiliki tiga bagian yang dipisahkan titik.",
+      "jwtUnreadable": "Ini tidak terlihat seperti JWT (bagian-bagiannya bukan JSON yang dapat dibaca).",
+      "pasteToken": "Tempel token untuk membacanya.",
+      "summary": "Ringkasan",
+      "expired": "Kedaluwarsa",
+      "notExpired": "Belum kedaluwarsa",
+      "algorithm": "Algoritme",
+      "subject": "Subjek",
+      "issuer": "Penerbit",
+      "issued": "Diterbitkan",
+      "expires": "Kedaluwarsa pada",
+      "payload": "Payload",
+      "header": "Header",
+      "jwtNote": "Helm hanya membaca token. Helm tidak memeriksa tanda tangannya, jadi jangan memercayai isinya hanya karena ini.",
+      "invalidBase64": "Itu bukan teks Base64 yang valid.",
+      "cantDecode": "Itu tidak dapat didekode.",
+      "encode": "Encode",
+      "decode": "Decode",
+      "urlSafe": "Aman untuk URL",
+      "token": "Token",
+      "encodedText": "Teks yang di-encode",
+      "text": "Teks",
+      "encodedPlaceholder": "Tempel teks yang di-encode",
+      "textPlaceholder": "Ketik atau tempel teks",
+      "swapTitle": "Gunakan hasil sebagai input dan balik arahnya",
+      "decoded": "Hasil decode",
+      "encoded": "Hasil encode"
+    },
+    "env": {
+      "hidden": "Tersembunyi (tampak seperti rahasia). Klik untuk menampilkan.",
+      "user": "Pengguna ({{n}})",
+      "system": "Sistem ({{n}})",
+      "searchPlaceholder": "Nama atau nilai",
+      "note": "Hanya baca, sesuai yang tersimpan di Windows. Program yang sudah terbuka (termasuk Helm) tetap memakai nilai saat dimulai, jadi mulai ulang program setelah mengubah variabel."
+    },
+    "generate": {
+      "copyAll": "Salin semua",
+      "v4": "Acak (v4)",
+      "v7": "Berurutan waktu (v7)",
+      "uppercase": "Huruf besar",
+      "dashes": "Tanda hubung",
+      "v7Hint": "ID v7 diawali dengan waktu, sehingga terurut sesuai waktu pembuatannya (bagus untuk kunci database).",
+      "veryStrong": "Sangat kuat",
+      "strong": "Kuat",
+      "ok": "Cukup",
+      "weak": "Lemah",
+      "password": "Kata sandi",
+      "newPassword": "Kata sandi baru",
+      "lengthValue": "Panjang: {{length}}",
+      "length": "Panjang",
+      "noLookAlikes": "Tanpa karakter mirip (I l 1 O 0)",
+      "randomness_other": "<0>{{strength}}</0> · sekitar {{count}} bit keacakan",
+      "hashTextInstead": "Hash teks saja",
+      "chooseFileTitle": "Pilih file untuk di-hash",
+      "chooseFile": "Pilih file…",
+      "hash": "Hash (checksum)",
+      "hashPlaceholder": "Ketik teks untuk di-hash, atau pilih file",
+      "readingFile": "Membaca file…",
+      "hashHint": "Untuk memeriksa unduhan, bandingkan SHA-256-nya dengan yang tercantum di situs web. MD5 dan SHA-1 cukup untuk itu, tetapi tidak untuk kata sandi atau keamanan."
+    },
+    "http": {
+      "binaryBody_other": "({{size}} byte data biner)",
+      "newRequest": "Permintaan baru",
+      "saved": "Tersimpan",
+      "savedEmpty": "Permintaan yang Anda simpan muncul di sini.",
+      "deleteRequest": "Hapus {{name}}",
+      "method": "Metode",
+      "address": "Alamat",
+      "send": "Kirim",
+      "saveTitle": "Simpan permintaan ini",
+      "copyCurl": "Salin sebagai curl",
+      "headersCount": "Header ({{n}})",
+      "headers": "Header",
+      "body": "Isi",
+      "headerName": "Nama",
+      "headerValue": "Nilai",
+      "removeHeader": "Hapus header",
+      "addHeader": "Tambahkan header",
+      "addAuth": "Tambahkan header otorisasi",
+      "noBody": "Permintaan GET dan HEAD tidak mengirim isi.",
+      "noContentType": "Tidak ada header Content-Type.",
+      "addJson": "Tambahkan \"application/json\"",
+      "response": "Respons",
+      "truncated": "(Hanya 10 MB pertama yang ditampilkan.)",
+      "empty": "Kirim permintaan untuk melihat responsnya. Permintaan dikirim dari Helm sendiri, jadi aturan CORS browser tidak menghalangi."
+    },
+    "image": {
+      "notImage": "File itu bukan gambar yang dapat dibaca Helm.",
+      "chooseTitle": "Pilih gambar",
+      "imagesFilter": "Gambar",
+      "tooLarge": "Gambar itu terlalu besar (lebih dari 15 MB).",
+      "pastedName": "gambar tempelan",
+      "saveTitle": "Simpan gambar",
+      "copied": "Gambar disalin",
+      "copyFailed": "Tidak dapat menyalin gambar: {{error}}",
+      "empty": "Pilih gambar, atau tempel gambar dengan Ctrl+V.",
+      "chooseButton": "Pilih gambar…",
+      "change": "Ubah…",
+      "original": "Asli",
+      "size": "Ukuran",
+      "width": "Lebar",
+      "height": "Tinggi",
+      "unlock": "Buka kunci proporsi",
+      "lock": "Pertahankan proporsi",
+      "locked": "Proporsi dipertahankan",
+      "unlocked": "Proporsi bebas",
+      "format": "Format",
+      "qualityValue": "Kualitas {{quality}}",
+      "quality": "Kualitas",
+      "hintPng": "PNG mempertahankan setiap piksel dengan tepat (file lebih besar).",
+      "hintJpg": "JPG cocok untuk foto; tidak mendukung transparansi.",
+      "hintWebp": "WebP paling kecil dan berfungsi di semua browser saat ini.",
+      "result": "Hasil",
+      "smaller_other": "({{count}}% lebih kecil)",
+      "larger_other": "({{count}}% lebih besar)",
+      "copyImage": "Salin gambar",
+      "copyDataUri": "Salin URI data",
+      "dataUriLarge": "URI data berukuran {{size}}; itu besar untuk dimasukkan ke dalam kode."
+    },
+    "json": {
+      "errorAt": "Baris {{line}}, kolom {{col}}: {{message}}",
+      "inputPlaceholder": "Tempel JSON di sini",
+      "valid_other": "JSON valid · {{n}} karakter",
+      "rootName": "Nama tipe utama",
+      "spaces_other": "{{count}} spasi",
+      "tabs": "Tab",
+      "formatted": "Diformat",
+      "minified": "Diperkecil",
+      "outputPlaceholder": "Hasilnya muncul di sini",
+      "errors": {
+        "endsEarly": "teks berakhir terlalu cepat",
+        "unexpected": "{{char}} tidak terduga",
+        "badUnicodeEscape": "escape \\u tidak valid",
+        "badEscape": "escape tidak valid setelah \\",
+        "controlChar": "jeda baris dan tab harus di-escape di dalam string",
+        "unclosedString": "ada string yang tidak ditutup (\" hilang)",
+        "extraCommaObject": "koma berlebih sebelum }",
+        "expectedKey": "diharapkan kunci dalam \"tanda kutip\", ditemukan {{found}}",
+        "expectedColon": "diharapkan : setelah kunci",
+        "expectedCommaObject": "diharapkan , atau } ({{problem}})",
+        "extraCommaArray": "koma berlebih sebelum ]",
+        "expectedCommaArray": "diharapkan , atau ] ({{problem}})",
+        "singleQuotes": "gunakan tanda kutip ganda, bukan tanda kutip tunggal",
+        "trailing": "ada teks lagi setelah akhir JSON"
+      }
+    },
+    "placeholder": {
+      "testData": "Data uji",
+      "paragraphs": "Paragraf",
+      "sentences": "Kalimat",
+      "words": "Kata",
+      "rows": "Baris",
+      "rowsAs": "<0></0><1>baris sebagai</1><2></2>",
+      "text": "Teks",
+      "data": "Data (rekaan, email menggunakan example.com)"
+    },
+    "ports": {
+      "stopConfirm": "Hentikan {{name}} (proses {{pid}})? Program ini menggunakan port {{port}}. Apa pun yang belum disimpan di dalamnya akan hilang.",
+      "stopConfirmTitle": "Hentikan {{name}}?",
+      "stop": "Hentikan",
+      "stopped": "{{name}} dihentikan. Port {{port}} kini kosong.",
+      "searchPlaceholder": "Port, program, atau ID proses",
+      "showSystem": "Tampilkan port sistem Windows",
+      "port": "Port",
+      "program": "Program",
+      "pid": "ID proses",
+      "listeningOn": "Mendengarkan di",
+      "allNetworks": "semua jaringan",
+      "thisPcOnly": "hanya PC ini",
+      "openTitle": "Buka di tab browser Helm",
+      "stopTitle": "Hentikan program ini",
+      "empty": "Tidak ada program yang mendengarkan di port.",
+      "hint": "Diperbarui setiap beberapa detik. Program dengan perisai adalah milik Windows, jadi Helm tidak akan menghentikannya."
+    },
+    "regex": {
+      "flags": {
+        "allMatches": "Semua kecocokan",
+        "ignoreCase": "Abaikan huruf besar/kecil",
+        "perLine": "^ $ per baris",
+        "dotAll": ". cocok dengan baris baru",
+        "unicode": "Unicode"
+      },
+      "escapes": {
+        "digit": "sebuah angka (0–9)",
+        "notDigit": "apa saja selain angka",
+        "word": "huruf, angka, atau _",
+        "notWord": "apa saja selain huruf, angka, atau _",
+        "space": "spasi, tab, atau baris baru",
+        "notSpace": "apa saja selain spasi kosong",
+        "boundary": "batas kata",
+        "notBoundary": "bukan batas kata",
+        "newline": "baris baru",
+        "tab": "tab",
+        "carriageReturn": "carriage return"
+      },
+      "zeroOrMore": "nol kali atau lebih",
+      "zeroOrMoreLazy": "nol kali atau lebih (sesedikit mungkin)",
+      "oneOrMore": "satu kali atau lebih",
+      "oneOrMoreLazy": "satu kali atau lebih (sesedikit mungkin)",
+      "optional": "opsional",
+      "exactly_other": "tepat {{count}} kali",
+      "range": "{{min}} hingga {{max}} kali",
+      "rangeLazy": "{{min}} hingga {{max}} kali (sesedikit mungkin)",
+      "atLeast": "{{min}} kali atau lebih",
+      "atLeastLazy": "{{min}} kali atau lebih (sesedikit mungkin)",
+      "backref": "teks yang sama dengan grup {{n}}",
+      "char": "karakter \"{{char}}\"",
+      "notOneOf": "karakter apa pun kecuali {{chars}}",
+      "oneOf": "salah satu dari {{chars}}",
+      "groupNotCaptured": "mulai grup (tidak ditangkap)",
+      "followedBy": "diikuti oleh…",
+      "notFollowedBy": "tidak diikuti oleh…",
+      "precededBy": "didahului oleh…",
+      "notPrecededBy": "tidak didahului oleh…",
+      "namedGroup": "mulai grup \"{{name}}\"",
+      "group": "mulai grup yang ditangkap",
+      "groupEnd": "akhir grup",
+      "start": "awal teks (atau baris)",
+      "end": "akhir teks (atau baris)",
+      "any": "karakter apa pun",
+      "or": "atau",
+      "literal": "teks \"{{text}}\"",
+      "pattern": "Pola",
+      "testText": "Teks uji",
+      "matches_other": "{{count}} kecocokan",
+      "match": "Kecocokan",
+      "position": "Posisi",
+      "groups": "Grup",
+      "meaning": "Arti pola"
+    },
+    "ruler": {
+      "intro": "Helm bersembunyi sejenak dan menangkap layar Anda. Lalu seret di atas tangkapan untuk mengukur, atau klik piksel untuk mendapatkan warnanya.",
+      "capture": "Tangkap layar",
+      "captureAlt": "Tangkapan layar",
+      "newCapture": "Tangkapan baru",
+      "zoomOut": "Perkecil",
+      "zoomIn": "Perbesar",
+      "fitTitle": "Sesuaikan / ukuran sebenarnya",
+      "measured": "Terukur",
+      "screenPixels": "piksel layar · diagonal {{diagonal}}",
+      "cssPixels": "{{w}} × {{h}} piksel CSS pada penskalaan {{scaling}}%",
+      "dragHint": "Seret di atas tangkapan.",
+      "underPointer": "Di bawah penunjuk",
+      "lastPoint": "Titik terakhir",
+      "copyLastColor": "Salin warna titik terakhir",
+      "footer": "Tangkapan mencakup setiap layar dan hanya disimpan di tab ini."
+    },
+    "scratchpad": {
+      "saveFailed": "Tidak dapat menyimpan catatan ini.",
+      "savedAuto": "Disimpan otomatis. Disimpan di Helm, bukan di proyek.",
+      "notesFor": "Catatan untuk",
+      "project": "Proyek",
+      "general": "Umum (proyek apa pun)"
+    },
+    "time": {
+      "now": "Sekarang",
+      "inputLabel": "Waktu Unix atau tanggal",
+      "typeHint": "Ketik stempel waktu atau tanggal.",
+      "readAsMicroseconds": "Dibaca sebagai mikrodetik.",
+      "readAsMilliseconds": "Dibaca sebagai milidetik.",
+      "readAsSeconds": "Dibaca sebagai detik.",
+      "readAsDate": "Dibaca sebagai tanggal.",
+      "unreadable": "Helm tidak dapat membacanya sebagai waktu.",
+      "yourTime": "Waktu Anda",
+      "day": "Hari",
+      "dayValue": "{{weekday}}, minggu ke-{{week}}",
+      "timeZones": "Zona waktu",
+      "yourZone": "{{zone}} (Anda)",
+      "removeZone": "Hapus {{zone}}",
+      "addZonePlaceholder": "Tambahkan zona waktu (mis. Asia/Jakarta)",
+      "add": "Tambahkan",
+      "rightNow": "Saat ini"
+    }
+  },
+  "snip": {
+    "withKey": "{{label}} ({{key}})",
+    "toast": {
+      "startFailed": "Tidak dapat memulai tangkapan layar: {{error}}",
+      "countdown_other": "Tangkapan layar dalam {{count}}…",
+      "shortcutTaken": "Pintasan tangkapan layar {{keys}} sudah digunakan aplikasi lain. Pilih yang lain di Pengaturan.",
+      "copied": "Tangkapan layar disalin."
+    },
+    "overlay": {
+      "modes": {
+        "area": "Area",
+        "window": "Jendela",
+        "screen": "Layar penuh",
+        "freeform": "Bentuk bebas"
+      },
+      "captureFailed": "Tidak dapat menangkap layar: {{error}}",
+      "allScreens": "Semua layar",
+      "cancelTitle": "Batal (Esc)",
+      "hints": {
+        "area": "Seret untuk memilih area · Esc untuk membatalkan",
+        "window": "Klik jendela · Esc untuk membatalkan",
+        "screen": "Klik layar · Esc untuk membatalkan",
+        "freeform": "Gambar di sekeliling yang Anda inginkan · Esc untuk membatalkan"
+      }
+    },
+    "editor": {
+      "tools": {
+        "arrow": "Panah",
+        "rect": "Kotak",
+        "ellipse": "Lingkaran",
+        "line": "Garis",
+        "pen": "Pena",
+        "highlight": "Stabilo",
+        "text": "Teks",
+        "step": "Langkah bernomor",
+        "blur": "Buramkan (pikselasi)",
+        "redact": "Hitamkan",
+        "crop": "Pangkas"
+      },
+      "widths": {
+        "thin": "Tipis",
+        "medium": "Sedang",
+        "thick": "Tebal"
+      },
+      "widthLines": {
+        "thin": "Garis tipis",
+        "medium": "Garis sedang",
+        "thick": "Garis tebal"
+      },
+      "notLoaded": "Belum dimuat",
+      "copyFailed": "Tidak dapat menyalin: {{error}}",
+      "saveTitle": "Simpan tangkapan layar",
+      "pngFilter": "Gambar PNG",
+      "unreadable": "Tidak dapat membaca gambar",
+      "sentToClaude": "Tangkapan layar ditambahkan ke pesan Anda untuk Claude. Tambahkan apa yang Anda inginkan dan tekan Enter.",
+      "deleteConfirm": "Tangkapan layar ini beserta tandanya akan dihapus.",
+      "deleteTitle": "Hapus tangkapan layar?",
+      "colorLabel": "Warna {{color}}",
+      "otherColor": "Warna lain…",
+      "undoTitle": "Urungkan (Ctrl+Z)",
+      "undo": "Urungkan",
+      "redoTitle": "Ulangi (Ctrl+Y)",
+      "redo": "Ulangi",
+      "undoCrop": "Urungkan pangkas",
+      "deleteThis": "Hapus tangkapan layar ini",
+      "saveAsTitle": "Simpan sebagai (Ctrl+S)",
+      "copyTitle": "Salin (Ctrl+C)",
+      "needClaude": "Buka tab Claude terlebih dahulu, lalu kirim lagi.",
+      "send": "Kirim ke Claude",
+      "textPlaceholder": "Ketik, lalu tekan Enter",
+      "footer": {
+        "crop": "{{w}} × {{h}} px · seret untuk memilih bagian yang dipertahankan",
+        "text": "{{w}} × {{h}} px · klik tempat teks diletakkan",
+        "step": "{{w}} × {{h}} px · klik untuk meletakkan {{n}}",
+        "other": "{{w}} × {{h}} px · Shift membuat kotak dan lingkaran tetap simetris"
+      }
+    },
+    "page": {
+      "newScreenshot": "Tangkapan layar baru",
+      "delay": "Tangkapan layar dengan jeda",
+      "delayItem_other": "Tangkapan layar dalam {{count}} detik",
+      "empty": "Tangkapan layar Anda muncul di sini.",
+      "intro": "Tangkap area, jendela, seluruh layar, atau bentuk apa pun. Pintasan dari aplikasi mana pun: <0>{{keys}}</0>",
+      "shortcutOff": "nonaktif"
+    }
+  }
+}

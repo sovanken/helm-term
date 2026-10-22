@@ -1,0 +1,481 @@
+{
+  "agents": {
+    "title": "Agentes",
+    "noTabs": "Nenhuma guia do Claude está aberta.",
+    "summary_one": "{{count}} sessão aberta · {{working}} trabalhando · {{waiting}} esperando você",
+    "summary_many": "{{count}} sessões abertas · {{working}} trabalhando · {{waiting}} esperando você",
+    "summary_other": "{{count}} sessões abertas · {{working}} trabalhando · {{waiting}} esperando você",
+    "tabs": {
+      "live": "Ao vivo",
+      "usage": "Uso"
+    },
+    "exportTitle_one": "Salvar o último {{count}} dia (limites, totais, projetos e conversas) como PDF",
+    "exportTitle_many": "Salvar os últimos {{count}} dias (limites, totais, projetos e conversas) como PDF",
+    "exportTitle_other": "Salvar os últimos {{count}} dias (limites, totais, projetos e conversas) como PDF",
+    "exportPdf": "Exportar PDF…",
+    "newParallelTask": "Nova tarefa em paralelo…",
+    "replies_one": "{{n}} resposta",
+    "replies_many": "{{n}} respostas",
+    "replies_other": "{{n}} respostas",
+    "live": {
+      "newConversation": "Nova conversa",
+      "waitingForYou": "Esperando você",
+      "workingNow": "Trabalhando…",
+      "finishedYourTurn": "Concluído, sua vez",
+      "ready": "Pronto",
+      "task": "Tarefa",
+      "contextTitle": "Contexto {{pct}}% de {{window}}",
+      "contextPending": "O contexto aparece após a primeira resposta do Claude",
+      "goToTab": "Ir para esta guia",
+      "column": {
+        "conversation": "Conversa",
+        "doingNow": "Fazendo agora",
+        "context": "Contexto",
+        "cost": "Custo",
+        "lastActive": "Última atividade"
+      },
+      "group": {
+        "needsYou": "Precisa de você",
+        "working": "Trabalhando",
+        "finished": "Concluídas",
+        "ready": "Prontas"
+      },
+      "waitingApproval": "Aguardando sua aprovação",
+      "empty": "Inicie o Claude em algumas guias ou tarefas em paralelo. Cada uma aparece aqui com o que está fazendo e se precisa de você.",
+      "startClaude": "Iniciar o Claude",
+      "clickHint": "Clique em uma conversa para ver o que aconteceu, os arquivos alterados, o contexto e o custo."
+    },
+    "today": {
+      "title": "Hoje",
+      "reading": "Lendo as conversas de hoje…",
+      "repliesSoFar_one": "{{n}} resposta até agora",
+      "repliesSoFar_many": "{{n}} respostas até agora",
+      "repliesSoFar_other": "{{n}} respostas até agora",
+      "noWork": "Nenhum trabalho hoje ainda",
+      "tooltip_one": "{{time}} · {{n}} resposta",
+      "tooltip_many": "{{time}} · {{n}} respostas",
+      "tooltip_other": "{{time}} · {{n}} respostas",
+      "note": "Cada barra equivale a 15 minutos, da meia-noite até agora (horas na parte inferior)."
+    },
+    "usage": {
+      "lastDays_one": "Último {{count}} dia",
+      "lastDays_many": "Últimos {{count}} dias",
+      "lastDays_other": "Últimos {{count}} dias",
+      "source": "De todas as conversas do Claude Code neste PC. O Claude Code as guarda por 30 dias.",
+      "kpi": {
+        "cost": "Custo",
+        "costPerDay": "{{amount}} por dia em média",
+        "tokens": "Tokens",
+        "cached": "mais {{tokens}} relidos do cache",
+        "cachedWithHit": "mais {{tokens}} relidos do cache ({{pct}}% da entrada)",
+        "time": "Tempo de trabalho do Claude",
+        "lines": "Linhas alteradas"
+      },
+      "chart": {
+        "costPerDay": "Custo por dia",
+        "tokensPerDay": "Tokens por dia",
+        "timePerDay": "Tempo de trabalho do Claude por dia"
+      },
+      "metric": {
+        "cost": "Custo",
+        "tokens": "Tokens",
+        "time": "Tempo"
+      },
+      "byProject": "Por projeto",
+      "byProjectNote": "Com base nos arquivos que o Claude alterou",
+      "noProject": "{{name}} (sem projeto)",
+      "homeFolderTitle": "Chats na sua pasta pessoal que não editaram arquivos de um projeto",
+      "noWork": "Nenhum trabalho neste período.",
+      "byModel": "Por modelo",
+      "whenYouWork": "Quando você trabalha com o Claude",
+      "busiest": "Mais movimento por volta das {{hour}}",
+      "hourTooltip_one": "{{from}}–{{to}} · {{n}} resposta",
+      "hourTooltip_many": "{{from}}–{{to}} · {{n}} respostas",
+      "hourTooltip_other": "{{from}}–{{to}} · {{n}} respostas"
+    }
+  },
+  "background": {
+    "duration": {
+      "seconds": "{{s}}s",
+      "minutesSeconds": "{{m}}min {{s}}s",
+      "hoursMinutes": "{{h}}h {{m}}min"
+    },
+    "state": {
+      "running": "Trabalhando",
+      "done": "Concluído",
+      "failed": "Falhou",
+      "stopped": "Parado"
+    },
+    "answer": "Resposta",
+    "result": "Resultado",
+    "fullOutput": "Saída completa",
+    "earlierSteps_one": "{{count}} etapa anterior",
+    "earlierSteps_many": "{{count}} etapas anteriores",
+    "earlierSteps_other": "{{count}} etapas anteriores",
+    "subagent": "Subagente",
+    "command": "Comando",
+    "inBackground": "em segundo plano",
+    "steps_one": "{{count}} etapa",
+    "steps_many": "{{count}} etapas",
+    "steps_other": "{{count}} etapas",
+    "running": "Executando…",
+    "gettingStarted": "Começando…",
+    "finishedNoAnswer": "Concluído sem uma resposta escrita.",
+    "finishedCommand": "Concluído. O Claude tem a saída.",
+    "activity": "Atividade",
+    "goToTab": "Ir para esta guia",
+    "thisTab": "Esta guia",
+    "workingCount_one": "{{count}} trabalhando",
+    "workingCount_many": "{{count}} trabalhando",
+    "workingCount_other": "{{count}} trabalhando",
+    "empty": {
+      "title": "Nenhum trabalho em segundo plano ainda",
+      "text": "Quando o Claude inicia um subagente ou um comando em segundo plano, ele aparece aqui: o que está fazendo agora, há quanto tempo está rodando e a resposta."
+    },
+    "filter": {
+      "all": "Todos"
+    },
+    "clearFinishedTitle": "Remover desta lista os subagentes e comandos concluídos",
+    "clearFinished": "Limpar concluídos",
+    "nothingWorking": "Nada em execução agora.",
+    "nothingFinished": "Nada concluído ainda."
+  },
+  "sessionDetail": {
+    "dialogLabel": "Detalhes da conversa",
+    "newConversation": "Nova conversa",
+    "effort": "Esforço {{effort}}",
+    "started": "iniciada {{time}}",
+    "savePdfTitle": "Salvar este relatório como PDF",
+    "savePdf": "Salvar como PDF…",
+    "goToTab": "Ir para esta guia",
+    "openTab": "Abrir guia",
+    "continueTitle": "Continuar esta conversa em uma guia",
+    "continue": "Continuar",
+    "reading": "Lendo a conversa…",
+    "noTranscript": "Esta conversa ainda não tem uma transcrição salva.",
+    "stat": {
+      "cost": "Custo",
+      "worked": "O Claude trabalhou",
+      "messages": "Mensagens",
+      "messagesSub": "suas mensagens → respostas do Claude",
+      "filesChanged": "Arquivos alterados"
+    },
+    "tabs": {
+      "happened": "O que aconteceu",
+      "files": "Arquivos",
+      "context": "Contexto",
+      "cost": "Custo e tokens"
+    },
+    "toast": {
+      "busyRetry": "O Claude está trabalhando nesta guia. Tente novamente quando ele terminar.",
+      "busyCompact": "O Claude está trabalhando nesta guia. Tente compactar quando ele terminar.",
+      "askedExact": "Os números exatos foram pedidos ao Claude. Eles aparecem aqui em instantes.",
+      "sentCommand": "{{cmd}} enviado para esta guia."
+    },
+    "happened": {
+      "empty": "Nada ainda: as etapas aparecem após sua primeira mensagem.",
+      "you": "Você · {{time}}",
+      "showEarlier_one": "Mostrar {{count}} etapa anterior",
+      "showEarlier_many": "Mostrar {{count}} etapas anteriores",
+      "showEarlier_other": "Mostrar {{count}} etapas anteriores"
+    },
+    "files": {
+      "empty": "O Claude não editou nem criou arquivos nesta conversa.",
+      "summary_one": "{{count}} arquivo · <0>+{{added}}</0> <1>−{{removed}}</1> linhas nas edições do Claude",
+      "summary_many": "{{count}} arquivos · <0>+{{added}}</0> <1>−{{removed}}</1> linhas nas edições do Claude",
+      "summary_other": "{{count}} arquivos · <0>+{{added}}</0> <1>−{{removed}}</1> linhas nas edições do Claude",
+      "clickToOpen": "Clique para abrir",
+      "new": "novo",
+      "edits_one": "{{count}} edição",
+      "edits_many": "{{count}} edições",
+      "edits_other": "{{count}} edições",
+      "note": "Contado pelas edições do Claude, então uma linha alterada duas vezes conta duas vezes. Veja Alterações no painel lateral para o que difere do Git."
+    },
+    "context": {
+      "title": "O que ocupa o contexto",
+      "usedAria": "{{used}} de {{window}} tokens usados",
+      "usedOf": "{{used}} de {{window}} tokens",
+      "setupTitle": "Configuração: {{tokens}}",
+      "conversationTitle": "Conversa: {{tokens}}",
+      "reserveTitle": "Reservado para compactação automática: {{tokens}}",
+      "setup": "Configuração",
+      "setupHint": "Prompt do sistema, ferramentas, MCP, arquivos de memória e skills: enviados com cada mensagem",
+      "conversation": "Conversa",
+      "conversationHint": "Suas mensagens, as respostas do Claude e os resultados das ferramentas",
+      "reserve": "Reserva de compactação automática",
+      "reserveHint": "Mantida livre para que o Claude possa resumir a conversa quando ela encher",
+      "free": "Livre",
+      "setupNote": "A configuração inclui o prompt do sistema, ferramentas, MCP, arquivos de memória e skills, enviados com cada mensagem.",
+      "exactTitle": "Executa /context nesta guia (grátis) e lê os números exatos do Claude",
+      "refreshExact": "Atualizar números exatos",
+      "getExact": "Obter números exatos",
+      "pending": "Aparece após a primeira resposta do Claude.",
+      "exact": "Exato · {{time}}",
+      "estimate": "Estimativa",
+      "adviceFull": "Quase cheio. Em breve o Claude vai resumir as mensagens mais antigas sozinho. Compacte agora para escolher quando, ou comece uma nova conversa para a próxima tarefa.",
+      "adviceHalf": "Mais da metade cheio. Cada mensagem reenvia tudo isso, então conversas longas ficam mais lentas e caras. Compacte quando terminar esta tarefa.",
+      "adviceRoom": "Ainda há bastante espaço.",
+      "compactNow": "Compactar agora",
+      "newConversation": "Começar nova conversa",
+      "estimatedOpen": "Estimado a partir da conversa. \"Obter números exatos\" executa o comando gratuito /context do Claude nesta guia.",
+      "estimatedPast": "Estimado a partir da conversa. Continue-a em uma guia para obter os números exatos do Claude."
+    },
+    "growth": {
+      "title": "Como cresceu",
+      "peak": "pico de {{tokens}}",
+      "tooltip": "Resposta {{n}} · <0>{{tokens}}</0> de contexto · {{time}}",
+      "compacted_one": "compactado {{count}}×",
+      "compacted_many": "compactado {{count}}×",
+      "compacted_other": "compactado {{count}}×"
+    },
+    "cost": {
+      "title": "Custo",
+      "thisConversation": "Esta conversa",
+      "asReported": "conforme informado pelo Claude",
+      "perMessage": "Por mensagem",
+      "onAverage": "em média",
+      "linesChanged": "Linhas alteradas"
+    },
+    "tokens": {
+      "title": "Tokens",
+      "sent": "Enviados (novos)",
+      "cacheRead": "Relidos do cache",
+      "cacheWrite": "Salvos no cache",
+      "output": "Escritos pelo Claude",
+      "cacheHits": "Acertos de cache",
+      "hitPct": "{{pct}}% do que foi enviado",
+      "cacheNote": "Reler do cache custa cerca de um décimo de enviar de novo, então um número alto aqui é bom.",
+      "warmUntil": "O cache está quente até {{time}}: responder antes disso sai mais barato.",
+      "warm": "O cache está quente: responder agora sai mais barato.",
+      "cold": "O cache esfriou; a próxima mensagem relê a conversa inteira."
+    },
+    "tools": {
+      "title": "Ferramentas que o Claude usou · {{count}}"
+    }
+  },
+  "inspector": {
+    "tabs": {
+      "changes": "Alterações",
+      "background": "Segundo plano",
+      "details": "Detalhes"
+    },
+    "closePanel": "Fechar painel",
+    "closeShortcut": "Fechar (Ctrl+Shift+G)",
+    "details": {
+      "projectFolder": "a pasta do projeto",
+      "openProject": "Abrir projeto",
+      "openInNewTab": "Abrir em nova guia",
+      "editCount_one": "{{count}} edição",
+      "editCount_many": "{{count}} edições",
+      "editCount_other": "{{count}} edições",
+      "readCount_one": "{{count}} vez",
+      "readCount_many": "{{count}} vezes",
+      "readCount_other": "{{count}} vezes",
+      "search": "pesquisa",
+      "copyLink": "Copiar link",
+      "noClaude": {
+        "title": "Nenhuma conversa do Claude aqui",
+        "text": "Abra uma guia do Claude para ver as capturas de tela e os arquivos que você anexou, e os arquivos que o Claude leu, alterou e consultou."
+      },
+      "nothingYet": {
+        "title": "Nada ainda",
+        "text": "Os detalhes aparecem após a primeira mensagem desta conversa."
+      },
+      "nothingUsed": {
+        "title": "Nada anexado ou usado ainda",
+        "text": "Capturas de tela coladas, arquivos mencionados com @ e tudo o que o Claude ler ou alterar nesta conversa serão listados aqui."
+      },
+      "stat": {
+        "changed": "Alterados",
+        "read": "Lidos",
+        "attached": "Anexados",
+        "web": "Web"
+      },
+      "group": {
+        "changed": "Arquivos que o Claude alterou",
+        "screenshots": "Capturas de tela que você colou",
+        "mentioned": "Arquivos que você anexou",
+        "read": "Arquivos que o Claude leu",
+        "web": "Páginas web e pesquisas",
+        "subagents": "Subagentes usados",
+        "mcp": "Ferramentas MCP usadas"
+      },
+      "pastedScreenshot": "Captura de tela colada {{n}}",
+      "screenshot": "Captura de tela"
+    }
+  },
+  "changes": {
+    "status": {
+      "changed": "Alterado",
+      "added": "Adicionado",
+      "new": "Novo",
+      "deleted": "Excluído",
+      "renamed": "Renomeado"
+    },
+    "revert": {
+      "deleteNewMessage": "Este novo arquivo será excluído:\n\n{{path}}\n\nNão é possível desfazer.",
+      "undoMessage": "Todas as alterações neste arquivo serão desfeitas:\n\n{{path}}\n\nNão é possível desfazer.",
+      "title": "Desfazer alterações?",
+      "deleteFile": "Excluir arquivo",
+      "undoChanges": "Desfazer alterações"
+    },
+    "reviewComments_one": "{{count}} comentário de revisão",
+    "reviewComments_many": "{{count}} comentários de revisão",
+    "reviewComments_other": "{{count}} comentários de revisão",
+    "clear": "Limpar",
+    "sendToClaude": "Enviar ao Claude",
+    "filesSinceCommit_one": "{{count}} arquivo desde o último commit",
+    "filesSinceCommit_many": "{{count}} arquivos desde o último commit",
+    "filesSinceCommit_other": "{{count}} arquivos desde o último commit",
+    "noTab": "Abra uma guia para ver as alterações dela.",
+    "notRepo": "Esta pasta não é um repositório Git. O Helm usa o Git para mostrar o que mudou e desfazer alterações: execute <0>git init</0> aqui para ativar.",
+    "noChanges": "Nenhuma alteração desde o último commit.",
+    "fileTitle": "{{status}}: {{path}}",
+    "undoFileNamed": "Desfazer alterações em {{path}}",
+    "undoFile": "Desfazer alterações neste arquivo",
+    "openClaudeFirst": "Abra primeiro o Claude neste projeto e depois envie os comentários.",
+    "sentComments_one": "{{count}} comentário de revisão enviado ao Claude.",
+    "sentComments_many": "{{count}} comentários de revisão enviados ao Claude.",
+    "sentComments_other": "{{count}} comentários de revisão enviados ao Claude.",
+    "commentOnLine": "Comentar nesta linha",
+    "commentPlaceholder": "O que o Claude deve mudar aqui? (Enter para adicionar, Shift+Enter para nova linha)",
+    "addComment": "Adicionar comentário",
+    "hunk": {
+      "message": "Desfazer esta parte do arquivo? As outras alterações no arquivo continuam.",
+      "title": "Desfazer esta parte?",
+      "ok": "Desfazer parte",
+      "done": "Essa parte do arquivo foi desfeita.",
+      "button": "Desfazer esta parte"
+    },
+    "sendComments_one": "Enviar {{count}} comentário ao Claude",
+    "sendComments_many": "Enviar {{count}} comentários ao Claude",
+    "sendComments_other": "Enviar {{count}} comentários ao Claude",
+    "undoFileChanges": "Desfazer alterações do arquivo",
+    "closeDiff": "Fechar diferenças",
+    "closeEsc": "Fechar (Esc)",
+    "before": "Antes (último commit)",
+    "now": "Agora <0>· clique no número de uma linha para comentar</0>",
+    "binary": "Este é um arquivo binário, então não há texto para comparar.",
+    "noTextChanged": "Nenhum texto foi alterado. Só mudaram as permissões ou o nome do arquivo.",
+    "removeComment": "Remover comentário"
+  },
+  "reports": {
+    "generated": "Gerado em",
+    "footer": "Os números vêm do Claude Code neste PC. Os valores de contexto marcados como \"estimativa\" são aproximados; os custos são os informados pelo Claude Code.",
+    "cost": "Custo",
+    "timeWorking": "Tempo trabalhando",
+    "replies_one": "{{count}} resposta",
+    "replies_many": "{{count}} respostas",
+    "replies_other": "{{count}} respostas",
+    "session": {
+      "title": "{{project}} · relatório da conversa",
+      "conversation": "Conversa",
+      "effort": "Esforço {{effort}}",
+      "contextExact": "Janela de contexto · exato",
+      "contextEstimate": "Janela de contexto · estimativa",
+      "usedOf": "<0>{{used}}</0> de {{window}} tokens ({{pct}}%)",
+      "category": "Categoria",
+      "tokens": "Tokens",
+      "ofWindow": "Da janela",
+      "grew": "Como o contexto cresceu",
+      "grewCompacted_one": "Como o contexto cresceu · compactado {{count}}×",
+      "grewCompacted_many": "Como o contexto cresceu · compactado {{count}}×",
+      "grewCompacted_other": "Como o contexto cresceu · compactado {{count}}×",
+      "sent": "Enviados (novos)",
+      "fromCache": "Do cache",
+      "cacheHits": "{{pct}}% de acertos de cache",
+      "writtenToCache": "Gravados no cache",
+      "claudeWrote": "Escritos pelo Claude",
+      "activity": "Atividade",
+      "yourMessages": "Suas mensagens",
+      "toolCalls": "Chamadas de ferramentas",
+      "lines": "+{{added}} −{{removed}} linhas",
+      "toolsUsed": "Ferramentas que o Claude usou"
+    },
+    "usage": {
+      "fiveHourLimit": "Limite de 5 horas",
+      "weeklyLimit": "Limite semanal (todos os modelos)",
+      "spendLimit": "Limite de gastos",
+      "noProject": "{{name}} (sem projeto)",
+      "title": "Relatório de uso do Claude",
+      "subtitle_one": "Último {{count}} dia neste PC · {{span}}",
+      "subtitle_many": "Últimos {{count}} dias neste PC · {{span}}",
+      "subtitle_other": "Últimos {{count}} dias neste PC · {{span}}",
+      "limits": "Limites de uso",
+      "limit": "Limite",
+      "used": "Usado",
+      "resets": "Renova",
+      "startsNext": "Começa com a próxima mensagem",
+      "totals": "Totais",
+      "tokens": "Tokens",
+      "fromCacheSub": "{{tokens}} do cache",
+      "linesChanged": "Linhas alteradas",
+      "byDay": "Por dia",
+      "col": {
+        "day": "Dia",
+        "fromCache": "Do cache",
+        "time": "Tempo",
+        "lines": "Linhas",
+        "conversations": "Conversas",
+        "project": "Projeto",
+        "conversation": "Conversa",
+        "model": "Modelo",
+        "context": "Contexto"
+      },
+      "byProject": "Por projeto",
+      "byModel": "Por modelo",
+      "openConversations": "Conversas abertas do Claude"
+    }
+  },
+  "usage": {
+    "window": {
+      "fiveHour": "5 horas",
+      "weekly": "Semanal"
+    },
+    "title": "Limites de uso",
+    "startsWithNextMessage": "Começa com sua próxima mensagem",
+    "resetsIn": "Renova em {{time}} · {{clock}}",
+    "notYet": "Aparece após a próxima resposta do Claude em qualquer guia. Os limites são mostrados para os planos Claude Pro e Max (e limites de gastos de equipes). Se você configurou sua própria linha de status do Claude, o Helm não mexe nela e não consegue mostrar os limites.",
+    "turnedOff": "Desativado em Configurações → Claude no Helm.",
+    "updated": "atualizado {{ago}}",
+    "fiveHourLimit": "Limite de 5 horas",
+    "currentSession": "sessão atual",
+    "weeklyLimit": "Limite semanal",
+    "allModels": "todos os modelos",
+    "spendLimit": "Limite de gastos",
+    "spendOf": "${{used}} de ${{limit}}",
+    "byTab": "Esta janela de 5 horas por guia (aprox.)",
+    "duration": {
+      "hoursMinutes": "{{h}}h {{m}}min",
+      "minutes": "{{m}}min"
+    },
+    "pace": {
+      "weekJustStarted": "Uma nova semana acabou de começar",
+      "even": "Em ritmo constante ({{pct}}% da semana já passou)",
+      "ahead_one": "{{count}} ponto acima de um ritmo constante",
+      "ahead_many": "{{count}} pontos acima de um ritmo constante",
+      "ahead_other": "{{count}} pontos acima de um ritmo constante",
+      "under_one": "{{count}} ponto abaixo de um ritmo constante",
+      "under_many": "{{count}} pontos abaixo de um ritmo constante",
+      "under_other": "{{count}} pontos abaixo de um ritmo constante",
+      "soon": "Seu ritmo aparece após alguns minutos de trabalho",
+      "eta": "Nesse ritmo, você vai atingi-lo em cerca de {{time}}",
+      "perHour": "Cerca de {{rate}}% por hora · não vai acabar antes da renovação"
+    },
+    "history": {
+      "title": "Histórico de uso",
+      "showChart": "Mostrar gráfico",
+      "showTable": "Mostrar como tabela",
+      "subtitle": "Parcela do limite semanal usada a cada dia · últimos 7 dias: {{pct}}%",
+      "empty": "O Helm registra seu uso a partir de agora. Volte depois de um dia de trabalho.",
+      "day": "Dia",
+      "weeklyUsed": "Limite semanal usado",
+      "chartLabel": "Parcela diária do limite semanal, últimos 14 dias",
+      "tooltip": "<0>{{pct}}%</0> <1>do limite semanal · {{day}}</1>",
+      "mostUsed": "Mais usadas nesta semana"
+    }
+  },
+  "charts": {
+    "barChartLabel": "Gráfico de barras, máximo {{max}}"
+  }
+}

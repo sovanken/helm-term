@@ -2,6 +2,7 @@
 
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { folderName, showToast, useStore } from "../state/store";
+import { t } from "../i18n";
 
 /** Opens a link where the user wants web pages: a Helm browser tab or their own browser. */
 export function openLink(url: string, opts?: { beside?: boolean; cwd?: string }) {
@@ -51,10 +52,10 @@ export function scanForDevServer(paneId: string, data: Uint8Array) {
     if (!s.settings.devServerPrompt) continue;
     const pane = s.panes[paneId];
     const where = url.replace(/^https?:\/\//, "").replace(/\/$/, "");
-    showToast(`${pane ? folderName(pane.cwd) : "A terminal"} is serving ${where}`, "info", {
-      label: "Open in Helm",
+    showToast(pane ? t("links.serving", { name: folderName(pane.cwd), address: where }) : t("links.servingUnknown", { address: where }), "info", {
+      label: t("links.openInHelm"),
       run: () => useStore.getState().openBrowser(url, { beside: true, cwd: pane?.cwd }),
-    }, { label: "My browser", run: () => void openUrl(url) });
+    }, { label: t("links.openInBrowser"), run: () => void openUrl(url) });
   }
 }
 

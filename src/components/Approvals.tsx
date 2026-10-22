@@ -3,6 +3,7 @@ import { Check, CheckCheck, ChevronDown, ChevronUp, ShieldQuestion, SquareTermin
 import { answerApproval, describeSuggestions, toolVerb } from "../lib/agents";
 import { paneIds } from "../lib/layout";
 import { type Approval, cleanTitle, folderName, useStore } from "../state/store";
+import { Trans, useTranslation } from "react-i18next";
 
 function showPane(paneId: string) {
   const s = useStore.getState();
@@ -15,6 +16,7 @@ function showPane(paneId: string) {
 
 /** One permission request with Allow / Always / Deny. */
 export function ApprovalCard({ approval, compact = false }: { approval: Approval; compact?: boolean }) {
+  const { t } = useTranslation();
   const pane = useStore((s) => s.panes[approval.paneId]);
   const [open, setOpen] = useState(false);
   if (!pane) return null;
@@ -27,14 +29,14 @@ export function ApprovalCard({ approval, compact = false }: { approval: Approval
         <ShieldQuestion size={16} className="mt-0.5 shrink-0 text-attention" />
         <div className="min-w-0 flex-1">
           <div className="text-[13px] text-fg">
-            Claude wants to <span className="font-medium">{toolVerb(approval.tool)}</span>
+            <Trans i18nKey="approvals.wants" values={{ action: toolVerb(approval.tool) }} components={{ 1: <span className="font-medium" /> }} />
           </div>
-          <button onClick={() => showPane(approval.paneId)} className="block max-w-full truncate text-left text-[11px] text-faint hover:text-accent" title="Show this tab">
+          <button onClick={() => showPane(approval.paneId)} className="block max-w-full truncate text-left text-[11px] text-faint hover:text-accent" title={t("common.goToTab")}>
             {folderName(pane.cwd)}
             {title ? ` · ${title}` : ""}
           </button>
         </div>
-        <button aria-label={open ? "Hide details" : "Show details"} onClick={() => setOpen((o) => !o)} className="rounded p-0.5 text-faint hover:bg-hover hover:text-fg">
+        <button aria-label={open ? t("approvals.hideDetails") : t("approvals.showDetails")} onClick={() => setOpen((o) => !o)} className="rounded p-0.5 text-faint hover:bg-hover hover:text-fg">
           {open ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </button>
       </div>
@@ -48,29 +50,29 @@ export function ApprovalCard({ approval, compact = false }: { approval: Approval
       )}
       <div className={`mt-2.5 flex flex-wrap gap-1.5 ${compact ? "" : ""}`}>
         <button onClick={() => void answerApproval(approval, "allow")} className="flex items-center gap-1 rounded-md bg-accent px-2.5 py-1 text-[12px] font-medium text-on-accent hover:opacity-90">
-          <Check size={13} /> Allow
+          <Check size={13} /> {t("approvals.allow")}
         </button>
         {approval.suggestions.length > 0 && (
           <button
             onClick={() => void answerApproval(approval, "always")}
-            title={always ? `Allow and remember: ${always}` : "Allow and don't ask again for this"}
+            title={always ? t("approvals.alwaysRemember", { rule: always }) : t("approvals.alwaysGeneric")}
             className="flex items-center gap-1 rounded-md border border-line px-2.5 py-1 text-[12px] text-fg hover:bg-hover"
           >
-            <CheckCheck size={13} /> Always allow
+            <CheckCheck size={13} /> {t("approvals.always")}
           </button>
         )}
         <button onClick={() => void answerApproval(approval, "deny")} className="flex items-center gap-1 rounded-md border border-line px-2.5 py-1 text-[12px] text-fg hover:bg-hover hover:text-danger">
-          <X size={13} /> Deny
+          <X size={13} /> {t("approvals.deny")}
         </button>
         <button
           onClick={() => {
             void answerApproval(approval, "terminal");
             showPane(approval.paneId);
           }}
-          title="Let Claude ask in its terminal instead"
+          title={t("approvals.terminalHint")}
           className="ml-auto flex items-center gap-1 rounded-md px-2 py-1 text-[12px] text-muted hover:bg-hover hover:text-fg"
         >
-          <SquareTerminal size={13} /> In terminal
+          <SquareTerminal size={13} /> {t("approvals.answerInTerminal")}
         </button>
       </div>
     </div>
@@ -79,6 +81,7 @@ export function ApprovalCard({ approval, compact = false }: { approval: Approval
 
 /** Floating stack of pending approvals over the terminal area. */
 export function ApprovalBar() {
+  const { t } = useTranslation();
   const approvals = useStore((s) => s.approvals);
   const view = useStore((s) => s.view);
   if (approvals.length === 0 || view === "agents") return null;
@@ -92,7 +95,7 @@ export function ApprovalBar() {
       ))}
       {approvals.length > shown.length && (
         <button onClick={() => useStore.getState().openAgents()} className="pointer-events-auto self-end rounded-md bg-raised px-2.5 py-1 text-[12px] text-accent shadow-lg shadow-black/20 hover:bg-hover">
-          {approvals.length - shown.length} more waiting · open Agents
+          {t("approvals.moreWaiting", { count: approvals.length - shown.length })}
         </button>
       )}
     </div>

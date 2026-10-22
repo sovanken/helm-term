@@ -1,0 +1,285 @@
+{
+  "status": {
+    "thinking": "考えています…"
+  },
+  "events": {
+    "someTool": "ツール",
+    "waitingForYou": "Claude が応答を待っています",
+    "needsYouTitle": "Claude が応答を待っています · {{where}}",
+    "finishedTitle": "Claude が完了しました · {{where}}",
+    "readyForNext": "次のメッセージを送信できます",
+    "stoppedTitle": "Claude が停止しました · {{where}}",
+    "needsApprovalTitle": "Claude が承認を求めています · {{where}}",
+    "whereAndTitle": "{{where}} · {{title}}",
+    "details": "詳細",
+    "usageLimitTitle": "Claude の使用量の上限",
+    "limitWarning": {
+      "fiveHour": "Claude の 5 時間の上限の {{pct}}% を使用しました。",
+      "weekly": "Claude の週間の上限の {{pct}}% を使用しました。"
+    },
+    "stop": {
+      "rateLimit": "使用量の上限に達しました",
+      "authenticationFailed": "サインインに失敗したため、Claude が停止しました。/login を実行して再度サインインしてください。",
+      "billingError": "アカウントの請求に問題があるため、Claude が停止しました。",
+      "invalidRequest": "要求が拒否されたため、Claude が停止しました。",
+      "serverError": "サーバー エラーのため、Claude が停止しました。しばらくしてからもう一度お試しください。",
+      "maxOutputTokens": "返信が長さの上限に達したため、Claude が停止しました。",
+      "overloaded": "サービスが混み合っているため、Claude が停止しました。しばらくしてからもう一度お試しください。",
+      "other": "Claude が停止しました。"
+    }
+  },
+  "taskHints": {
+    "subagent": "サブエージェント",
+    "backgroundCommand": "バックグラウンド コマンド",
+    "compactHint": "{{project}}: この会話はコンテキストの {{pct}}% を使用しています。圧縮すると、以降のメッセージがすべて安くなります。",
+    "compactNow": "今すぐ圧縮",
+    "cacheExpiring": "{{project}}: キャッシュの有効期限まで約 1 分です。今すぐ返信すると、この会話を安く続けられます。",
+    "idleConversation": "{{project}} に大きな会話が使われないまま残っています。話題を変えるときは、/clear で新しく始めると使用量を大きく減らせます。"
+  },
+  "store": {
+    "color": {
+      "red": "赤",
+      "orange": "オレンジ",
+      "yellow": "黄",
+      "green": "緑",
+      "teal": "ティール",
+      "blue": "青",
+      "purple": "紫",
+      "pink": "ピンク"
+    }
+  },
+  "terminal": {
+    "pasteLines_other": "シェルに {{count}} 行を貼り付けようとしています。各行はそれぞれ別のコマンドとして実行されます。",
+    "pasteLinesTitle": "複数行を貼り付けますか?",
+    "bigPaste": "貼り付ける内容は {{size}} 文字です。貼り付けたテキストは以降のメッセージごとに再送信されます。ファイルとして保存してパスを添付すると、Claude は必要なときだけ読み込むため、使用量を節約できます。",
+    "bigPasteTitle": "ファイルとして添付しますか?",
+    "attachAsFile": "ファイルとして添付",
+    "pasteText": "テキストを貼り付け",
+    "startFailed": "Helm はこのターミナルを開始できませんでした: {{error}}"
+  },
+  "format": {
+    "thousand": "{{n}}k",
+    "million": "{{n}}M",
+    "billion": "{{n}}B",
+    "days": "{{n}}日",
+    "hours": "{{n}}時間",
+    "minutes": "{{n}}分",
+    "seconds": "{{n}}秒",
+    "pair": "{{a}}{{b}}",
+    "dayAndTime": "{{day}} {{time}}"
+  },
+  "agentText": {
+    "verb": {
+      "command": "コマンドを実行",
+      "file": "ファイルを変更",
+      "read": "ファイルを読み取り",
+      "web": "Web を使用",
+      "mcp": "{{tool}} ツールを使用",
+      "mcpUnknown": "MCP ツールを使用",
+      "other": "{{tool}} を使用"
+    },
+    "wants": {
+      "command": "コマンドの実行を求めています",
+      "file": "ファイルの変更を求めています",
+      "read": "ファイルの読み取りを求めています",
+      "web": "Web の使用を求めています",
+      "mcp": "{{tool}} ツールの使用を求めています",
+      "mcpUnknown": "MCP ツールの使用を求めています",
+      "other": "{{tool}} の使用を求めています"
+    },
+    "claudeWants": {
+      "command": "Claude がコマンドの実行を求めています",
+      "file": "Claude がファイルの変更を求めています",
+      "read": "Claude がファイルの読み取りを求めています",
+      "web": "Claude が Web の使用を求めています",
+      "mcp": "Claude が {{tool}} ツールの使用を求めています",
+      "mcpUnknown": "Claude が MCP ツールの使用を求めています",
+      "other": "Claude が {{tool}} の使用を求めています"
+    },
+    "rule": {
+      "session": "このセッションの間、{{rule}}",
+      "local": "このプロジェクトで {{rule}} (自分のみ)",
+      "project": "このプロジェクトで {{rule}}",
+      "user": "すべての場所で {{rule}}",
+      "none": "{{rule}}"
+    },
+    "allTool": {
+      "session": "このセッションの間、すべての {{tool}}",
+      "local": "このプロジェクトのすべての {{tool}} (自分のみ)",
+      "project": "このプロジェクトのすべての {{tool}}",
+      "user": "すべての場所ですべての {{tool}}",
+      "none": "すべての {{tool}}"
+    },
+    "acceptEdits": {
+      "session": "このセッションの間、ファイルの編集を受け入れる",
+      "local": "このプロジェクトでファイルの編集を受け入れる (自分のみ)",
+      "project": "このプロジェクトでファイルの編集を受け入れる",
+      "user": "すべての場所でファイルの編集を受け入れる",
+      "none": "ファイルの編集を受け入れる"
+    },
+    "switchMode": {
+      "session": "このセッションの間、{{mode}} モードに切り替える",
+      "local": "このプロジェクトで {{mode}} モードに切り替える (自分のみ)",
+      "project": "このプロジェクトで {{mode}} モードに切り替える",
+      "user": "すべての場所で {{mode}} モードに切り替える",
+      "none": "{{mode}} モードに切り替える"
+    },
+    "ruleSeparator": "、",
+    "justNow": "たった今",
+    "now": "今",
+    "ago": "{{time}}前"
+  },
+  "themes": {
+    "accent": {
+      "brass": "ブラス",
+      "blue": "ブルー",
+      "violet": "バイオレット",
+      "green": "グリーン",
+      "rose": "ローズ",
+      "teal": "ティール"
+    }
+  },
+  "changelog": {
+    "v1_0_1": {
+      "pastDetails": {
+        "title": "過去の会話の詳細",
+        "text": "サイドバーで会話の ⋯ メニューを開くと、コンテキスト、トークン、コスト、ツールが表示され、PDF として保存できるようになりました。"
+      }
+    },
+    "v1_0_0": {
+      "madeForClaudeCode": {
+        "title": "Claude Code のために設計",
+        "text": "本物の claude CLI を、高速なハードウェア アクセラレーション対応のタブと分割ペインで実行します。すべての言語と絵文字が正しく表示されます。"
+      },
+      "approveAnywhere": {
+        "title": "どこからでも承認",
+        "text": "バックグラウンドのタブは、Helm 内と Windows 通知の [許可] / [拒否] で許可を求めます。信頼できる操作には [常に許可] も使えます。"
+      },
+      "usageLimits": {
+        "title": "使用量の上限",
+        "text": "5 時間と週間のメーターをリアルタイムで表示。リセットまでのカウントダウン、使用ペース、最も使用したタブ、80% と 95% での警告も表示します。"
+      },
+      "agentsTab": {
+        "title": "エージェント タブ",
+        "text": "すべての Claude の会話を [応答待ち]、[作業中]、[完了] に分けて表示し、それぞれのコンテキスト、コスト、作業内容がわかります (Ctrl+Shift+A)。"
+      },
+      "usageAtAGlance": {
+        "title": "使用量とコンテキストをひと目で",
+        "text": "すべての上限とそのリセット時刻と使用ペース、今日と今週のコストとトークン、会話ごとにコンテキスト ウィンドウを占めている内容を表示します。どれも PDF として保存できます。"
+      },
+      "builtInBrowser": {
+        "title": "内蔵ブラウザー",
+        "text": "ターミナルの横でアプリを開き、スマートフォンやタブレットのサイズでテストし、エラー、スクリーンショット、ページの任意の部分をワンクリックで Claude に送れます。"
+      },
+      "filesOpenInHelm": {
+        "title": "ファイルを Helm で開く",
+        "text": "ハイライト表示されたコード、Markdown、画像、PDF、動画、音声を、別のアプリではなく Helm のタブで開きます。"
+      },
+      "backgroundWork": {
+        "title": "バックグラウンドの作業を確認",
+        "text": "Claude がサブエージェントを開始すると、サイド パネルが [バックグラウンド] で開き、作業内容と最終的な回答を表示します。[詳細] には使用したスクリーンショット、ファイル、Web ページが表示されます。"
+      },
+      "saveUsage": {
+        "title": "使用量を節約",
+        "text": "日別・プロジェクト別の使用履歴、コンテキストが増えたときの /compact のリマインダー、キャッシュの有効期限前の警告、大きな貼り付けのファイル添付。"
+      },
+      "promptImprover": {
+        "title": "プロンプトの改善",
+        "text": "プロンプトを書き、Claude にわかりやすく直してもらってから送信します (Ctrl+Shift+I)。"
+      },
+      "tabStatus": {
+        "title": "すべてのタブに状態を表示",
+        "text": "作業中、承認待ち、完了を表示し、見ていないタブは通知でお知らせします。"
+      },
+      "historyAndPalette": {
+        "title": "履歴とパレット",
+        "text": "すべての会話を検索し、ワンクリックで続きから再開できます。Ctrl+Shift+P で保存したプロンプト、Claude のコマンド、スキル、操作を呼び出せます。"
+      },
+      "reviewChanges": {
+        "title": "変更を確認",
+        "text": "左右に並べた差分、Claude へのコメント送信、ファイル全体または一部だけの元に戻す操作。"
+      },
+      "parallelTasks": {
+        "title": "並列タスク",
+        "text": "Claude で複数のタスクを同時に実行できます。それぞれがプロジェクトの専用コピーと専用ブランチで動き、終わったらマージまたは削除します。"
+      },
+      "keepConversations": {
+        "title": "会話を失わない",
+        "text": "再起動後もタブは同じ会話を開き直します。閉じたタブは Ctrl+Alt+Shift+T で開き直せます。"
+      },
+      "statusBar": {
+        "title": "すっきりしたステータス バー",
+        "text": "アクセス許可モード、プロンプト キャッシュのタイマー、労力、git のプッシュ/プル、プル リクエスト、使用量、コスト、コンテキスト、モデル。右クリックで表示項目を選べます。"
+      },
+      "makeItYours": {
+        "title": "自分好みに",
+        "text": "アクセント カラー、10 種類のターミナル配色、内蔵の Inter と JetBrains Mono、サイズ変更できるパネル、Ctrl+マウス ホイールでのズーム、Windows 11 の Mica。"
+      },
+      "claudeCodeSettings": {
+        "title": "Claude Code の設定",
+        "text": "JSON に触れずに、アクセス許可、フック、MCP サーバー、CLAUDE.md を編集できます。"
+      },
+      "windowsDoneRight": {
+        "title": "Windows にしっかり対応",
+        "text": "タブごとに PowerShell 7、Windows PowerShell、Git Bash を選択でき、Claude 向けの Windows のヒント、Ctrl+V でのスクリーンショットの貼り付けに対応します。"
+      },
+      "private": {
+        "title": "プライバシーを重視した設計",
+        "text": "すべてのデータは PC 内にとどまります。ネットワークへの要求は更新プログラムの確認だけで、これもオフにできます。"
+      }
+    },
+    "v1_0_2": {
+      "languages": {
+        "title": "Helm を自分の言語で",
+        "text": "歯車メニューまたは [設定] › [外観] で、Claude と同じ 11 言語から選べます。既定では Windows の言語に合わせます。"
+      },
+      "voice": {
+        "title": "音声入力",
+        "text": "Claude タブで Ctrl+Space を押し続けるかマイクをクリックして話します。音声は PC 上で文字になり、どこにも送られません。文字はプロンプトに入力され、送信は自分で行います。"
+      },
+      "tools": {
+        "title": "開発者ツール",
+        "text": "カラー ピッカー、画像ツール、画面ルーラー、JSON、エンコードとデコード、正規表現テスター、テキストの比較、ジェネレーター、時刻の変換、ダミー テキスト、使用中のポート、API テスター、環境変数、メモ帳。"
+      },
+      "screenshots": {
+        "title": "スクリーンショット",
+        "text": "範囲、ウィンドウ、自由な形、画面全体を、遅延付きで、またはどのアプリからでも Ctrl+Alt+S で撮れます。矢印、四角形、テキスト、番号付きの手順、ぼかしを書き込み、コピー、保存、Claude への送信ができます。"
+      },
+      "projects": {
+        "title": "プロジェクトのファイルと新しいサイドバー",
+        "text": "Helm から離れずに、プロジェクトのファイルを閲覧、検索、編集できます。サイドバーにはプロジェクトと会話が並び、検索、並べ替え、色ラベル、プライバシー ぼかし、安全な名前の変更と削除が使えます。"
+      },
+      "phones": {
+        "title": "テスト用のスマートフォン",
+        "text": "接続した Android スマートフォンがステータス バーに表示されます。画面のミラーリング、アプリのログの表示、スクリーンショット、詳細の確認ができます。"
+      },
+      "settings": {
+        "title": "settings.json と歯車メニュー",
+        "text": "VS Code のように、候補とチェック付きで Helm の設定をファイルとして編集できます (Ctrl+Shift+,)。歯車には設定、テーマ、言語、更新、ヘルプのメニューが開きます。"
+      },
+      "agents": {
+        "title": "わかりやすくなったエージェントとバックグラウンド",
+        "text": "エージェント ページに [ライブ] と [使用量] タブが付き、会話ごとの詳しい表示ができます。サイド パネルの [バックグラウンド] では、サブエージェントとコマンドを整形された回答付きで表示し、終わったコマンドが実行中のまま残らなくなりました。"
+      }
+    }
+  },
+  "updater": {
+    "upToDate": "Helm は最新の状態です。",
+    "downloading": "Helm {{version}} をダウンロードしています…",
+    "available": "Helm {{version}} を利用できます。",
+    "checkFailed": "更新プログラムを確認できませんでした: {{error}}"
+  },
+  "misc": {
+    "device": {
+      "laptop": "ノート PC",
+      "laptopHd": "ノート PC (HD)",
+      "desktop": "デスクトップ",
+      "custom": "カスタム"
+    },
+    "deviceGroup": {
+      "phones": "スマートフォン",
+      "tablets": "タブレット",
+      "computers": "コンピューター"
+    }
+  }
+}

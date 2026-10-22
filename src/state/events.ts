@@ -2,11 +2,12 @@
 
 import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow, UserAttentionType } from "@tauri-apps/api/window";
-import { toolSummary, toolVerb } from "../lib/agents";
+import { t } from "../i18n";
+import { toolAsks, toolSummary, toolWants } from "../lib/agents";
 import { ipc } from "../lib/ipc";
 import { paneIds } from "../lib/layout";
 import { isCurrentLaunch } from "../terminal/terminals";
-import { contextHint, logUsage, startUsageHints, trackTaskEvent } from "./tasks";
+import { contextHint, logUsage, startBackgroundWatch, startUsageHints, trackTaskEvent } from "./tasks";
 import { type Approval, cleanTitle, folderName, type LimitWindow, type Pane, showToast, useStore } from "./store";
 
 interface HookEvent {
@@ -91,10 +92,10 @@ function onHook({ paneId, launchId, event, data }: HookEvent) {
       updatePane(paneId, { kind: "shell", claudeActive: false, status: "idle", attentionMessage: undefined, doing: undefined, subagents: 0 });
       break;
     case "UserPromptSubmit":
-      updatePane(paneId, { claudeActive: true, status: "working", attentionMessage: undefined, doing: "Thinking", lastActivity: now });
+      updatePane(paneId, { claudeActive: true, status: "working", attentionMessage: undefined, doing: t("status.thinking"), lastActivity: now });
       break;
     case "PreToolUse": {
-      const tool = str(data?.tool_name) ?? "a tool";
+      const tool = str(data?.tool_name) ?? t("events.someTool");
       const summary = toolSummary(tool, data?.tool_input);
       updatePane(paneId, { claudeActive: true, status: "working", attentionMessage: undefined, doing: summary ? `${tool}: ${summary}` : tool, lastActivity: now });
       break;
@@ -109,29 +110,52 @@ function onHook({ paneId, launchId, event, data }: HookEvent) {
       updatePane(paneId, { subagents: Math.max(0, (pane.subagents ?? 1) - 1), lastActivity: now });
       break;
     case "Notification": {
-      const message = str(data?.message) ?? "Claude is waiting for you";
+      const message = str(data?.message) ?? t("events.waitingForYou");
       const type = str(data?.notification_type) ?? "";
       // The idle reminder repeats "waiting for your input" after a finished turn; that is not new.
       if (type === "idle_prompt" || /waiting for your input/i.test(message)) break;
       // Permission prompts that Helm already holds are shown in the approval inbox instead.
       if (type === "permission_prompt" && useStore.getState().approvals.some((a) => a.paneId === paneId)) break;
       updatePane(paneId, { status: "attention", attentionMessage: message, lastActivity: now });
-      void notify("approval", pane, `Claude needs you · ${where}`, message);
+      void notify("approval", pane, t("events.needsYouTitle", { where }), message);
       break;
     }
     case "Stop": {
       const seen = isVisible(paneId);
       updatePane(paneId, { status: seen ? "idle" : "done", attentionMessage: undefined, doing: undefined, lastActivity: now });
-      void notify("finished", pane, `Claude finished · ${where}`, cleanTitle(pane.title) || "Ready for your next message");
+      void notify("finished", pane, t("events.finishedTitle", { where }), cleanTitle(pane.title) || t("events.readyForNext"));
       break;
     }
     case "StopFailure": {
-      const reason = str(data?.error_type) ?? str(data?.reason) ?? "an error";
-      const message = reason === "rate_limit" ? "Usage limit reached" : `Stopped: ${reason.replace(/_/g, " ")}`;
+      const message = stopMessage(str(data?.error_type) ?? str(data?.reason));
       updatePane(paneId, { status: "attention", attentionMessage: message, doing: undefined, lastActivity: now });
-      void notify("finished", pane, `Claude stopped · ${where}`, message);
+      void notify("finished", pane, t("events.stoppedTitle", { where }), message);
       break;
     }
+  }
+}
+
+/** Plain sentence for why Claude stopped (StopFailure's error type). */
+const STOP_REASONS = ["rate_limit", "authentication_failed", "billing_error", "invalid_request", "server_error", "max_output_tokens", "overloaded"] as const;
+
+function stopMessage(reason: string | undefined): string {
+  switch (reason as (typeof STOP_REASONS)[number] | undefined) {
+    case "rate_limit":
+      return t("events.stop.rateLimit");
+    case "authentication_failed":
+      return t("events.stop.authenticationFailed");
+    case "billing_error":
+      return t("events.stop.billingError");
+    case "invalid_request":
+      return t("events.stop.invalidRequest");
+    case "server_error":
+      return t("events.stop.serverError");
+    case "max_output_tokens":
+      return t("events.stop.maxOutputTokens");
+    case "overloaded":
+      return t("events.stop.overloaded");
+    default:
+      return t("events.stop.other");
   }
 }
 
@@ -145,7 +169,7 @@ function onPermission({ id, paneId, launchId, data }: PermissionEvent) {
     void ipc.permissionRespond(id, null);
     return;
   }
-  const tool = str(data?.tool_name) ?? "a tool";
+  const tool = str(data?.tool_name) ?? t("events.someTool");
   const approval: Approval = {
     id,
     paneId,
@@ -157,14 +181,14 @@ function onPermission({ id, paneId, launchId, data }: PermissionEvent) {
   };
   s.set({ approvals: [...s.approvals, approval] });
   const where = folderName(pane.cwd);
-  s.updatePane(paneId, { status: "attention", attentionMessage: `Wants to ${toolVerb(tool)}`, lastActivity: Date.now() });
+  s.updatePane(paneId, { status: "attention", attentionMessage: toolWants(tool), lastActivity: Date.now() });
 
   if (!document.hasFocus()) {
     void getCurrentWindow().requestUserAttention(UserAttentionType.Critical);
     if (notifyEnabled("approval")) {
       ipc
-        .showApprovalToast(id, `Claude wants to ${toolVerb(tool)}`, `${where}${cleanTitle(pane.title) ? ` · ${cleanTitle(pane.title)}` : ""}`, approval.summary || tool, !s.settings.notifySound)
-        .catch(() => void systemNotify("approval", `Claude needs approval · ${where}`, approval.summary || tool));
+        .showApprovalToast(id, toolAsks(tool), cleanTitle(pane.title) ? t("events.whereAndTitle", { where, title: cleanTitle(pane.title) }) : where, approval.summary || tool, !s.settings.notifySound)
+        .catch(() => void systemNotify("approval", t("events.needsApprovalTitle", { where }), approval.summary || tool));
     }
   }
 }
@@ -264,15 +288,16 @@ function onStatus({ paneId, launchId, data }: HookEvent) {
   });
 
   // Warn once per window before the limit is reached.
-  for (const [label, win] of [["5-hour", fiveHour], ["weekly", sevenDay]] as const) {
+  for (const [label, win] of [["fiveHour", fiveHour], ["weekly", sevenDay]] as const) {
     if (!win) continue;
     for (const level of [80, 95]) {
       const key = `${label}-${level}-${win.resetsAt ?? ""}`;
       if (win.pct >= level && !warned.has(key)) {
         warned.add(key);
-        const text = `You've used ${Math.round(win.pct)}% of your ${label} Claude limit.`;
-        showToast(text, level >= 95 ? "error" : "info", { label: "Details", run: () => useStore.getState().openAgents() });
-        void systemNotify("usage", "Claude usage limit", text);
+        const pct = Math.round(win.pct);
+        const text = label === "fiveHour" ? t("events.limitWarning.fiveHour", { pct }) : t("events.limitWarning.weekly", { pct });
+        showToast(text, level >= 95 ? "error" : "info", { label: t("events.details"), run: () => useStore.getState().openAgents() });
+        void systemNotify("usage", t("events.usageLimitTitle"), text);
       }
     }
   }
@@ -286,5 +311,6 @@ export async function initEvents() {
   await listen<{ paneId: string }>("pty-exit", (e) => useStore.getState().closePane(e.payload.paneId));
   window.addEventListener("focus", () => useStore.getState().markSeen());
   startUsageHints();
+  startBackgroundWatch();
 }
 

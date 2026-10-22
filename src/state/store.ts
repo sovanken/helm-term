@@ -1,4 +1,6 @@
+import type { ToolId } from "../tools/registry";
 import { create } from "zustand";
+import { t } from "../i18n";
 import { type Direction, type LayoutNode, type SplitDir, leaf, neighbor, paneIds, remove, setRatio, split } from "../lib/layout";
 import type { SessionInfo } from "../lib/ipc";
 import type { ThemeMode } from "../lib/themes";
@@ -22,6 +24,8 @@ export interface Pane {
   sessionId?: string;
   /** Set when restoring a tab: resume this Claude session on launch. */
   resumeSessionId?: string;
+  /** With `resumeSessionId`: continue in a new conversation, leaving the original as it was. */
+  fork?: boolean;
   /** Launch Claude in a new git worktree with this name (parallel task); used once at launch. */
   worktree?: string;
   status: PaneStatus;
@@ -71,11 +75,58 @@ export interface PageState {
   picking?: boolean;
 }
 
+export interface SessionMeta {
+  title?: string;
+  pinned?: boolean;
+  hidden?: boolean;
+}
+
+/** Colour labels a project can have (shown in the sidebar and on its tabs). */
+export const PROJECT_COLORS = {
+  red: { get label() { return t("store.color.red"); }, hex: "#e5534b" },
+  orange: { get label() { return t("store.color.orange"); }, hex: "#e0823d" },
+  yellow: { get label() { return t("store.color.yellow"); }, hex: "#d4a72c" },
+  green: { get label() { return t("store.color.green"); }, hex: "#46a758" },
+  teal: { get label() { return t("store.color.teal"); }, hex: "#2fa6a0" },
+  blue: { get label() { return t("store.color.blue"); }, hex: "#4b8bf5" },
+  purple: { get label() { return t("store.color.purple"); }, hex: "#9b6ef3" },
+  pink: { get label() { return t("store.color.pink"); }, hex: "#e05aa0" },
+} as const;
+export type ProjectColor = keyof typeof PROJECT_COLORS;
+
+/** The colour label of the project a folder belongs to (the closest labelled parent), if any. */
+export function projectColorFor(cwd: string, colors: Record<string, ProjectColor>): string | undefined {
+  let best: string | undefined;
+  const c = cwd.toLowerCase();
+  for (const key of Object.keys(colors)) {
+    if ((c === key || c.startsWith(`${key}\\`)) && (!best || key.length > best.length)) best = key;
+  }
+  return best ? PROJECT_COLORS[colors[best]]?.hex : undefined;
+}
+
 export interface FileTab {
   id: string;
   path: string;
   /** Project folder it was opened from, to show a shorter path. */
   cwd?: string;
+  /** Showing the editor instead of the viewer. */
+  editing?: boolean;
+  /** Unsaved edits (only set while they differ from the file). */
+  draft?: string;
+  /** The file's modified time the edits started from, to notice changes made outside Helm. */
+  base?: number;
+  /** Jump to this line when the file shows (from search results); cleared once done. */
+  line?: number;
+}
+
+/** A project opened as a tab: file tree on the left, its open files as tabs on the right. */
+export interface Workspace {
+  id: string;
+  root: string;
+  files: FileTab[];
+  activeFileId: string | null;
+  /** Folders expanded in the tree (full paths, lower case). */
+  expanded: string[];
 }
 
 export interface BgTask {
@@ -101,6 +152,10 @@ export interface BgTask {
   background?: boolean;
   /** Created from SubagentStart before Claude's own description arrived. */
   placeholder?: boolean;
+  /** How it ended, when Claude Code says (background work only). */
+  outcome?: "completed" | "failed" | "killed";
+  /** Where a background command wrote its output. */
+  outputFile?: string;
 }
 
 /** One day of usage: share of the weekly limit used, and how it split across projects. */
@@ -236,8 +291,30 @@ export interface Settings {
   devServerPrompt: boolean;
   /** Draw a phone, tablet or laptop outline around emulated pages. */
   deviceFrame: boolean;
+  /** Helm-only changes to past conversations: your own title, pinned, hidden from History. */
+  sessionMeta: Record<string, SessionMeta>;
+  /** Key combo that starts a screenshot from any app ("" = off), e.g. "Ctrl+Alt+S". */
+  snipShortcut: string;
+  /** Copy each new screenshot to the clipboard straight away. */
+  snipAutoCopy: boolean;
+  /** Order of projects in the sidebar. */
+  projectSort: "recent" | "name" | "chats";
+  /** Blur project names and chat titles in the sidebar (for screen sharing). */
+  privacyBlur: boolean;
+  /** Microphone for voice input ("" = Windows' default). */
+  voiceMic: string;
+  /** Key to hold while speaking ("" = off). */
+  voiceHoldKey: string;
+  /** Show the mic button on Claude tabs. */
+  voiceButton: boolean;
+  /** Projects removed from the sidebar (lower-case path → when). They come back once used again. */
+  hiddenProjects: Record<string, number>;
+  /** Colour labels for projects (lower-case path → colour id). */
+  projectColors: Record<string, ProjectColor>;
 
   // ---- appearance ----
+  /** Interface language code, or "auto" to follow Windows. */
+  language: string;
   accent: AccentId;
   /** "helm" follows the app theme; otherwise a named terminal color scheme. */
   terminalScheme: string;
@@ -301,6 +378,17 @@ export const DEFAULT_SETTINGS: Settings = {
   openLinksIn: "helm",
   devServerPrompt: true,
   deviceFrame: true,
+  sessionMeta: {},
+  snipShortcut: "Ctrl+Alt+S",
+  snipAutoCopy: true,
+  projectSort: "recent",
+  privacyBlur: false,
+  voiceMic: "",
+  voiceHoldKey: "Ctrl+Space",
+  voiceButton: true,
+  hiddenProjects: {},
+  projectColors: {},
+  language: "auto",
   accent: "brass",
   terminalScheme: "helm",
   uiFont: "inter",
@@ -342,6 +430,8 @@ interface State {
   pinned: string[];
   recent: RecentProject[];
   sessions: SessionInfo[];
+  /** The conversation list has loaded at least once (until then the sidebar shows a placeholder). */
+  sessionsLoaded: boolean;
   prompts: SavedPrompt[];
   sidebarOpen: boolean;
   sidebarView: "projects" | "history";
@@ -364,10 +454,20 @@ interface State {
   /** Files opened from the right panel, shown as tabs inside Helm. */
   fileTabs: FileTab[];
   activeFileId: string | null;
-  /** What the main area shows: the active terminal tab, Settings, Agents or a file tab. */
-  view: "terminal" | "settings" | "agents" | "file";
+  /** The Tools tab exists in the tab bar, showing `tool`. */
+  toolsOpen: boolean;
+  tool: ToolId;
+  workspaces: Workspace[];
+  activeWorkspaceId: string | null;
+  /** The Screenshots tab exists, showing this snip (full path). */
+  snipsOpen: boolean;
+  snipPath: string | null;
+  /** What the main area shows: the active terminal tab, Settings, Agents, Tools, a file or a project. */
+  view: "terminal" | "settings" | "agents" | "tools" | "file" | "workspace" | "snips";
   settingsSection: SettingsSection;
   newTaskOpen: boolean;
+  /** The "New file" box: which kind of file, and the folder it goes in. */
+  newFile: { ext: string; dir: string } | null;
   toast: Toast | null;
   update: AvailableUpdate | null;
   /** Bumped whenever Claude does something that may change files or stats. */
@@ -379,23 +479,41 @@ interface State {
   closedTabs: ClosedTab[];
   homeDir: string;
 
-  openTab: (cwd: string, kind: PaneKind, opts?: { resumeSessionId?: string; worktree?: string; shell?: string; url?: string }) => string;
+  openTab: (cwd: string, kind: PaneKind, opts?: { resumeSessionId?: string; fork?: boolean; worktree?: string; shell?: string; url?: string }) => string;
+  /** Changes Helm's own title / pin / hidden flag for a past conversation. */
+  updateSessionMeta: (id: string, patch: SessionMeta) => void;
   /** Opens a web page in a browser tab, or next to the current pane with `beside`. */
   openBrowser: (url: string, opts?: { beside?: boolean; cwd?: string }) => void;
   updatePage: (paneId: string, patch: Partial<PageState>) => void;
   reopenClosedTab: () => void;
   moveTab: (from: number, to: number) => void;
   openAgents: () => void;
+  /** Which tab the Agents page shows. */
+  agentsTab: "live" | "usage";
   closeAgents: () => void;
+  openTool: (id?: ToolId) => void;
+  /** Opens the Screenshots tab, on this snip if given. */
+  openSnips: (path?: string) => void;
+  closeSnips: () => void;
+  closeTools: () => void;
   /** Opens a file in a Helm tab (or switches to it if it's already open). */
-  openFile: (path: string, cwd?: string) => void;
+  openFile: (path: string, cwd?: string, opts?: { edit?: boolean }) => void;
+  updateFile: (id: string, patch: Partial<FileTab>) => void;
+  /** Opens a project as a workspace tab (or switches to it). */
+  openWorkspace: (root: string) => void;
+  showWorkspace: (id: string) => void;
+  closeWorkspace: (id: string) => void;
+  updateWorkspace: (id: string, patch: Partial<Workspace>) => void;
+  /** Opens a file inside a workspace tab, optionally at a line. */
+  openWorkspaceFile: (wsId: string, path: string, opts?: { line?: number; edit?: boolean }) => void;
+  closeWorkspaceFile: (wsId: string, fileId: string) => void;
   showFile: (id: string) => void;
   closeFile: (id: string) => void;
   /** Focuses the pane already running this session, or opens a tab that resumes it. */
   resumeSession: (session: { id: string; cwd: string }) => void;
   closeTab: (tabId: string) => void;
   closePane: (paneId: string) => void;
-  splitActive: (dir: SplitDir, kind: PaneKind) => void;
+  splitActive: (dir: SplitDir, kind: PaneKind, opts?: { resumeSessionId?: string; fork?: boolean; cwd?: string }) => void;
   focusPane: (paneId: string) => void;
   focusNeighbor: (dir: Direction) => void;
   setActiveTab: (tabId: string) => void;
@@ -430,6 +548,7 @@ export const useStore = create<State>((set, get) => ({
   pinned: [],
   recent: [],
   sessions: [],
+  sessionsLoaded: false,
   prompts: [],
   sidebarOpen: true,
   sidebarView: "projects",
@@ -442,6 +561,8 @@ export const useStore = create<State>((set, get) => ({
   composerOpen: false,
   usageLog: [],
   agentsOpen: false,
+  toolsOpen: false,
+  tool: "color",
   fileTabs: [],
   activeFileId: null,
   devServers: [],
@@ -449,6 +570,11 @@ export const useStore = create<State>((set, get) => ({
   view: "terminal",
   settingsSection: "general",
   newTaskOpen: false,
+  newFile: null,
+  workspaces: [],
+  activeWorkspaceId: null,
+  snipsOpen: false,
+  snipPath: null,
   toast: null,
   update: null,
   activity: 0,
@@ -459,7 +585,7 @@ export const useStore = create<State>((set, get) => ({
   homeDir: "",
 
   openTab: (cwd, kind, opts) => {
-    const pane = { ...newPane(cwd, kind, opts?.resumeSessionId), worktree: opts?.worktree, shell: opts?.shell, url: opts?.url };
+    const pane = { ...newPane(cwd, kind, opts?.resumeSessionId), fork: opts?.fork, worktree: opts?.worktree, shell: opts?.shell, url: opts?.url };
     const tab: Tab = { id: crypto.randomUUID(), root: leaf(pane.id), activePaneId: pane.id };
     if (cwd && cwd !== get().settings.lastFolder) get().updateSettings({ lastFolder: cwd });
     set((s) => ({ tabs: [...s.tabs, tab], activeTabId: tab.id, view: "terminal", panes: { ...s.panes, [pane.id]: pane } }));
@@ -510,16 +636,89 @@ export const useStore = create<State>((set, get) => ({
     }),
 
   openAgents: () => set({ agentsOpen: true, view: "agents" }),
+  agentsTab: "live",
 
   closeAgents: () => set((s) => ({ agentsOpen: false, view: s.view === "agents" ? "terminal" : s.view })),
 
-  openFile: (raw, cwd) => {
+  openTool: (id) => set((s) => ({ toolsOpen: true, view: "tools", tool: id ?? s.tool })),
+
+  closeTools: () => set((s) => ({ toolsOpen: false, view: s.view === "tools" ? "terminal" : s.view })),
+
+  openSnips: (path) => set((s) => ({ snipsOpen: true, view: "snips", snipPath: path ?? s.snipPath })),
+
+  closeSnips: () => set((s) => ({ snipsOpen: false, view: s.view === "snips" ? "terminal" : s.view })),
+
+  openFile: (raw, cwd, opts) => {
     // One tab per file, however the path was written (C:/a/b.txt and c:\a\b.txt are the same file).
     const path = raw.replace(/\//g, "\\").replace(/^([a-z]):/, (_, d: string) => `${d.toUpperCase()}:`);
     const existing = get().fileTabs.find((f) => f.path.toLowerCase() === path.toLowerCase());
-    if (existing) return set({ activeFileId: existing.id, view: "file" });
-    const tab: FileTab = { id: crypto.randomUUID(), path, cwd: cwd?.replace(/\//g, "\\") };
-    set((s) => ({ fileTabs: [...s.fileTabs, tab].slice(-20), activeFileId: tab.id, view: "file" }));
+    if (existing) {
+      if (opts?.edit) get().updateFile(existing.id, { editing: true });
+      return set({ activeFileId: existing.id, view: "file" });
+    }
+    const tab: FileTab = { id: crypto.randomUUID(), path, cwd: cwd?.replace(/\//g, "\\"), editing: opts?.edit };
+    // Past 20 tabs the oldest go, but never one with unsaved edits.
+    set((s) => {
+      const fileTabs = [...s.fileTabs, tab];
+      while (fileTabs.length > 20) {
+        const i = fileTabs.findIndex((f) => f.draft === undefined);
+        if (i < 0 || i === fileTabs.length - 1) break;
+        fileTabs.splice(i, 1);
+      }
+      return { fileTabs, activeFileId: tab.id, view: "file" };
+    });
+  },
+
+  // File tabs live either on their own or inside a workspace; update whichever holds this id.
+  updateFile: (id, patch) =>
+    set((s) => ({
+      fileTabs: s.fileTabs.some((f) => f.id === id) ? s.fileTabs.map((f) => (f.id === id ? { ...f, ...patch } : f)) : s.fileTabs,
+      workspaces: s.workspaces.some((w) => w.files.some((f) => f.id === id))
+        ? s.workspaces.map((w) => (w.files.some((f) => f.id === id) ? { ...w, files: w.files.map((f) => (f.id === id ? { ...f, ...patch } : f)) } : w))
+        : s.workspaces,
+    })),
+
+  openWorkspace: (raw) => {
+    const root = raw.replace(/\//g, "\\").replace(/[\\]+$/, "").replace(/^([a-z]):/, (_, d: string) => `${d.toUpperCase()}:`);
+    const existing = get().workspaces.find((w) => w.root.toLowerCase() === root.toLowerCase());
+    if (existing) return set({ activeWorkspaceId: existing.id, view: "workspace" });
+    const ws: Workspace = { id: crypto.randomUUID(), root, files: [], activeFileId: null, expanded: [] };
+    set((s) => ({ workspaces: [...s.workspaces, ws], activeWorkspaceId: ws.id, view: "workspace" }));
+  },
+
+  showWorkspace: (id) => set({ activeWorkspaceId: id, view: "workspace" }),
+
+  closeWorkspace: (id) =>
+    set((s) => {
+      const i = s.workspaces.findIndex((w) => w.id === id);
+      const workspaces = s.workspaces.filter((w) => w.id !== id);
+      if (s.activeWorkspaceId !== id) return { workspaces };
+      const next = workspaces[Math.min(i, workspaces.length - 1)];
+      return next ? { workspaces, activeWorkspaceId: next.id } : { workspaces, activeWorkspaceId: null, view: s.view === "workspace" ? "terminal" : s.view };
+    }),
+
+  updateWorkspace: (id, patch) => set((s) => ({ workspaces: s.workspaces.map((w) => (w.id === id ? { ...w, ...patch } : w)) })),
+
+  openWorkspaceFile: (wsId, raw, opts) => {
+    const path = raw.replace(/\//g, "\\");
+    const ws = get().workspaces.find((w) => w.id === wsId);
+    if (!ws) return;
+    const existing = ws.files.find((f) => f.path.toLowerCase() === path.toLowerCase());
+    if (existing) {
+      const files = ws.files.map((f) => (f.id === existing.id ? { ...f, line: opts?.line ?? f.line, editing: opts?.edit || f.editing } : f));
+      return get().updateWorkspace(wsId, { files, activeFileId: existing.id });
+    }
+    const file: FileTab = { id: crypto.randomUUID(), path, cwd: ws.root, line: opts?.line, editing: opts?.edit };
+    get().updateWorkspace(wsId, { files: [...ws.files, file], activeFileId: file.id });
+  },
+
+  closeWorkspaceFile: (wsId, fileId) => {
+    const ws = get().workspaces.find((w) => w.id === wsId);
+    if (!ws) return;
+    const i = ws.files.findIndex((f) => f.id === fileId);
+    const files = ws.files.filter((f) => f.id !== fileId);
+    const activeFileId = ws.activeFileId !== fileId ? ws.activeFileId : (files[Math.min(i, files.length - 1)]?.id ?? null);
+    get().updateWorkspace(wsId, { files, activeFileId });
   },
 
   showFile: (id) => set({ activeFileId: id, view: "file" }),
@@ -588,12 +787,12 @@ export const useStore = create<State>((set, get) => ({
     });
   },
 
-  splitActive: (dir, kind) => {
+  splitActive: (dir, kind, opts) => {
     const s = get();
     const tab = s.tabs.find((t) => t.id === s.activeTabId);
     if (!tab) return;
     const current = s.panes[tab.activePaneId];
-    const pane = { ...newPane(current?.cwd ?? s.homeDir, kind), shell: current?.shell };
+    const pane = { ...newPane(opts?.cwd ?? current?.cwd ?? s.homeDir, kind, opts?.resumeSessionId), fork: opts?.fork, shell: current?.shell };
     set({
       panes: { ...s.panes, [pane.id]: pane },
       tabs: s.tabs.map((t) =>
@@ -651,6 +850,17 @@ export const useStore = create<State>((set, get) => ({
   },
 
   updateSettings: (patch) => set((s) => ({ settings: { ...s.settings, ...patch } })),
+
+  updateSessionMeta: (id, patch) => {
+    const all = get().settings.sessionMeta ?? {};
+    const next = { ...all[id], ...patch };
+    // Drop entries that no longer change anything.
+    const empty = !next.title && !next.pinned && !next.hidden;
+    const sessionMeta = { ...all };
+    if (empty) delete sessionMeta[id];
+    else sessionMeta[id] = next;
+    get().updateSettings({ sessionMeta });
+  },
 
   togglePin: (path) =>
     set((s) => ({

@@ -1,5 +1,7 @@
 // Screens the browser can emulate for responsive testing. Sizes are CSS pixels (portrait).
 
+import { t } from "../i18n";
+
 export interface DeviceSpec {
   id: string;
   label: string;
@@ -26,10 +28,15 @@ export const DEVICES: DeviceSpec[] = [
   { id: "ipad-air", label: "iPad Air", group: "Tablets", width: 820, height: 1180, scaleFactor: 2, mobile: true, touch: true, userAgent: IPAD },
   { id: "ipad-pro-13", label: "iPad Pro 13″", group: "Tablets", width: 1032, height: 1376, scaleFactor: 2, mobile: true, touch: true, userAgent: IPAD },
   { id: "galaxy-tab-s9", label: "Galaxy Tab S9", group: "Tablets", width: 800, height: 1280, scaleFactor: 2, mobile: true, touch: true, userAgent: ANDROID_TABLET },
-  { id: "laptop", label: "Laptop", group: "Computers", width: 1366, height: 768, scaleFactor: 1, mobile: false, touch: false },
-  { id: "laptop-hd", label: "Laptop HD", group: "Computers", width: 1440, height: 900, scaleFactor: 1, mobile: false, touch: false },
-  { id: "desktop", label: "Desktop", group: "Computers", width: 1920, height: 1080, scaleFactor: 1, mobile: false, touch: false },
+  { id: "laptop", get label() { return t("misc.device.laptop"); }, group: "Computers", width: 1366, height: 768, scaleFactor: 1, mobile: false, touch: false },
+  { id: "laptop-hd", get label() { return t("misc.device.laptopHd"); }, group: "Computers", width: 1440, height: 900, scaleFactor: 1, mobile: false, touch: false },
+  { id: "desktop", get label() { return t("misc.device.desktop"); }, group: "Computers", width: 1920, height: 1080, scaleFactor: 1, mobile: false, touch: false },
 ];
+
+/** Heading for a device group, in the interface language. */
+export function deviceGroupLabel(group: DeviceSpec["group"]): string {
+  return group === "Phones" ? t("misc.deviceGroup.phones") : group === "Tablets" ? t("misc.deviceGroup.tablets") : t("misc.deviceGroup.computers");
+}
 
 /** "custom:390x844" → a phone-like screen of that size. */
 export function deviceById(id: string | undefined): DeviceSpec | undefined {
@@ -38,7 +45,7 @@ export function deviceById(id: string | undefined): DeviceSpec | undefined {
   if (custom) {
     const [width, height] = [Number(custom[1]), Number(custom[2])];
     const phone = width < 768;
-    return { id, label: "Custom", group: "Phones", width, height, scaleFactor: phone ? 3 : 1, mobile: phone, touch: phone };
+    return { id, label: t("misc.device.custom"), group: "Phones", width, height, scaleFactor: phone ? 3 : 1, mobile: phone, touch: phone };
   }
   return DEVICES.find((d) => d.id === id);
 }

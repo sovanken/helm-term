@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowDown, ArrowUp, CaseSensitive, X } from "lucide-react";
 import { focusTerminal, getSearch } from "../terminal/terminals";
 import { useStore } from "../state/store";
+import { useTranslation } from "react-i18next";
 
 export function SearchBar({ paneId }: { paneId: string }) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [caseSensitive, setCaseSensitive] = useState(false);
   const [result, setResult] = useState<{ index: number; count: number } | null>(null);
@@ -48,7 +50,7 @@ export function SearchBar({ paneId }: { paneId: string }) {
       <input
         ref={input}
         value={query}
-        placeholder="Find in output"
+        placeholder={t("search.placeholder")}
         onChange={(e) => {
           setQuery(e.target.value);
           find(1, e.target.value, true);
@@ -60,23 +62,23 @@ export function SearchBar({ paneId }: { paneId: string }) {
         className="w-52 rounded-md bg-transparent px-2 py-1 text-fg outline-none placeholder:text-faint"
       />
       <span className="min-w-14 text-center text-[11px] text-faint">
-        {result ? `${result.index + 1} of ${result.count}` : query ? "No results" : ""}
+        {result ? t("search.position", { index: result.index + 1, count: result.count }) : query ? t("search.noResults") : ""}
       </span>
       <button
-        aria-label="Match case"
-        title="Match case"
+        aria-label={t("search.matchCase")}
+        title={t("search.matchCase")}
         onClick={() => setCaseSensitive((c) => !c)}
         className={`flex size-6 items-center justify-center rounded ${caseSensitive ? "bg-accent-soft text-accent" : "text-muted hover:bg-hover"}`}
       >
         <CaseSensitive size={15} />
       </button>
-      <button aria-label="Previous match" title="Previous (Shift+Enter)" onClick={() => find(-1)} className="flex size-6 items-center justify-center rounded text-muted hover:bg-hover hover:text-fg">
+      <button aria-label={t("search.previousMatch")} title={t("search.previousHint")} onClick={() => find(-1)} className="flex size-6 items-center justify-center rounded text-muted hover:bg-hover hover:text-fg">
         <ArrowUp size={14} />
       </button>
-      <button aria-label="Next match" title="Next (Enter)" onClick={() => find(1)} className="flex size-6 items-center justify-center rounded text-muted hover:bg-hover hover:text-fg">
+      <button aria-label={t("search.nextMatch")} title={t("search.nextHint")} onClick={() => find(1)} className="flex size-6 items-center justify-center rounded text-muted hover:bg-hover hover:text-fg">
         <ArrowDown size={14} />
       </button>
-      <button aria-label="Close search" title="Close (Esc)" onClick={close} className="flex size-6 items-center justify-center rounded text-muted hover:bg-hover hover:text-fg">
+      <button aria-label={t("search.close")} title={t("search.closeHint")} onClick={close} className="flex size-6 items-center justify-center rounded text-muted hover:bg-hover hover:text-fg">
         <X size={14} />
       </button>
     </div>

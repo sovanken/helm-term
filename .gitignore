@@ -25,3 +25,5 @@ dist-ssr
 
 # Copied from node_modules by scripts/copy-pdfjs.mjs
 public/pdfjs
+# Copied from node_modules by scripts/copy-icons.mjs
+public/material-icons

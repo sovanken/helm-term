@@ -360,3 +360,32 @@ pub fn stats(path: &Path) -> SessionStats {
     s.context_window = if one_m { 1_000_000 } else { 200_000 };
     s
 }
+
+/// Files Claude edited or created in a conversation (Edit, Write, MultiEdit, NotebookEdit), each
+/// once, in the order first touched.
+pub fn changed_files(path: &Path) -> Vec<String> {
+    use std::io::BufRead;
+    let Ok(file) = std::fs::File::open(path) else { return Vec::new() };
+    let mut seen = std::collections::HashSet::new();
+    let mut out = Vec::new();
+    for line in std::io::BufReader::new(file).lines().map_while(Result::ok) {
+        if !line.contains("\"tool_use\"") {
+            continue;
+        }
+        let Ok(v) = serde_json::from_str::<Value>(&line) else { continue };
+        let Some(parts) = v.pointer("/message/content").and_then(Value::as_array) else { continue };
+        for p in parts {
+            let name = p.get("name").and_then(Value::as_str).unwrap_or("");
+            if p.get("type").and_then(Value::as_str) != Some("tool_use") || !matches!(name, "Edit" | "Write" | "MultiEdit" | "NotebookEdit") {
+                continue;
+            }
+            let file = p.pointer("/input/file_path").or_else(|| p.pointer("/input/notebook_path")).and_then(Value::as_str);
+            if let Some(f) = file {
+                if seen.insert(f.to_lowercase()) {
+                    out.push(f.to_string());
+                }
+            }
+        }
+    }
+    out
+}

@@ -1,3 +1,6 @@
+import { locale, t } from "../i18n";
+import { unit } from "./format";
+
 /**
  * Scores how well `query` matches `text`: contiguous and word-start matches rank highest.
  * Returns -1 when the query's characters do not all appear in order.
@@ -26,10 +29,22 @@ export function fuzzyScore(query: string, text: string): number {
 
 export function timeAgo(ms: number) {
   const mins = Math.round((Date.now() - ms) / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
+  if (mins < 1) return t("agentText.justNow");
+  const rel = new Intl.RelativeTimeFormat(locale(), { style: "narrow" });
+  if (mins < 60) return rel.format(-mins, "minute");
   const hours = Math.round(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 24) return rel.format(-hours, "hour");
   const days = Math.round(hours / 24);
-  return days < 30 ? `${days}d ago` : new Date(ms).toLocaleDateString();
+  return days < 30 ? rel.format(-days, "day") : new Date(ms).toLocaleDateString(locale());
+}
+
+/** timeAgo without "ago", for tight spaces: "now", "5m", "2h", "3d". */
+export function timeAgoShort(ms: number) {
+  const mins = Math.round((Date.now() - ms) / 60000);
+  if (mins < 1) return t("agentText.now");
+  if (mins < 60) return unit.m(mins);
+  const hours = Math.round(mins / 60);
+  if (hours < 24) return unit.h(hours);
+  const days = Math.round(hours / 24);
+  return days < 30 ? unit.d(days) : new Date(ms).toLocaleDateString(locale());
 }

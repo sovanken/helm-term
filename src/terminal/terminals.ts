@@ -14,6 +14,8 @@ import { openPath } from "@tauri-apps/plugin-opener";
 import { ipc, quotePath } from "../lib/ipc";
 import { forgetPane, openLink, scanForDevServer } from "../lib/links";
 import { fontStack, resolveTheme, terminalTheme } from "../lib/themes";
+import { num } from "../lib/format";
+import { t } from "../i18n";
 import { type Settings, useStore } from "../state/store";
 
 interface Entry {
@@ -236,19 +238,19 @@ export async function pasteInto(paneId: string) {
     const claude = pane && (pane.claudeActive || pane.kind === "claude");
     const lines = text.replace(/\r?\n$/, "").split(/\r?\n/).length;
     if (lines > 1 && !claude && s.settings.pasteWarning) {
-      const ok = await ask(`You're pasting ${lines} lines into a shell. Each line runs as its own command.\n\n${text.slice(0, 300)}${text.length > 300 ? "…" : ""}`, {
-        title: "Paste multiple lines?",
+      const ok = await ask(`${t("terminal.pasteLines", { count: lines })}\n\n${text.slice(0, 300)}${text.length > 300 ? "…" : ""}`, {
+        title: t("terminal.pasteLinesTitle"),
         kind: "warning",
-        okLabel: "Paste",
-        cancelLabel: "Cancel",
+        okLabel: t("common.paste"),
+        cancelLabel: t("common.cancel"),
       });
       if (!ok) return focusTerminal(paneId);
     }
     // A huge paste stays in the conversation and is re-sent with every message; a file is read once.
     if (claude && text.length > 20_000 && s.settings.usageTips) {
       const asFile = await ask(
-        `This paste is ${Math.round(text.length / 1000)}k characters. Pasted text is re-sent with every later message. Saving it as a file and attaching the path lets Claude read it only when needed, which saves usage.`,
-        { title: "Attach as a file?", okLabel: "Attach as file", cancelLabel: "Paste text" },
+        t("terminal.bigPaste", { size: t("format.thousand", { n: num(Math.round(text.length / 1000)) }) }),
+        { title: t("terminal.bigPasteTitle"), okLabel: t("terminal.attachAsFile"), cancelLabel: t("terminal.pasteText") },
       );
       if (asFile) {
         const path = await ipc.savePaste(text).catch(() => null);
@@ -376,7 +378,8 @@ async function launch(paneId: string, entry: Entry) {
       }
     }
   }
-  store.updatePane(paneId, { resumeSessionId: undefined, worktree: undefined, sessionId: resumeSessionId ?? sessionId });
+  const fork = !!resumeSessionId && !!pane.fork;
+  store.updatePane(paneId, { resumeSessionId: undefined, fork: undefined, worktree: undefined, sessionId: resumeSessionId ?? sessionId });
 
   const launchId = crypto.randomUUID();
   launchIds.set(paneId, launchId);
@@ -401,6 +404,7 @@ async function launch(paneId: string, entry: Entry) {
         env: parseEnv(store.settings.extraEnv),
         newSessionId: pane.kind === "claude" && !resumeSessionId ? sessionId : undefined,
         resumeSessionId,
+        fork,
         worktree: resumeSessionId ? undefined : pane.worktree,
         launchId,
         cols: entry.term.cols,
@@ -409,7 +413,7 @@ async function launch(paneId: string, entry: Entry) {
       channel as Channel<ArrayBuffer>,
     );
   } catch (err) {
-    entry.term.write(`\r\n\x1b[31mHelm could not start this terminal: ${String(err)}\x1b[0m\r\n`);
+    entry.term.write(`\r\n\x1b[31m${t("terminal.startFailed", { error: String(err) })}\x1b[0m\r\n`);
   }
 }
 

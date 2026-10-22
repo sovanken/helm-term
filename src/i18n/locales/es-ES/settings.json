@@ -1,0 +1,661 @@
+{
+  "settings": {
+    "nav": {
+      "general": "General",
+      "appearance": "Apariencia",
+      "terminal": "Terminal",
+      "notifications": "Notificaciones",
+      "claudeInHelm": "Claude en Helm",
+      "shortcuts": "Métodos abreviados de teclado",
+      "privacy": "Privacidad",
+      "advanced": "Avanzado",
+      "whatsNew": "Novedades",
+      "about": "Acerca de"
+    },
+    "row": {
+      "changed": "Cambiado respecto al valor predeterminado",
+      "resetLabel": "Restablecer {{label}}",
+      "resetTitle": "Restablecer el valor predeterminado ({{value}})"
+    },
+    "shortcutBox": {
+      "recording": "Pulsa las teclas…",
+      "turnOff": "Desactivar"
+    },
+    "general": {
+      "hint": "Cómo se inicia Helm y cómo abre las pestañas nuevas.",
+      "startup": "Inicio",
+      "autostart": {
+        "label": "Iniciar Helm al iniciar sesión en Windows",
+        "hint": "Abre Helm en segundo plano cuando se inicia tu PC.",
+        "toggle": "Iniciar con Windows",
+        "failed": "No se pudo cambiar: {{error}}"
+      },
+      "restoreTabs": {
+        "label": "Volver a abrir las pestañas al iniciar",
+        "hint": "Las pestañas de Claude continúan la misma conversación.",
+        "toggle": "Volver a abrir pestañas"
+      },
+      "newTabs": "Pestañas nuevas",
+      "shell": {
+        "label": "Shell",
+        "hint": "También puedes elegir un shell para cada pestaña en el menú +."
+      },
+      "startFolder": {
+        "label": "Carpeta inicial",
+        "hint": "Se usa cuando no hay ninguna pestaña abierta. Si no, las pestañas nuevas se abren en la carpeta de la pestaña actual.",
+        "dialogTitle": "Elegir la carpeta inicial",
+        "home": "Carpeta personal",
+        "last": "Última carpeta usada",
+        "custom": "Elegir una carpeta…"
+      },
+      "closing": "Cierre",
+      "confirmClose": {
+        "label": "Preguntar antes de cerrar mientras Claude trabaja",
+        "hint": "Se aplica al cerrar una pestaña, un panel o la ventana.",
+        "toggle": "Confirmar cierre"
+      },
+      "screenshots": "Capturas de pantalla",
+      "snipShortcut": {
+        "label": "Método abreviado desde cualquier aplicación",
+        "hint": "Inicia una captura de pantalla aunque Helm esté en segundo plano. Haz clic en el cuadro y pulsa las teclas que quieras."
+      },
+      "snipAutoCopy": {
+        "label": "Copiar cada captura de pantalla al momento",
+        "hint": "Así puedes pegarla donde quieras justo después de hacerla. También se abre en la pestaña Capturas de pantalla de Helm.",
+        "toggle": "Copiar cada captura"
+      }
+    },
+    "voice": {
+      "title": "Entrada de voz",
+      "speech": {
+        "label": "Voz a texto",
+        "hintInstalled": "Se ejecuta en este PC con NVIDIA Parakeet (inglés). Nada de lo que dices sale de tu PC. Ocupa {{size}} MB.",
+        "hintDownload": "Habla en lugar de escribir en las pestañas de Claude. Se ejecuta en este PC y no se envía nada a ningún sitio. Descarga única de unos {{size}} MB, solo en inglés."
+      },
+      "removeConfirm": {
+        "message": "¿Eliminar el modelo de voz? Puedes volver a descargarlo cuando quieras.",
+        "title": "¿Eliminar el modelo de voz?"
+      },
+      "download": "Descargar",
+      "mic": {
+        "label": "Micrófono",
+        "hint": "Pruébalo para ver cómo se mueve el nivel mientras hablas.",
+        "windowsDefault": "Predeterminado de Windows",
+        "notConnected": "{{name}} (no conectado)",
+        "stop": "Detener",
+        "test": "Probar"
+      },
+      "holdKey": {
+        "label": "Mantener para hablar",
+        "hint": "Mantén pulsada la tecla mientras hablas y suéltala para terminar. Una pulsación rápida sigue escuchando hasta que la vuelvas a pulsar. Funciona en las pestañas de Claude."
+      },
+      "button": {
+        "label": "Botón de micrófono en las pestañas de Claude",
+        "hint": "Un botón pequeño en la esquina de cada pestaña de Claude.",
+        "toggle": "Botón de micrófono"
+      }
+    },
+    "appearance": {
+      "hint": "Dale a Helm y a tus terminales el aspecto que quieras. Los cambios se ven al instante.",
+      "app": "Aplicación",
+      "language": {
+        "label": "Idioma",
+        "hint": "Los menús y pantallas de Helm. Claude responde en el idioma en que le escribas.",
+        "auto": "Igual que Windows",
+        "autoNamed": "Igual que Windows ({{language}})"
+      },
+      "theme": {
+        "label": "Tema",
+        "hint": "Sistema sigue la configuración de Windows.",
+        "dark": "Oscuro",
+        "light": "Claro",
+        "system": "Sistema"
+      },
+      "accent": {
+        "label": "Color de énfasis",
+        "hint": "Se usa en botones, resaltados, el cursor y la selección."
+      },
+      "uiFont": {
+        "label": "Fuente de la interfaz"
+      },
+      "uiScale": {
+        "label": "Tamaño de la interfaz",
+        "hint": "Ctrl+rueda del ratón fuera de un terminal también lo cambia."
+      },
+      "mica": {
+        "label": "Ventana translúcida (Mica)",
+        "hint": "Deja que el color del escritorio tiña la barra lateral y la barra de título, como en las aplicaciones de Windows 11.",
+        "unsupported": "Requiere Windows 11.",
+        "toggle": "Mica"
+      },
+      "terminalColors": "Colores del terminal",
+      "helmScheme": "Helm (igual que el tema)",
+      "terminalText": "Texto del terminal",
+      "font": {
+        "label": "Fuente",
+        "hint": "JetBrains Mono y Geist Mono vienen con Helm. Todos los idiomas y emojis se siguen mostrando bien.",
+        "defaultOption": "{{name}} (predeterminada)",
+        "other": "Otra fuente instalada…",
+        "placeholder": "Nombre de la fuente"
+      },
+      "fontSize": {
+        "label": "Tamaño del texto",
+        "hint": "Ctrl+rueda del ratón sobre un terminal, o Ctrl+= y Ctrl+-."
+      },
+      "lineHeight": {
+        "label": "Alto de línea"
+      },
+      "cursor": {
+        "label": "Cursor",
+        "bar": "Barra",
+        "block": "Bloque",
+        "underline": "Subrayado",
+        "blink": "Parpadeo"
+      }
+    },
+    "terminal": {
+      "hint": "Cómo se comporta el terminal. Se aplica a todas las pestañas al instante.",
+      "textAndClipboard": "Texto y Portapapeles",
+      "scrollback": {
+        "label": "Historial de desplazamiento",
+        "hint": "Cuántas líneas conserva cada pestaña para que puedas desplazarte hacia atrás.",
+        "lines_one": "{{lines}} línea",
+        "lines_many": "{{lines}} líneas",
+        "lines_other": "{{lines}} líneas"
+      },
+      "copyOnSelect": {
+        "label": "Copiar al seleccionar texto",
+        "hint": "El texto seleccionado va al Portapapeles sin pulsar Ctrl+C.",
+        "toggle": "Copiar al seleccionar"
+      },
+      "rightClick": {
+        "label": "Clic con el botón derecho",
+        "smart": "Copiar o pegar",
+        "paste": "Pegar siempre"
+      },
+      "pasteWarning": {
+        "label": "Avisar antes de pegar varias líneas en un shell",
+        "hint": "Cada línea se ejecutaría como un comando. El prompt de Claude nunca se ve afectado.",
+        "toggle": "Aviso al pegar"
+      },
+      "bellAndRendering": "Campana y representación",
+      "bell": {
+        "label": "Campana",
+        "hint": "Cuando un programa hace sonar la campana del terminal.",
+        "flash": "Destello",
+        "sound": "Sonido"
+      },
+      "gpu": {
+        "label": "Aceleración por hardware",
+        "hint": "Más rápido y fluido. Desactívala solo si el texto se ve mal en tu PC."
+      }
+    },
+    "notifications": {
+      "hint": "Notificaciones de Windows para las pestañas que no estás mirando.",
+      "show": {
+        "label": "Mostrar notificaciones"
+      },
+      "finished": {
+        "label": "Cuando Claude termina",
+        "toggle": "Terminado"
+      },
+      "approval": {
+        "label": "Cuando Claude necesita aprobación",
+        "hint": "Con botones Permitir / Denegar cuando las aprobaciones se responden en Helm.",
+        "toggle": "Aprobación"
+      },
+      "usage": {
+        "label": "Avisos de límite de uso",
+        "hint": "Al 80 % y al 95 % de tu límite de 5 horas o semanal.",
+        "toggle": "Uso"
+      },
+      "sound": {
+        "label": "Reproducir un sonido",
+        "toggle": "Sonido"
+      },
+      "test": {
+        "title": "Las notificaciones de Helm funcionan",
+        "body": "Así te avisa Helm de las pestañas que no estás mirando.",
+        "button": "Enviar una notificación de prueba"
+      }
+    },
+    "claudeInHelm": {
+      "hint": "Cómo trabaja Helm con las pestañas de Claude que inicia. Los cambios se aplican a las pestañas de Claude nuevas.",
+      "approvals": {
+        "label": "Responder aprobaciones en Helm",
+        "hint": "Cuando una pestaña que no estás mirando necesita permiso, pregunta en Helm y en una notificación de Windows con Permitir / Denegar. La pestaña que estás mirando siempre pregunta en su terminal.",
+        "toggle": "Aprobaciones en Helm"
+      },
+      "usageCockpit": {
+        "label": "Seguir los límites de uso",
+        "hint": "Muestra tus límites de 5 horas y semanales, tu ritmo y los avisos. Usa la línea de estado de Claude, así que se omite si configuraste tu propia línea de estado.",
+        "toggle": "Límites de uso"
+      },
+      "autoOpenAgents": {
+        "label": "Abrir Segundo plano automáticamente",
+        "hint": "Cuando Claude inicia un subagente o un comando en segundo plano, abre el panel lateral en Segundo plano (solo si está cerrado)."
+      },
+      "usageTips": {
+        "label": "Consejos para ahorrar uso",
+        "hint": "Un aviso antes de que caduque la caché de una conversación, /compact con un clic cuando se llena el contexto, adjuntar como archivo los textos pegados enormes y un recordatorio para las conversaciones grandes inactivas."
+      },
+      "openLinksIn": {
+        "label": "Abrir vínculos web en",
+        "hint": "Los vínculos del terminal y de Detalles, y los servidores de desarrollo que abras. El navegador de Helm puede probar tamaños de móvil y enviar errores, capturas de pantalla y elementos de la página a Claude.",
+        "browser": "Mi navegador"
+      },
+      "devServerPrompt": {
+        "label": "Ofrecer abrir servidores de desarrollo",
+        "hint": "Cuando un terminal muestra una dirección local como localhost:5173, muestra un botón para abrirla."
+      },
+      "windowsHints": {
+        "label": "Indicaciones de Windows para Claude",
+        "hint": "Le dice a Claude que está en Windows y qué sintaxis de shell usar, para que deje de mezclar comandos de PowerShell y Bash.",
+        "toggle": "Indicaciones de Windows"
+      }
+    },
+    "shortcuts": {
+      "hint": "Helm usa Ctrl+Shift y Alt+Shift para que Claude Code conserve todas sus teclas.",
+      "filter": "Buscar un método abreviado",
+      "empty": "Ningún método abreviado coincide."
+    },
+    "advanced": {
+      "export": {
+        "dialogTitle": "Exportar la configuración de Helm",
+        "done": "Configuración exportada."
+      },
+      "import": {
+        "dialogTitle": "Importar la configuración de Helm",
+        "notHelmFile": "No es un archivo de configuración de Helm",
+        "done": "Configuración importada."
+      },
+      "resetConfirm": {
+        "message": "¿Restablecer toda la configuración de Helm a sus valores predeterminados? Tus pestañas, prompts guardados y proyectos anclados se conservan.",
+        "title": "¿Restablecer la configuración?",
+        "done": "Configuración restablecida a los valores predeterminados."
+      },
+      "hint": "Para usuarios avanzados. Se aplica a las pestañas que abras a partir de ahora.",
+      "claude": "Claude",
+      "extraArgs": {
+        "label": "Opciones adicionales cuando Helm inicia Claude",
+        "hint": "Se añaden después de las opciones propias de Helm, tal como las escribas, p. ej., <1>--model sonnet</1> o <1>--add-dir ../shared</1>."
+      },
+      "environment": "Entorno",
+      "env": {
+        "label": "Variables de entorno para pestañas nuevas",
+        "hint": "Una por línea: <1>NOMBRE=valor</1>. Disponibles para el shell y para Claude."
+      },
+      "data": "Datos",
+      "backup": {
+        "label": "Copia de seguridad de la configuración",
+        "hint": "Configuración, prompts guardados y proyectos anclados en un solo archivo.",
+        "export": "Exportar…",
+        "import": "Importar…"
+      },
+      "dataFolderHint": "Configuración, archivos de hooks y capturas de pantalla pegadas.",
+      "reset": {
+        "label": "Restablecer configuración",
+        "hint": "Vuelve a los valores predeterminados. Se conservan las pestañas, los prompts y los proyectos anclados."
+      }
+    },
+    "dataFolder": "Carpeta de datos de Helm",
+    "whatsNew": {
+      "hint": "Cambios recientes en Helm.",
+      "installed": "Instalada"
+    },
+    "privacy": {
+      "facts": {
+        "local": {
+          "title": "Todo se queda en este PC",
+          "text": "Tus pestañas, tu configuración, tus prompts guardados y la salida del terminal nunca salen de tu PC. Helm no tiene cuentas, análisis ni seguimiento."
+        },
+        "network": {
+          "title": "En línea solo para actualizaciones o cuando tú lo pidas",
+          "text": "Por su cuenta, Helm solo comprueba en GitHub si hay una versión nueva, y puedes desactivarlo abajo. Todo lo demás ocurre solo cuando tú lo inicias: descargar el modelo de voz, las solicitudes que envías desde el probador de API y las páginas que abres en una pestaña del navegador de Helm."
+        },
+        "conversations": {
+          "title": "Las conversaciones de Claude",
+          "text": "Helm lee los archivos de conversación que Claude Code ya guarda en tu PC para mostrar el historial, el uso y el coste. Nunca los sube. Claude Code se comunica con Anthropic según la propia política de privacidad de Anthropic."
+        },
+        "status": {
+          "title": "Conexión de estado local",
+          "text": "Las pestañas de Claude informan de su estado a Helm mediante una conexión privada que solo funciona en este PC y requiere una clave secreta que cambia cada vez que se inicia Helm."
+        }
+      },
+      "hint": "Qué guarda Helm, dónde y qué puedes borrar.",
+      "network": "Red",
+      "autoUpdateHint": "La única conexión que Helm hace por su cuenta (github.com).",
+      "yourData": "Tus datos",
+      "screenshots": {
+        "hint_one": "{{count}} imagen · {{size}}. Se elimina automáticamente al cabo de una semana.",
+        "hint_many": "{{count}} imágenes · {{size}}. Se eliminan automáticamente al cabo de una semana.",
+        "hint_other": "{{count}} imágenes · {{size}}. Se eliminan automáticamente al cabo de una semana.",
+        "label": "Capturas de pantalla pegadas",
+        "deleted_one": "Se ha eliminado {{count}} captura de pantalla pegada.",
+        "deleted_many": "Se han eliminado {{count}} capturas de pantalla pegadas.",
+        "deleted_other": "Se han eliminado {{count}} capturas de pantalla pegadas.",
+        "deleteNow": "Eliminar ahora"
+      },
+      "closedTabs": {
+        "hint_one": "{{count}} recordada para que Ctrl+Alt+Shift+T pueda volver a abrirla.",
+        "hint_many": "{{count}} recordadas para que Ctrl+Alt+Shift+T pueda volver a abrirlas.",
+        "hint_other": "{{count}} recordadas para que Ctrl+Alt+Shift+T pueda volver a abrirlas.",
+        "label": "Pestañas cerradas recientemente",
+        "cleared": "Se han borrado las pestañas cerradas recientemente."
+      },
+      "clear": "Borrar",
+      "recentFolder": {
+        "label": "Carpeta reciente",
+        "hint": "La última carpeta usada, para la opción de inicio «Última carpeta usada».",
+        "cleared": "Se ha borrado la última carpeta usada."
+      },
+      "dataFolderHint": "Dónde se guarda todo lo anterior.",
+      "openSource": "Helm es de código abierto, así que puedes comprobar todo esto en el código en github.com/sovanken/helm-term.",
+      "anthropicPolicy": "Política de privacidad de Anthropic"
+    },
+    "autoUpdate": "Buscar actualizaciones automáticamente",
+    "about": {
+      "tagline": "Un terminal hecho para Claude Code · gratuito y de código abierto (MIT)",
+      "updates": "Actualizaciones",
+      "autoUpdateHint": "Helm busca una versión nueva al iniciarse y cada pocas horas.",
+      "updateReady": "La versión {{version}} está lista",
+      "upToDate": "Tienes la versión más reciente",
+      "updateHint": "Instala y reinicia Helm.",
+      "updateAndRestart": "Actualizar y reiniciar",
+      "checkNow": "Buscar ahora",
+      "project": "Proyecto",
+      "source": "Código fuente e incidencias",
+      "openGitHub": "Abrir GitHub",
+      "notices": {
+        "label": "Avisos de código abierto",
+        "hint": "Helm está hecho con Tauri, React, xterm.js, Inter, Geist y JetBrains Mono (OFL), y otros proyectos de código abierto.",
+        "view": "Ver"
+      },
+      "independent": "Helm es un proyecto independiente de la comunidad y no está afiliado a Anthropic."
+    },
+    "page": {
+      "search": "Buscar en la configuración",
+      "clearSearch": "Borrar la búsqueda",
+      "noMatch": "Ninguna opción de configuración coincide con «{{query}}».",
+      "openJsonTitle": "Editar la configuración de Helm como archivo JSON (Ctrl+Shift+,)",
+      "openJson": "Abrir settings.json"
+    }
+  },
+  "claudeSettings": {
+    "sections": {
+      "permissions": {
+        "label": "Permisos",
+        "hint": "Lo que Claude puede hacer sin preguntar"
+      },
+      "hooks": {
+        "label": "Hooks",
+        "hint": "Comandos que se ejecutan con eventos de Claude"
+      },
+      "mcp": {
+        "label": "Servidores MCP",
+        "hint": "Herramientas adicionales para Claude"
+      },
+      "memory": {
+        "label": "CLAUDE.md",
+        "hint": "Instrucciones que Claude siempre lee"
+      }
+    },
+    "scopes": {
+      "user": {
+        "label": "Todos los proyectos",
+        "hint": "Solo tú, en todos los proyectos"
+      },
+      "project": {
+        "label": "Este proyecto",
+        "hint": "Compartido con tu equipo (confírmalo en git)"
+      },
+      "local": {
+        "label": "Este proyecto, solo tú",
+        "hint": "No se confirma en git"
+      }
+    },
+    "modes": {
+      "claudeDefault": "Predeterminado de Claude (preguntar cuando haga falta)",
+      "default": "Preguntar antes de ediciones y comandos",
+      "acceptEdits": "Aceptar ediciones de archivos automáticamente",
+      "plan": "Solo planificar (sin cambios)",
+      "bypassPermissions": "No preguntar nunca (peligroso)"
+    },
+    "permissions": {
+      "removeRule": "Quitar {{rule}}",
+      "addRule": "Añadir regla…",
+      "rulePlaceholder": "p. ej., Bash(npm test:*) o Read(./docs/**)",
+      "mode": {
+        "label": "Cuando Claude quiere hacer algo",
+        "hint": "El modo inicial de las conversaciones nuevas. Puedes cambiarlo igualmente con Shift+Tab dentro de Claude."
+      },
+      "allow": {
+        "title": "Permitir",
+        "hint": "Claude hace esto sin preguntar"
+      },
+      "ask": {
+        "title": "Preguntar",
+        "hint": "Claude siempre pregunta antes"
+      },
+      "deny": {
+        "title": "Denegar",
+        "hint": "Claude nunca tiene permiso"
+      },
+      "help": "Las reglas tienen la forma <1>Tool</1> o <1>Tool(pattern)</1>: <1>Bash(git status)</1>, <1>Bash(npm run test:*)</1>, <1>Edit(src/**)</1>, <1>WebFetch(domain:github.com)</1>, <1>mcp__server__tool</1>. Denegar tiene prioridad sobre Preguntar, y Preguntar sobre Permitir."
+    },
+    "hooks": {
+      "empty": "No hay hooks en este archivo.",
+      "remove": "Quitar hook",
+      "addTitle": "Añadir un hook",
+      "when": "Cuándo",
+      "forTools": "Para herramientas (opcional)",
+      "matcherPlaceholder": "p. ej., Edit|Write o Bash",
+      "commandPlaceholder": "Comando que se ejecuta, p. ej., npx prettier --write .",
+      "add": "Añadir",
+      "help": "El comando recibe los detalles del evento como JSON en su entrada. Los hooks se ejecutan con tus permisos: añade solo comandos de confianza."
+    },
+    "mcp": {
+      "added": "Se ha añadido el servidor MCP {{name}}.",
+      "removed": "Se ha quitado {{name}}.",
+      "listTitle": "Todos los servidores que Claude puede usar aquí",
+      "checkAgain": "Volver a comprobar",
+      "checking": "Comprobando los servidores. Puede tardar unos segundos.",
+      "empty": "Aún no hay servidores MCP.",
+      "fromClaudeAi": "de claude.ai",
+      "fromPlugin": "de un complemento",
+      "removeServer": "Quitar {{name}}",
+      "addTitle": "Añadir un servidor <1>· se guarda en «{{scope}}»</1>",
+      "name": "Nombre",
+      "namePlaceholder": "p. ej., github",
+      "type": "Tipo",
+      "command": "Comando",
+      "url": "URL",
+      "env": {
+        "label": "Variables de entorno (opcional)",
+        "hint": "Una por línea: CLAVE=valor"
+      },
+      "adding": "Añadiendo…",
+      "addServer": "Añadir servidor"
+    },
+    "memory": {
+      "saved": "CLAUDE.md guardado.",
+      "notYet": "Aún no existe. Al guardar se crea.",
+      "placeholder": "# Notas del proyecto para Claude\n\n- Cómo ejecutar y probar\n- Reglas de estilo de código\n- Cosas que evitar",
+      "unsaved": "Cambios sin guardar",
+      "hint": "Claude lo lee al principio de cada sesión.",
+      "save": "Guardar (Ctrl+S)"
+    },
+    "intro": "{{hint}}. Son los mismos archivos que usa Claude Code; los cambios se aplican a las sesiones de Claude nuevas.",
+    "scopeInFolder": "{{folder}} · {{hint}}",
+    "needsProject": "Abre primero una pestaña en un proyecto para editar su configuración.",
+    "createdOnChange": "· se crea cuando haces un cambio"
+  },
+  "settingsJson": {
+    "descriptions": {
+      "language": "Idioma de la interfaz. \"auto\" sigue el idioma de visualización de Windows.",
+      "theme": "Tema de color: oscuro (dark), claro (light) o el de Windows (system).",
+      "accent": "Color de énfasis para botones, resaltados y el cursor.",
+      "uiFont": "Fuente de los menús y paneles.",
+      "uiScale": "Zoom de la interfaz, de 0.8 a 1.5. 1 es el tamaño normal.",
+      "mica": "Fondo de ventana translúcido (Mica) de Windows 11.",
+      "terminalScheme": "Colores del terminal. \"helm\" sigue el tema de la aplicación.",
+      "fontFamily": "Nombre de la fuente del terminal, por ejemplo \"JetBrains Mono\" o \"Cascadia Mono\".",
+      "fontSize": "Tamaño de la fuente del terminal en píxeles.",
+      "lineHeight": "Alto de línea del terminal. 1.2 es lo normal.",
+      "cursorStyle": "Forma del cursor del terminal.",
+      "cursorBlink": "Hacer que el cursor del terminal parpadee.",
+      "sidebarWidth": "Ancho de la barra lateral en píxeles.",
+      "changesWidth": "Ancho del panel lateral en píxeles.",
+      "restoreTabs": "Volver a abrir tus pestañas (y las conversaciones de Claude) cuando se inicia Helm.",
+      "shell": "Shell para las pestañas nuevas: \"pwsh\", \"powershell\", \"cmd\", \"bash\" (Git Bash) o \"wsl\".",
+      "startFolder": "Carpeta para las pestañas nuevas cuando no hay ninguna abierta: \"home\", \"last\" o la ruta completa de una carpeta.",
+      "confirmClose": "Preguntar antes de cerrar una pestaña, un panel o la ventana mientras Claude trabaja.",
+      "openLinksIn": "Dónde se abren los vínculos y los servidores de desarrollo: en una pestaña del navegador de Helm (\"helm\") o en tu propio navegador (\"browser\").",
+      "devServerPrompt": "Ofrecer abrir un servidor de desarrollo cuando un terminal muestra su dirección.",
+      "deviceFrame": "Dibujar el contorno de un móvil, una tableta o un portátil alrededor de las páginas mostradas con tamaño de dispositivo.",
+      "projectSort": "Orden de los proyectos en la barra lateral.",
+      "privacyBlur": "Difuminar los nombres de proyecto y los títulos de conversación en la barra lateral (para compartir pantalla).",
+      "snipShortcut": "Combinación de teclas que inicia una captura de pantalla desde cualquier aplicación, por ejemplo \"Ctrl+Alt+S\". Vacío lo desactiva.",
+      "snipAutoCopy": "Copiar cada captura de pantalla nueva al Portapapeles al momento.",
+      "voiceMic": "Micrófono para la entrada de voz, por su nombre en Windows. Vacío usa el predeterminado de Windows.",
+      "voiceHoldKey": "Tecla que se mantiene pulsada mientras hablas. Vacío lo desactiva.",
+      "voiceButton": "Mostrar el botón de micrófono en las pestañas de Claude.",
+      "scrollback": "Líneas que conserva cada terminal para desplazarse hacia atrás.",
+      "copyOnSelect": "Copiar el texto en cuanto lo seleccionas en un terminal.",
+      "rightClick": "Clic con el botón derecho en un terminal: copiar la selección o pegar (\"smart\"), o pegar siempre (\"paste\").",
+      "bell": "Qué pasa cuando un terminal hace sonar su campana.",
+      "pasteWarning": "Preguntar antes de pegar muchas líneas en un terminal.",
+      "gpu": "Dibujar los terminales con aceleración por hardware (más rápido). Desactívalo si el texto se ve mal.",
+      "approvals": "Responder dentro de Helm a las solicitudes de aprobación de Claude de las pestañas en segundo plano.",
+      "usageCockpit": "Mostrar tus límites de uso de Claude en la barra de estado.",
+      "windowsHints": "Decirle a Claude que se ejecuta en Windows y qué sintaxis de shell usar.",
+      "autoOpenAgents": "Abrir el panel lateral en Segundo plano cuando Claude inicia un subagente o un comando en segundo plano.",
+      "usageTips": "Mostrar consejos que ahorran uso (la caché está a punto de caducar, compactar una conversación larga, etc.).",
+      "hiddenStatusItems": "Elementos de la barra de estado que desactivaste (haz clic con el botón derecho en la barra de estado).",
+      "notifications": "Notificaciones de Windows para las pestañas que no estás mirando.",
+      "notifyFinished": "Avisar cuando Claude termina.",
+      "notifyApproval": "Avisar cuando Claude necesita tu aprobación.",
+      "notifyUsage": "Avisar cuando te acercas a un límite de uso.",
+      "notifySound": "Reproducir un sonido con las notificaciones.",
+      "autoUpdate": "Buscar actualizaciones de Helm automáticamente.",
+      "extraClaudeArgs": "Argumentos adicionales para cada pestaña de Claude nueva, por ejemplo \"--model opus\".",
+      "extraEnv": "Variables de entorno adicionales para las pestañas nuevas, una CLAVE=valor por línea (usa \\n entre líneas)."
+    },
+    "header": "// Configuración de Helm. Solo aparecen las opciones que cambiaste; lo que no está aquí usa su valor predeterminado.\n// Escribe una comilla para ver todas las opciones con una breve descripción. Guarda (Ctrl+S) para aplicarlas.",
+    "problems": {
+      "unknown": "\"{{key}}\" no es una opción de configuración de Helm.",
+      "boolean": "\"{{key}}\" debe ser true o false.",
+      "string": "\"{{key}}\" debe ser texto entre comillas.",
+      "stringList": "\"{{key}}\" debe ser una lista de textos, como [\"a\", \"b\"].",
+      "enum": "\"{{key}}\" debe ser uno de estos valores: {{values}}.",
+      "number": "\"{{key}}\" debe ser un número.",
+      "range": "\"{{key}}\" debe estar entre {{min}} y {{max}}.",
+      "notObject": "El archivo debe ser un solo bloque { … } de opciones."
+    },
+    "parseErrors": {
+      "commaExpected": "Falta una coma aquí.",
+      "colonExpected": "Falta \":\" entre el nombre y el valor.",
+      "propertyNameExpected": "Aquí se espera un nombre de opción entre comillas.",
+      "valueExpected": "Falta un valor aquí.",
+      "closeBraceExpected": "Falta una \"}\" de cierre.",
+      "closeBracketExpected": "Falta un \"]\" de cierre.",
+      "endOfFileExpected": "Hay texto de más después de la } de cierre.",
+      "invalidSymbol": "Este carácter no va aquí.",
+      "unexpectedEndOfString": "Falta una comilla de cierre.",
+      "other": "No es un JSON válido ({{code}})."
+    },
+    "toasts": {
+      "broken": "settings.json tiene un error, así que no ha cambiado nada. El editor marca dónde.",
+      "partial_one": "Configuración guardada, salvo {{count}} línea que Helm no pudo usar (marcada en el editor).",
+      "partial_many": "Configuración guardada, salvo {{count}} líneas que Helm no pudo usar (marcadas en el editor).",
+      "partial_other": "Configuración guardada, salvo {{count}} líneas que Helm no pudo usar (marcadas en el editor).",
+      "changedOutside": "settings.json se cambió fuera de Helm y tiene un error, así que Helm ha mantenido tu configuración actual."
+    },
+    "hover": {
+      "allowed": "Permitidos: {{values}}",
+      "range": "De {{min}} a {{max}}",
+      "default": "Predeterminado: {{value}}"
+    }
+  },
+  "voice": {
+    "pill": {
+      "loading": "Preparando…",
+      "listening": "Escuchando… habla y haz una pausa",
+      "listeningHold": "Escuchando… suelta {{key}} cuando termines",
+      "cancelTitle": "Detener y descartar lo que aún no se ha escrito",
+      "doneTitle": "Terminar: escribir el resto en el prompt",
+      "hint": "Las palabras pasan al prompt cuando haces una pausa · pulsa Enter para enviar"
+    },
+    "button": {
+      "speakHold": "Habla en lugar de escribir (mantén pulsada {{key}})",
+      "stopLabel": "Detener la entrada de voz",
+      "stopTitle": "Dejar de escuchar",
+      "speak": "Habla en lugar de escribir"
+    },
+    "title": "Entrada de voz",
+    "install": {
+      "unpacking": "Descomprimiendo…",
+      "downloading": "Descargando…",
+      "progress": "{{done}} de {{total}} MB"
+    },
+    "setup": {
+      "readyKey": "Listo. Haz clic en el micrófono de una pestaña de Claude, o mantén pulsada {{key}}, y habla. Las palabras se escriben cuando haces una pausa; tú pulsas Enter para enviar.",
+      "ready": "Listo. Haz clic en el micrófono de una pestaña de Claude, o mantén pulsada la tecla de voz, y habla. Las palabras se escriben cuando haces una pausa; tú pulsas Enter para enviar.",
+      "intro": "Helm convierte tu voz en texto aquí mismo, en tu PC, con un modelo de código abierto (NVIDIA Parakeet). Nada de lo que dices se envía a ningún sitio.",
+      "size": "Requiere una descarga única de unos {{size}} MB. Por ahora, solo en inglés.",
+      "cancelDownload": "Cancelar descarga",
+      "notNow": "Ahora no",
+      "download": "Descargar"
+    },
+    "stopped": "Entrada de voz detenida.",
+    "needsClaudeTab": "La entrada de voz escribe en las pestañas de Claude. Cambia primero a una."
+  },
+  "dialogs": {
+    "newFile": {
+      "titleMarkdown": "Nuevo archivo Markdown",
+      "titleText": "Nuevo archivo de texto",
+      "title": "Nuevo archivo",
+      "name": "Nombre del archivo",
+      "location": "En <1>{{folder}}</1> · {{dir}}",
+      "create": "Crear"
+    },
+    "newProject": {
+      "pickTitle": "¿Dónde quieres crear el proyecto nuevo?",
+      "title": "Nuevo proyecto",
+      "name": "Nombre de la carpeta",
+      "inside": "Dentro de",
+      "chooseFolder": "Elegir una carpeta",
+      "change": "Cambiar…",
+      "hint": "Helm crea la carpeta y abre en ella una pestaña de Claude.",
+      "create": "Crear y abrir"
+    }
+  },
+  "prompts": {
+    "saved": {
+      "newTitle": "Nuevo prompt",
+      "title": "Prompts guardados",
+      "hint": "Reutiliza los prompts que escribes a menudo. Encuéntralos con Ctrl+Shift+P.",
+      "untitled": "Sin título",
+      "new": "Nuevo prompt",
+      "namePlaceholder": "Nombre",
+      "textPlaceholder": "¿Qué debería hacer Claude?",
+      "autosaved": "Guardado automáticamente",
+      "insert": "Insertar en el prompt",
+      "empty": "Aún no hay prompts guardados."
+    },
+    "composer": {
+      "improveFailed": "No se pudo mejorar el prompt: {{error}}",
+      "savedToast": "Guardado en tus prompts. Encuéntralos con Ctrl+Shift+P.",
+      "title": "Escribir un prompt",
+      "subtitleFor": "Para Claude en {{folder}} · un prompt claro ahorra idas y venidas (y uso)",
+      "subtitleNoTab": "Abre una pestaña de Claude para enviar este prompt · un prompt claro ahorra idas y venidas (y uso)",
+      "placeholder": "¿Qué debería hacer Claude? p. ej., corregir el error de inicio de sesión que ocurre a veces",
+      "improving": "Mejorando tu prompt…",
+      "improveTitle": "Usa Claude Haiku una vez (una pequeña parte de tu uso). Tarda unos 10–20 segundos.",
+      "improve": "Mejorar",
+      "useOriginal": "Usar el original",
+      "insert": "Insertar",
+      "send": "Enviar a Claude"
+    }
+  }
+}

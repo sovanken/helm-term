@@ -1,0 +1,651 @@
+{
+  "settings": {
+    "nav": {
+      "general": "全般",
+      "appearance": "外観",
+      "terminal": "ターミナル",
+      "notifications": "通知",
+      "claudeInHelm": "Helm での Claude",
+      "shortcuts": "キーボード ショートカット",
+      "privacy": "プライバシー",
+      "advanced": "詳細設定",
+      "whatsNew": "新機能",
+      "about": "バージョン情報"
+    },
+    "row": {
+      "changed": "既定値から変更されています",
+      "resetLabel": "{{label}} をリセット",
+      "resetTitle": "既定値にリセット ({{value}})"
+    },
+    "shortcutBox": {
+      "recording": "キーを押してください…",
+      "turnOff": "オフにする"
+    },
+    "general": {
+      "hint": "Helm の起動方法と新しいタブの開き方。",
+      "startup": "スタートアップ",
+      "autostart": {
+        "label": "Windows へのサインイン時に Helm を起動する",
+        "hint": "PC の起動時に Helm をバックグラウンドで開きます。",
+        "toggle": "Windows と同時に起動",
+        "failed": "変更できませんでした: {{error}}"
+      },
+      "restoreTabs": {
+        "label": "起動時にタブを開き直す",
+        "hint": "Claude タブは同じ会話を続けます。",
+        "toggle": "タブを開き直す"
+      },
+      "newTabs": "新しいタブ",
+      "shell": {
+        "label": "シェル",
+        "hint": "+ メニューからタブごとにシェルを選ぶこともできます。"
+      },
+      "startFolder": {
+        "label": "開始フォルダー",
+        "hint": "タブが 1 つも開いていないときに使います。それ以外の場合、新しいタブは現在のタブのフォルダーで開きます。",
+        "dialogTitle": "開始フォルダーを選択",
+        "home": "ホーム フォルダー",
+        "last": "最後に使用したフォルダー",
+        "custom": "フォルダーを選択…"
+      },
+      "closing": "終了時",
+      "confirmClose": {
+        "label": "Claude の作業中に閉じる前に確認する",
+        "hint": "タブ、ペイン、ウィンドウを閉じるときに適用されます。",
+        "toggle": "閉じる前に確認"
+      },
+      "screenshots": "スクリーンショット",
+      "snipShortcut": {
+        "label": "どのアプリからでも使えるショートカット",
+        "hint": "Helm がバックグラウンドにあってもスクリーンショットを開始します。ボックスをクリックして、使いたいキーを押してください。"
+      },
+      "snipAutoCopy": {
+        "label": "スクリーンショットをすぐにコピーする",
+        "hint": "撮った直後にどこにでも貼り付けられます。Helm の [スクリーンショット] タブでも開きます。",
+        "toggle": "スクリーンショットをコピー"
+      }
+    },
+    "voice": {
+      "title": "音声入力",
+      "speech": {
+        "label": "音声テキスト変換",
+        "hintInstalled": "NVIDIA Parakeet (英語) を使ってこの PC 上で動作します。話した内容が PC の外に出ることはありません。使用容量: {{size}} MB。",
+        "hintDownload": "Claude タブで入力する代わりに話すことができます。この PC 上で動作し、どこにも送信されません。初回のみ約 {{size}} MB のダウンロードが必要で、英語のみに対応しています。"
+      },
+      "removeConfirm": {
+        "message": "音声モデルを削除しますか? いつでも再度ダウンロードできます。",
+        "title": "音声モデルを削除しますか?"
+      },
+      "download": "ダウンロード",
+      "mic": {
+        "label": "マイク",
+        "hint": "テストすると、話している間にレベルが動くのを確認できます。",
+        "windowsDefault": "Windows の既定",
+        "notConnected": "{{name}} (未接続)",
+        "stop": "停止",
+        "test": "テスト"
+      },
+      "holdKey": {
+        "label": "押して話す",
+        "hint": "話している間キーを押し続け、離すと終了します。短く押すと、もう一度押すまで聞き取りを続けます。Claude タブで使えます。"
+      },
+      "button": {
+        "label": "Claude タブのマイク ボタン",
+        "hint": "各 Claude タブの隅に表示される小さなボタンです。",
+        "toggle": "マイク ボタン"
+      }
+    },
+    "appearance": {
+      "hint": "Helm とターミナルの見た目を好みに合わせます。変更はすぐに反映されます。",
+      "app": "アプリ",
+      "language": {
+        "label": "言語",
+        "hint": "Helm のメニューと画面の言語です。Claude は、書かれた言語で回答します。",
+        "auto": "Windows と同じ",
+        "autoNamed": "Windows と同じ ({{language}})"
+      },
+      "theme": {
+        "label": "テーマ",
+        "hint": "[システム] は Windows の設定に従います。",
+        "dark": "ダーク",
+        "light": "ライト",
+        "system": "システム"
+      },
+      "accent": {
+        "label": "アクセント カラー",
+        "hint": "ボタン、強調表示、カーソル、選択範囲に使われます。"
+      },
+      "uiFont": {
+        "label": "インターフェースのフォント"
+      },
+      "uiScale": {
+        "label": "インターフェースのサイズ",
+        "hint": "ターミナルの外で Ctrl+マウス ホイールを使っても変更できます。"
+      },
+      "mica": {
+        "label": "透過ウィンドウ (Mica)",
+        "hint": "Windows 11 のアプリのように、デスクトップの色でサイドバーとタイトル バーを色付けします。",
+        "unsupported": "Windows 11 が必要です。",
+        "toggle": "Mica"
+      },
+      "terminalColors": "ターミナルの色",
+      "helmScheme": "Helm (テーマに合わせる)",
+      "terminalText": "ターミナルのテキスト",
+      "font": {
+        "label": "フォント",
+        "hint": "JetBrains Mono と Geist Mono は Helm に付属しています。どの言語や絵文字も正しく表示されます。",
+        "defaultOption": "{{name}} (既定)",
+        "other": "ほかのインストール済みフォント…",
+        "placeholder": "フォント名"
+      },
+      "fontSize": {
+        "label": "文字サイズ",
+        "hint": "ターミナル上で Ctrl+マウス ホイール、または Ctrl+= と Ctrl+-。"
+      },
+      "lineHeight": {
+        "label": "行の高さ"
+      },
+      "cursor": {
+        "label": "カーソル",
+        "bar": "縦線",
+        "block": "ブロック",
+        "underline": "下線",
+        "blink": "点滅"
+      }
+    },
+    "terminal": {
+      "hint": "ターミナルの動作。すべてのタブにすぐに適用されます。",
+      "textAndClipboard": "テキストとクリップボード",
+      "scrollback": {
+        "label": "スクロールバック",
+        "hint": "スクロールして戻れるよう、各タブが保持する行数です。",
+        "lines_other": "{{lines}} 行"
+      },
+      "copyOnSelect": {
+        "label": "テキストを選択したときにコピーする",
+        "hint": "Ctrl+C を押さなくても、選択したテキストがクリップボードにコピーされます。",
+        "toggle": "選択時にコピー"
+      },
+      "rightClick": {
+        "label": "右クリック",
+        "smart": "コピーまたは貼り付け",
+        "paste": "常に貼り付け"
+      },
+      "pasteWarning": {
+        "label": "シェルに複数行を貼り付ける前に警告する",
+        "hint": "各行がコマンドとして実行されるためです。Claude のプロンプトには影響しません。",
+        "toggle": "貼り付けの警告"
+      },
+      "bellAndRendering": "ベルと描画",
+      "bell": {
+        "label": "ベル",
+        "hint": "プログラムがターミナルのベルを鳴らしたとき。",
+        "flash": "点滅",
+        "sound": "サウンド"
+      },
+      "gpu": {
+        "label": "ハードウェア アクセラレーション",
+        "hint": "より高速で滑らかになります。PC でテキストが正しく表示されない場合にのみオフにしてください。"
+      }
+    },
+    "notifications": {
+      "hint": "見ていないタブについての Windows 通知。",
+      "show": {
+        "label": "通知を表示する"
+      },
+      "finished": {
+        "label": "Claude が完了したとき",
+        "toggle": "完了"
+      },
+      "approval": {
+        "label": "Claude が承認を求めているとき",
+        "hint": "Helm で承認に回答する設定の場合は、[許可] / [拒否] ボタン付きで表示されます。",
+        "toggle": "承認"
+      },
+      "usage": {
+        "label": "使用量の上限の警告",
+        "hint": "5 時間または週間の上限の 80% と 95% に達したとき。",
+        "toggle": "使用量"
+      },
+      "sound": {
+        "label": "サウンドを鳴らす",
+        "toggle": "サウンド"
+      },
+      "test": {
+        "title": "Helm の通知は正常に動作しています",
+        "body": "Helm は、見ていないタブについてこのようにお知らせします。",
+        "button": "テスト通知を送信"
+      }
+    },
+    "claudeInHelm": {
+      "hint": "Helm が開始する Claude タブとの連携方法。変更は新しい Claude タブに適用されます。",
+      "approvals": {
+        "label": "Helm で承認に回答する",
+        "hint": "見ていないタブで許可が必要になると、Helm 内と、[許可] / [拒否] 付きの Windows 通知で確認します。表示中のタブは常にそのターミナルで確認します。",
+        "toggle": "Helm で承認"
+      },
+      "usageCockpit": {
+        "label": "使用量の上限を追跡する",
+        "hint": "5 時間と週間の上限、ペース、警告を表示します。Claude のステータス ラインを使うため、独自のステータス ラインを設定している場合は表示されません。",
+        "toggle": "使用量の上限"
+      },
+      "autoOpenAgents": {
+        "label": "[バックグラウンド] を自動的に開く",
+        "hint": "Claude がサブエージェントやバックグラウンド コマンドを開始したときに、サイド パネルを [バックグラウンド] で開きます (閉じている場合のみ)。"
+      },
+      "usageTips": {
+        "label": "使用量を節約するヒント",
+        "hint": "会話のキャッシュが切れる前のお知らせ、コンテキストがいっぱいになったときのワンクリック /compact、大きな貼り付けのファイル添付、使われていない大きな会話へのお知らせ。"
+      },
+      "openLinksIn": {
+        "label": "Web リンクを開く場所",
+        "hint": "ターミナルや [詳細] のリンク、および開いた開発サーバーが対象です。Helm のブラウザーでは、スマートフォンのサイズでテストしたり、エラー、スクリーンショット、ページの要素を Claude に送ったりできます。",
+        "browser": "自分のブラウザー"
+      },
+      "devServerPrompt": {
+        "label": "開発サーバーを開くよう提案する",
+        "hint": "ターミナルが localhost:5173 などのローカル アドレスを出力したときに、開くためのボタンを表示します。"
+      },
+      "windowsHints": {
+        "label": "Claude 向けの Windows のヒント",
+        "hint": "Windows 上で動作していることと使うシェルの構文を Claude に伝え、PowerShell と Bash のコマンドが混ざらないようにします。",
+        "toggle": "Windows のヒント"
+      }
+    },
+    "shortcuts": {
+      "hint": "Helm は Ctrl+Shift と Alt+Shift を使うため、Claude Code 自身のキーはすべてそのまま使えます。",
+      "filter": "ショートカットを検索",
+      "empty": "一致するショートカットはありません。"
+    },
+    "advanced": {
+      "export": {
+        "dialogTitle": "Helm の設定をエクスポート",
+        "done": "設定をエクスポートしました。"
+      },
+      "import": {
+        "dialogTitle": "Helm の設定をインポート",
+        "notHelmFile": "Helm の設定ファイルではありません",
+        "done": "設定をインポートしました。"
+      },
+      "resetConfirm": {
+        "message": "Helm のすべての設定を既定値にリセットしますか? タブ、保存したプロンプト、ピン留めしたプロジェクトは残ります。",
+        "title": "設定をリセットしますか?",
+        "done": "設定を既定値にリセットしました。"
+      },
+      "hint": "上級ユーザー向け。今後開くタブに適用されます。",
+      "claude": "Claude",
+      "extraArgs": {
+        "label": "Helm が Claude を開始するときの追加オプション",
+        "hint": "Helm 自身のオプションの後に、入力したとおりに追加されます。例: <1>--model sonnet</1>、<1>--add-dir ../shared</1>。"
+      },
+      "environment": "環境",
+      "env": {
+        "label": "新しいタブの環境変数",
+        "hint": "1 行に 1 つずつ: <1>NAME=value</1>。シェルと Claude で使用できます。"
+      },
+      "data": "データ",
+      "backup": {
+        "label": "設定のバックアップ",
+        "hint": "設定、保存したプロンプト、ピン留めしたプロジェクトを 1 つのファイルにまとめます。",
+        "export": "エクスポート…",
+        "import": "インポート…"
+      },
+      "dataFolderHint": "設定、フック ファイル、貼り付けたスクリーンショット。",
+      "reset": {
+        "label": "設定のリセット",
+        "hint": "既定値に戻します。タブ、プロンプト、ピン留めしたプロジェクトは残ります。"
+      }
+    },
+    "dataFolder": "Helm のデータ フォルダー",
+    "whatsNew": {
+      "hint": "Helm の最近の変更点。",
+      "installed": "インストール済み"
+    },
+    "privacy": {
+      "facts": {
+        "local": {
+          "title": "すべてこの PC 内にとどまります",
+          "text": "タブ、設定、保存したプロンプト、ターミナルの出力がコンピューターの外に出ることはありません。Helm にはアカウントがなく、分析や追跡も行いません。"
+        },
+        "network": {
+          "title": "オンラインになるのは更新時か、指示したときだけ",
+          "text": "Helm が自動で行うのは、GitHub で新しいバージョンを確認することだけです。これは下でオフにできます。それ以外は、音声モデルのダウンロード、API テスターから送るリクエスト、Helm のブラウザー タブで開くページなど、自分で始めたときだけ行われます。"
+        },
+        "conversations": {
+          "title": "Claude の会話",
+          "text": "Helm は、履歴、使用量、コストを表示するために、Claude Code が PC 上に保存している会話ファイルを読み取ります。それらをアップロードすることはありません。Claude Code 自体は、Anthropic のプライバシー ポリシーに基づいて Anthropic と通信します。"
+        },
+        "status": {
+          "title": "ローカルの状態通知の接続",
+          "text": "Claude タブは、この PC 上でのみ機能するプライベートな接続を通じて Helm に状態を報告します。この接続には、Helm の起動ごとに変わる秘密キーが必要です。"
+        }
+      },
+      "hint": "Helm が保存するもの、その保存場所、消去できるもの。",
+      "network": "ネットワーク",
+      "autoUpdateHint": "Helm が自動で行う唯一の接続です (github.com)。",
+      "yourData": "データ",
+      "screenshots": {
+        "hint_other": "{{count}} 個の画像 · {{size}}。1 週間後に自動的に削除されます。",
+        "label": "貼り付けたスクリーンショット",
+        "deleted_other": "貼り付けたスクリーンショットを {{count}} 個削除しました。",
+        "deleteNow": "今すぐ削除"
+      },
+      "closedTabs": {
+        "hint_other": "Ctrl+Alt+Shift+T で開き直せるよう、{{count}} 個を記憶しています。",
+        "label": "最近閉じたタブ",
+        "cleared": "最近閉じたタブをクリアしました。"
+      },
+      "clear": "クリア",
+      "recentFolder": {
+        "label": "最近使用したフォルダー",
+        "hint": "開始フォルダーの [最後に使用したフォルダー] オプション用に、最後に使用したフォルダーを記憶しています。",
+        "cleared": "最後に使用したフォルダーをクリアしました。"
+      },
+      "dataFolderHint": "上記のすべてが保存されている場所。",
+      "openSource": "Helm はオープン ソースなので、github.com/sovanken/helm-term のコードでこれらすべてを確認できます。",
+      "anthropicPolicy": "Anthropic のプライバシー ポリシー"
+    },
+    "autoUpdate": "更新プログラムを自動的に確認する",
+    "about": {
+      "tagline": "Claude Code のためのターミナル · 無料のオープン ソース (MIT)",
+      "updates": "更新プログラム",
+      "autoUpdateHint": "Helm は起動時と数時間ごとに新しいバージョンを確認します。",
+      "updateReady": "バージョン {{version}} の準備ができました",
+      "upToDate": "最新バージョンを使用しています",
+      "updateHint": "インストールして Helm を再起動します。",
+      "updateAndRestart": "更新して再起動",
+      "checkNow": "今すぐ確認",
+      "project": "プロジェクト",
+      "source": "ソース コードと問題",
+      "openGitHub": "GitHub を開く",
+      "notices": {
+        "label": "オープン ソースに関する通知",
+        "hint": "Helm は Tauri、React、xterm.js、Inter、Geist、JetBrains Mono (OFL) などのオープン ソース プロジェクトを使って作られています。",
+        "view": "表示"
+      },
+      "independent": "Helm は独立したコミュニティ プロジェクトであり、Anthropic とは提携していません。"
+    },
+    "page": {
+      "search": "設定を検索",
+      "clearSearch": "検索をクリア",
+      "noMatch": "「{{query}}」に一致する設定はありません。",
+      "openJsonTitle": "Helm の設定を JSON ファイルとして編集 (Ctrl+Shift+,)",
+      "openJson": "settings.json を開く"
+    }
+  },
+  "claudeSettings": {
+    "sections": {
+      "permissions": {
+        "label": "アクセス許可",
+        "hint": "Claude が確認なしで行えること"
+      },
+      "hooks": {
+        "label": "フック",
+        "hint": "Claude のイベントで実行されるコマンド"
+      },
+      "mcp": {
+        "label": "MCP サーバー",
+        "hint": "Claude 用の追加ツール"
+      },
+      "memory": {
+        "label": "CLAUDE.md",
+        "hint": "Claude が常に読む指示"
+      }
+    },
+    "scopes": {
+      "user": {
+        "label": "すべてのプロジェクト",
+        "hint": "自分のみ、すべてのプロジェクト"
+      },
+      "project": {
+        "label": "このプロジェクト",
+        "hint": "チームと共有 (コミットします)"
+      },
+      "local": {
+        "label": "このプロジェクト (自分のみ)",
+        "hint": "コミットしません"
+      }
+    },
+    "modes": {
+      "claudeDefault": "Claude の既定 (必要に応じて確認)",
+      "default": "編集とコマンドの前に確認",
+      "acceptEdits": "ファイルの編集を自動的に受け入れる",
+      "plan": "計画のみ (変更しない)",
+      "bypassPermissions": "確認しない (危険)"
+    },
+    "permissions": {
+      "removeRule": "{{rule}} を削除",
+      "addRule": "ルールを追加…",
+      "rulePlaceholder": "例: Bash(npm test:*) または Read(./docs/**)",
+      "mode": {
+        "label": "Claude が何かをしようとするとき",
+        "hint": "新しい会話の開始時のモードです。Claude 内で Shift+Tab を押して切り替えることもできます。"
+      },
+      "allow": {
+        "title": "許可",
+        "hint": "Claude が確認なしで行うこと"
+      },
+      "ask": {
+        "title": "確認",
+        "hint": "Claude が常に先に確認すること"
+      },
+      "deny": {
+        "title": "拒否",
+        "hint": "Claude に決して許可しないこと"
+      },
+      "help": "ルールは <1>Tool</1> または <1>Tool(pattern)</1> の形式で書きます: <1>Bash(git status)</1>、<1>Bash(npm run test:*)</1>、<1>Edit(src/**)</1>、<1>WebFetch(domain:github.com)</1>、<1>mcp__server__tool</1>。拒否は確認より優先され、確認は許可より優先されます。"
+    },
+    "hooks": {
+      "empty": "このファイルにフックはありません。",
+      "remove": "フックを削除",
+      "addTitle": "フックを追加",
+      "when": "タイミング",
+      "forTools": "対象のツール (省略可能)",
+      "matcherPlaceholder": "例: Edit|Write または Bash",
+      "commandPlaceholder": "実行するコマンド。例: npx prettier --write .",
+      "add": "追加",
+      "help": "コマンドは、イベントの詳細を JSON として入力から受け取ります。フックは自分のアクセス許可で実行されるため、信頼できるコマンドだけを追加してください。"
+    },
+    "mcp": {
+      "added": "MCP サーバー {{name}} を追加しました。",
+      "removed": "{{name}} を削除しました。",
+      "listTitle": "ここで Claude が使えるすべてのサーバー",
+      "checkAgain": "再確認",
+      "checking": "サーバーを確認しています。数秒かかることがあります。",
+      "empty": "MCP サーバーはまだありません。",
+      "fromClaudeAi": "claude.ai から",
+      "fromPlugin": "プラグインから",
+      "removeServer": "{{name}} を削除",
+      "addTitle": "サーバーを追加 <1>· 「{{scope}}」に保存</1>",
+      "name": "名前",
+      "namePlaceholder": "例: github",
+      "type": "種類",
+      "command": "コマンド",
+      "url": "URL",
+      "env": {
+        "label": "環境変数 (省略可能)",
+        "hint": "1 行に 1 つずつ: KEY=value"
+      },
+      "adding": "追加しています…",
+      "addServer": "サーバーを追加"
+    },
+    "memory": {
+      "saved": "CLAUDE.md を保存しました。",
+      "notYet": "まだ存在しません。保存すると作成されます。",
+      "placeholder": "# Claude 向けのプロジェクト メモ\n\n- 実行とテストの方法\n- コード スタイルのルール\n- 避けるべきこと",
+      "unsaved": "未保存の変更",
+      "hint": "Claude はすべてのセッションの開始時にこれを読みます。",
+      "save": "保存 (Ctrl+S)"
+    },
+    "intro": "{{hint}}。これらは Claude Code が使うのと同じファイルで、変更は新しい Claude セッションに適用されます。",
+    "scopeInFolder": "{{folder}} · {{hint}}",
+    "needsProject": "設定を編集するには、先にプロジェクトでタブを開いてください。",
+    "createdOnChange": "· 変更すると作成されます"
+  },
+  "settingsJson": {
+    "descriptions": {
+      "language": "インターフェースの言語。\"auto\" は Windows の表示言語に従います。",
+      "theme": "配色テーマ: ダーク、ライト、または Windows に従う (system)。",
+      "accent": "ボタン、強調表示、カーソルのアクセント カラー。",
+      "uiFont": "メニューとパネルのフォント。",
+      "uiScale": "インターフェースのズーム (0.8～1.5)。1 が標準サイズです。",
+      "mica": "Windows 11 の透過 (Mica) ウィンドウ背景。",
+      "terminalScheme": "ターミナルの色。\"helm\" はアプリのテーマに従います。",
+      "fontFamily": "ターミナルのフォント名。例: \"JetBrains Mono\"、\"Cascadia Mono\"。",
+      "fontSize": "ターミナルのフォント サイズ (ピクセル)。",
+      "lineHeight": "ターミナルの行の高さ。1.2 が標準です。",
+      "cursorStyle": "ターミナルのカーソルの形。",
+      "cursorBlink": "ターミナルのカーソルを点滅させます。",
+      "sidebarWidth": "サイドバーの幅 (ピクセル)。",
+      "changesWidth": "サイド パネルの幅 (ピクセル)。",
+      "restoreTabs": "Helm の起動時にタブ (と Claude の会話) を開き直します。",
+      "shell": "新しいタブのシェル: \"pwsh\"、\"powershell\"、\"cmd\"、\"bash\" (Git Bash)、\"wsl\"。",
+      "startFolder": "タブが開いていないときの新しいタブのフォルダー: \"home\"、\"last\"、またはフォルダーのフル パス。",
+      "confirmClose": "Claude の作業中にタブ、ペイン、ウィンドウを閉じる前に確認します。",
+      "openLinksIn": "リンクと開発サーバーを開く場所: Helm のブラウザー タブ (\"helm\") または自分のブラウザー (\"browser\")。",
+      "devServerPrompt": "ターミナルが開発サーバーのアドレスを出力したときに、開くよう提案します。",
+      "deviceFrame": "デバイスのサイズで表示したページの周りに、スマートフォン、タブレット、ノート PC の枠を描画します。",
+      "projectSort": "サイドバーでのプロジェクトの並び順。",
+      "privacyBlur": "サイドバーのプロジェクト名と会話のタイトルをぼかします (画面共有用)。",
+      "snipShortcut": "どのアプリからでもスクリーンショットを開始するキーの組み合わせ。例: \"Ctrl+Alt+S\"。空にするとオフになります。",
+      "snipAutoCopy": "新しいスクリーンショットをすぐにクリップボードにコピーします。",
+      "voiceMic": "音声入力に使うマイク (Windows での名前)。空にすると Windows の既定を使います。",
+      "voiceHoldKey": "話している間押し続けるキー。空にするとオフになります。",
+      "voiceButton": "Claude タブにマイク ボタンを表示します。",
+      "scrollback": "各ターミナルがスクロールバック用に保持する行数。",
+      "copyOnSelect": "ターミナルでテキストを選択したらすぐにコピーします。",
+      "rightClick": "ターミナルでの右クリック: 選択範囲のコピーまたは貼り付け (\"smart\")、または常に貼り付け (\"paste\")。",
+      "bell": "ターミナルがベルを鳴らしたときの動作。",
+      "pasteWarning": "ターミナルに複数行を貼り付ける前に確認します。",
+      "gpu": "ハードウェア アクセラレーションでターミナルを描画します (高速)。テキストが正しく表示されない場合はオフにしてください。",
+      "approvals": "バックグラウンドのタブからの Claude の承認要求に Helm 内で回答します。",
+      "usageCockpit": "Claude の使用量の上限をステータス バーに表示します。",
+      "windowsHints": "Windows 上で動作していることと使うシェルの構文を Claude に伝えます。",
+      "autoOpenAgents": "Claude がサブエージェントやバックグラウンド コマンドを開始したときに、サイド パネルを [バックグラウンド] で開きます。",
+      "usageTips": "使用量を節約するヒント (キャッシュの有効期限切れ間近、長い会話の圧縮など) を表示します。",
+      "hiddenStatusItems": "オフにしたステータス バーの項目 (ステータス バーを右クリック)。",
+      "notifications": "見ていないタブについての Windows 通知。",
+      "notifyFinished": "Claude が完了したときに通知します。",
+      "notifyApproval": "Claude が承認を求めているときに通知します。",
+      "notifyUsage": "使用量の上限に近づいたときに通知します。",
+      "notifySound": "通知時にサウンドを鳴らします。",
+      "autoUpdate": "Helm の更新プログラムを自動的に確認します。",
+      "extraClaudeArgs": "新しい Claude タブすべてに追加する引数。例: \"--model opus\"。",
+      "extraEnv": "新しいタブに追加する環境変数。1 行に 1 つの KEY=value (行の間には \\n を使用)。"
+    },
+    "header": "// Helm の設定。変更した設定だけが表示されます。ここにないものは既定値を使います。\n// 引用符を入力すると、すべての設定と短い説明が表示されます。保存 (Ctrl+S) すると適用されます。",
+    "problems": {
+      "unknown": "\"{{key}}\" は Helm の設定ではありません。",
+      "boolean": "\"{{key}}\" は true または false にする必要があります。",
+      "string": "\"{{key}}\" は引用符で囲んだテキストにする必要があります。",
+      "stringList": "\"{{key}}\" は [\"a\", \"b\"] のようなテキストのリストにする必要があります。",
+      "enum": "\"{{key}}\" は次のいずれかにする必要があります: {{values}}。",
+      "number": "\"{{key}}\" は数値にする必要があります。",
+      "range": "\"{{key}}\" は {{min}}～{{max}} の範囲にする必要があります。",
+      "notObject": "ファイルは設定の { … } ブロック 1 つにする必要があります。"
+    },
+    "parseErrors": {
+      "commaExpected": "ここにコンマがありません。",
+      "colonExpected": "名前と値の間に \":\" がありません。",
+      "propertyNameExpected": "ここには引用符で囲んだ設定名が必要です。",
+      "valueExpected": "ここに値がありません。",
+      "closeBraceExpected": "閉じる \"}\" がありません。",
+      "closeBracketExpected": "閉じる \"]\" がありません。",
+      "endOfFileExpected": "閉じる } の後に余分なテキストがあります。",
+      "invalidSymbol": "この文字はここでは使えません。",
+      "unexpectedEndOfString": "閉じる引用符がありません。",
+      "other": "有効な JSON ではありません ({{code}})。"
+    },
+    "toasts": {
+      "broken": "settings.json に誤りがあるため、何も変更されませんでした。エディターに該当箇所が示されています。",
+      "partial_other": "設定を保存しました。ただし、Helm が使えなかった {{count}} 行は除きます (エディターに示されています)。",
+      "changedOutside": "settings.json が Helm の外部で変更され、誤りがあるため、Helm は現在の設定を維持しました。"
+    },
+    "hover": {
+      "allowed": "使用できる値: {{values}}",
+      "range": "{{min}}～{{max}}",
+      "default": "既定値: {{value}}"
+    }
+  },
+  "voice": {
+    "pill": {
+      "loading": "準備しています…",
+      "listening": "聞き取り中… 話してから一息おいてください",
+      "listeningHold": "聞き取り中… 話し終えたら {{key}} を離してください",
+      "cancelTitle": "停止して、まだ入力されていない内容を破棄",
+      "doneTitle": "終了: 残りをプロンプトに入力",
+      "hint": "一息おくたびに言葉がプロンプトに入力されます · Enter を押して送信"
+    },
+    "button": {
+      "speakHold": "入力する代わりに話す ({{key}} を押し続ける)",
+      "stopLabel": "音声入力を停止",
+      "stopTitle": "聞き取りを停止",
+      "speak": "入力する代わりに話す"
+    },
+    "title": "音声入力",
+    "install": {
+      "unpacking": "展開しています…",
+      "downloading": "ダウンロードしています…",
+      "progress": "{{done}}/{{total}} MB"
+    },
+    "setup": {
+      "readyKey": "準備ができました。Claude タブのマイクをクリックするか {{key}} を押し続けて話してください。一息おくと言葉が入力され、Enter を押すと送信されます。",
+      "ready": "準備ができました。Claude タブのマイクをクリックするか音声キーを押し続けて話してください。一息おくと言葉が入力され、Enter を押すと送信されます。",
+      "intro": "Helm は、オープン ソースのモデル (NVIDIA Parakeet) を使って、この PC 上で音声をテキストに変換します。話した内容がどこかに送信されることはありません。",
+      "size": "初回のみ約 {{size}} MB のダウンロードが必要です。現在は英語のみに対応しています。",
+      "cancelDownload": "ダウンロードをキャンセル",
+      "notNow": "後で",
+      "download": "ダウンロード"
+    },
+    "stopped": "音声入力を停止しました。",
+    "needsClaudeTab": "音声入力は Claude タブに入力されます。先に Claude タブに切り替えてください。"
+  },
+  "dialogs": {
+    "newFile": {
+      "titleMarkdown": "新しい Markdown ファイル",
+      "titleText": "新しいテキスト ファイル",
+      "title": "新しいファイル",
+      "name": "ファイル名",
+      "location": "場所: <1>{{folder}}</1> · {{dir}}",
+      "create": "作成"
+    },
+    "newProject": {
+      "pickTitle": "新しいプロジェクトの場所",
+      "title": "新しいプロジェクト",
+      "name": "フォルダー名",
+      "inside": "作成場所",
+      "chooseFolder": "フォルダーを選択",
+      "change": "変更…",
+      "hint": "Helm がフォルダーを作成し、その中で Claude タブを開きます。",
+      "create": "作成して開く"
+    }
+  },
+  "prompts": {
+    "saved": {
+      "newTitle": "新しいプロンプト",
+      "title": "保存したプロンプト",
+      "hint": "よく入力するプロンプトを再利用できます。Ctrl+Shift+P で呼び出せます。",
+      "untitled": "無題",
+      "new": "新しいプロンプト",
+      "namePlaceholder": "名前",
+      "textPlaceholder": "Claude に何をしてほしいですか?",
+      "autosaved": "自動的に保存されました",
+      "insert": "プロンプトに挿入",
+      "empty": "保存したプロンプトはまだありません。"
+    },
+    "composer": {
+      "improveFailed": "プロンプトを改善できませんでした: {{error}}",
+      "savedToast": "プロンプトに保存しました。Ctrl+Shift+P で呼び出せます。",
+      "title": "プロンプトを書く",
+      "subtitleFor": "{{folder}} の Claude 向け · わかりやすいプロンプトはやり取り (と使用量) を減らします",
+      "subtitleNoTab": "このプロンプトを送信するには Claude タブを開いてください · わかりやすいプロンプトはやり取り (と使用量) を減らします",
+      "placeholder": "Claude に何をしてほしいですか? 例: ときどき起きるログインのバグを修正して",
+      "improving": "プロンプトを改善しています…",
+      "improveTitle": "Claude Haiku を 1 回使います (使用量をわずかに消費します)。10～20 秒ほどかかります。",
+      "improve": "改善",
+      "useOriginal": "元のプロンプトを使う",
+      "insert": "挿入",
+      "send": "Claude に送信"
+    }
+  }
+}

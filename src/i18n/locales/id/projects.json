@@ -1,0 +1,330 @@
+{
+  "sidebar": {
+    "projects": "Proyek",
+    "conversations": "Percakapan",
+    "pinned": "Disematkan",
+    "recent": "Terbaru",
+    "searchTitle": "Cari proyek dan percakapan (Ctrl+Shift+H)",
+    "searchPlaceholder": "Cari proyek dan percakapan",
+    "searching": "Mencari…",
+    "noMatch": "Tidak ada percakapan yang cocok.",
+    "sortProjects": "Urutkan proyek",
+    "sortBy": "Urutkan proyek menurut",
+    "sorts": {
+      "recent": "Terakhir digunakan",
+      "name": "Nama (A sampai Z)",
+      "chats": "Percakapan terbanyak"
+    },
+    "collapseAll": "Ciutkan semua",
+    "expandAll": "Perluas semua",
+    "collapseAllProjects": "Ciutkan semua proyek",
+    "expandAllProjects": "Perluas semua proyek",
+    "blurNames": "Buramkan nama",
+    "blurOff": "Tampilkan nama lagi",
+    "blurOn": "Buramkan nama proyek dan judul percakapan (untuk berbagi layar). Arahkan kursor ke baris untuk membacanya.",
+    "newProject": "Proyek baru…",
+    "empty": "Proyek dan percakapan yang Anda gunakan dengan Claude Code muncul di sini.",
+    "openFolder": "Buka folder dengan Claude…",
+    "hideHidden": "Sembunyikan percakapan tersembunyi",
+    "showHidden_other": "Tampilkan {{count}} percakapan tersembunyi",
+    "newClaudeTabHere": "Tab Claude baru di sini",
+    "newTerminalTabHere": "Tab terminal baru di sini",
+    "pin": "Sematkan di atas",
+    "unpin": "Lepas sematan",
+    "running": {
+      "title": "Sedang berjalan",
+      "newConversation": "Percakapan baru",
+      "needsYou": "Membutuhkan Anda",
+      "working": "Bekerja…",
+      "finished": "Selesai"
+    },
+    "project": {
+      "openFiles": "Buka file proyek",
+      "actions": "Tindakan proyek",
+      "openTabs_other": "{{count}} tab terbuka",
+      "openBadge_other": "{{count}} terbuka",
+      "noChats": "Belum ada percakapan.",
+      "showAll_other": "Tampilkan semua {{count}} percakapan"
+    },
+    "projectMenu": {
+      "colorLabel": "Label warna",
+      "noColor": "Tanpa warna",
+      "fullPath": "Jalur lengkap",
+      "folderName": "Nama folder",
+      "copiedPath": "Jalur disalin.",
+      "copiedFolderName": "Nama folder disalin.",
+      "copiedCloneUrl": "URL clone disalin.",
+      "openOn": "Buka di {{host}}",
+      "copyCloneUrl": "Salin URL clone",
+      "claudeSettings": "Pengaturan Claude Code",
+      "projectNotes": "Catatan proyek untuk Claude",
+      "sharedSettings": "Pengaturan yang dibagikan dengan tim Anda",
+      "localSettings": "Pengaturan pribadi Anda",
+      "usage": "Penggunaan…",
+      "exportAll": "Ekspor semua percakapan…",
+      "deleteOld": "Hapus percakapan lama…",
+      "renameFolder": "Ganti nama folder…",
+      "removeFromList": "Hapus dari daftar",
+      "deleteFolder": "Hapus folder…"
+    },
+    "colors": {
+      "red": "Merah",
+      "orange": "Oranye",
+      "yellow": "Kuning",
+      "green": "Hijau",
+      "teal": "Hijau toska",
+      "blue": "Biru",
+      "purple": "Ungu",
+      "pink": "Merah muda"
+    },
+    "conversation": {
+      "actions": "Tindakan percakapan",
+      "newTitle": "Judul baru",
+      "hidden": "tersembunyi",
+      "tooltipOpen": "Terbuka di tab: klik untuk membukanya",
+      "tooltipContinue": "Klik untuk melanjutkan percakapan ini",
+      "goToTab": "Buka tabnya",
+      "continue": "Lanjutkan",
+      "continueBeside": "Lanjutkan di samping tab ini",
+      "branch": "Cabangkan ke percakapan baru",
+      "read": "Baca tanpa melanjutkan",
+      "usage": "Detail penggunaan dan konteks",
+      "rename": "Ganti nama…",
+      "showAgain": "Tampilkan lagi di daftar",
+      "hide": "Sembunyikan dari daftar",
+      "openProjectIn": "Buka proyek di",
+      "helmFiles": "Helm (file proyek)",
+      "editor": "Editor",
+      "terminal": "Terminal",
+      "editorFailed": "Tidak dapat membuka editor Anda (apakah VS Code sudah terinstal?)",
+      "resumeCommand": "Perintah untuk melanjutkan",
+      "conversationId": "ID percakapan",
+      "exportMarkdown": "Ekspor ke Markdown…",
+      "closeFirst": "Tutup tabnya terlebih dahulu, lalu hapus.",
+      "deleteMessage": "“{{title}}” akan dihapus selamanya. Claude Code tidak akan dapat melanjutkannya.",
+      "deleteTitle": "Hapus percakapan ini?",
+      "deleted": "Percakapan dihapus."
+    },
+    "filesDialog": {
+      "title": "File yang diubahnya",
+      "reading": "Membaca percakapan…",
+      "none": "Claude tidak mengedit atau membuat file apa pun dalam percakapan ini.",
+      "footer_other": "{{count}} file · klik salah satu untuk membukanya"
+    }
+  },
+  "projectActions": {
+    "checking": "Memeriksa folder…",
+    "inUse": {
+      "terminalTabs_other": "{{count}} tab terminal atau Claude",
+      "projectTabs_other": "{{count}} tab proyek",
+      "fileTabs_other": "{{count}} tab file",
+      "terminals": "Helm membuka folder ini di {{use}}. Tutup tab terminal dan Claude terlebih dahulu (mungkin sedang sibuk).",
+      "viewers": "Helm membuka folder ini di {{use}}. Tutup terlebih dahulu.",
+      "closeThem": "Tutup semuanya"
+    },
+    "rename": {
+      "title": "Ganti nama {{name}}",
+      "renaming": "Mengganti nama…",
+      "newName": "Nama folder baru",
+      "blocked": "Helm tidak akan mengganti nama folder ini. {{reason}}",
+      "renamed": "Nama diganti menjadi {{name}}.",
+      "renamedWithChats_other": "Nama diganti menjadi {{name}}. {{count}} percakapan ikut dipindahkan.",
+      "info": "Nama folder diganti di disk. Hal lain yang mengarah ke jalur lama (pintasan, workspace editor, skrip) perlu diperbarui secara manual. Claude mungkin meminta untuk memercayai folder lagi.",
+      "infoWithChats_other": "Nama folder diganti di disk. {{count}} percakapannya ikut dipindahkan, jadi Anda tetap dapat melanjutkannya. Hal lain yang mengarah ke jalur lama (pintasan, workspace editor, skrip) perlu diperbarui secara manual. Claude mungkin meminta untuk memercayai folder lagi."
+    },
+    "delete": {
+      "title": "Hapus {{name}}?",
+      "moving": "Memindahkan…",
+      "moveToBin": "Pindahkan ke Recycle Bin",
+      "blocked": "Helm tidak akan menghapus folder ini. {{reason}}",
+      "files_other": "{{files}} file · {{size}}",
+      "moreFiles_other": "Lebih dari {{files}} file · {{size}}",
+      "wholeFolder": "Seluruh folder dipindahkan ke Recycle Bin. Anda dapat memulihkannya dari sana.",
+      "gitChanges_other": "{{count}} file memiliki perubahan yang belum di-commit di git. Perubahan itu hanya akan ada di Recycle Bin.",
+      "alsoChats_other": "Pindahkan juga {{count}} percakapannya ke Recycle Bin",
+      "unchecked": "Jika tidak dicentang, percakapan tetap ada di bilah samping.",
+      "done": "{{name}} ada di Recycle Bin.",
+      "chatsFailed_other": "{{count}} percakapan tidak dapat dipindahkan."
+    },
+    "oldChats": {
+      "title": "Hapus percakapan lama di {{name}}",
+      "moveN_other": "Pindahkan {{count}} ke Recycle Bin",
+      "nothing": "Tidak ada yang perlu dihapus",
+      "notUsedFor": "Percakapan yang tidak digunakan selama",
+      "days_other": "{{count}} hari",
+      "note": "Percakapan yang terbuka dan disematkan tidak pernah disertakan. Claude Code juga menghapus sendiri percakapan yang lebih lama dari 30 hari kecuali Anda mengubahnya di pengaturan Claude Code.",
+      "none": "Tidak ada percakapan selama itu.",
+      "done_other": "{{count}} percakapan dipindahkan ke Recycle Bin.",
+      "failed_other": "{{count}} tidak dapat dipindahkan."
+    },
+    "usage": {
+      "title": "Penggunaan · {{name}}",
+      "showAll": "Tampilkan semua penggunaan",
+      "lastDays_other": "{{count}} hari terakhir",
+      "cost": "Biaya",
+      "tokens": "Token",
+      "share": "Porsi dari semua pekerjaan",
+      "note": "Dihitung berdasarkan file yang diubah Claude di folder ini, di semua percakapan Anda. Tampilan pertama untuk suatu rentang dapat memakan waktu beberapa detik."
+    },
+    "export": {
+      "none": "Proyek ini tidak memiliki percakapan untuk diekspor.",
+      "dialogTitle_other": "Ekspor {{count}} percakapan dari {{name}} ke…",
+      "exported_other": "{{count}} percakapan diekspor.",
+      "failed_other": "{{count}} tidak dapat diekspor.",
+      "openFolder": "Buka folder"
+    },
+    "removed": "{{name}} dihapus dari daftar. Folder dan percakapannya tidak diubah.",
+    "undo": "Urungkan"
+  },
+  "tasks": {
+    "sectionTitle": "Tugas di {{name}}",
+    "newTask": "Tugas paralel baru",
+    "intro": "Claude bekerja di salinan proyek tersendiri pada cabang baru, sehingga beberapa tugas dapat berjalan sekaligus tanpa saling mengganggu. Gabungkan hasilnya kembali setelah selesai.",
+    "notRepo": "<0>{{name}}</0> bukan repositori git. Tugas paralel memerlukan git — jalankan <1>git init</1> dan buat commit pertama, lalu coba lagi.",
+    "whatTask": "Apa tugasnya?",
+    "placeholder": "mis. Tambahkan mode gelap ke pengaturan",
+    "branchAndFolder": "Cabang dan folder: <0>{{id}}</0> di {{folder}}",
+    "giveName": "Beri nama singkat",
+    "start": "Mulai tugas",
+    "started": "Tugas paralel “{{id}}” dimulai di cabangnya sendiri.",
+    "empty": "Jalankan Claude pada tugas kedua secara paralel",
+    "tooltip": "{{path}}\nCabang: {{branch}}\nKlik untuk membuka Claude di tugas ini",
+    "noBranch": "tidak ada",
+    "merging": "Menggabungkan…",
+    "uncommitted_other": "{{count}} belum di-commit",
+    "toMerge_other": "{{count}} untuk digabungkan",
+    "noChanges": "Belum ada perubahan.",
+    "actions": "Tindakan tugas",
+    "mergeInto": "Gabungkan ke {{branch}}",
+    "nothingToMerge": "Belum ada yang perlu digabungkan",
+    "commitFirst": "Minta Claude di tugas ini untuk meng-commit pekerjaannya terlebih dahulu.",
+    "delete": "Hapus tugas",
+    "merge": {
+      "message": "Gabungkan cabang tugas “{{branch}}” ke “{{main}}”?",
+      "title": "Gabungkan tugas?",
+      "ok": "Gabungkan",
+      "done": "{{branch}} digabungkan ke {{main}}."
+    },
+    "remove": {
+      "message": "Hapus folder tugas {{name}}?",
+      "dirty_other": "Folder ini memiliki {{count}} perubahan yang belum di-commit dan akan hilang.",
+      "ahead_other": "{{count}} commit-nya yang belum digabungkan tetap ada di cabang “{{branch}}”.",
+      "title": "Hapus tugas?",
+      "done": "Tugas {{name}} dihapus."
+    }
+  },
+  "workspace": {
+    "git": {
+      "changed": "Diubah",
+      "added": "Ditambahkan",
+      "new": "Baru",
+      "renamed": "Diganti nama",
+      "deleted": "Dihapus"
+    },
+    "folderName": "Nama folder",
+    "fileName": "Nama file",
+    "files": "File",
+    "searchInFilesShortcut": "Cari di file (Ctrl+Shift+F)",
+    "goToFile": "Buka file",
+    "goToFileShortcut": "Buka file (Ctrl+P)",
+    "newFile": "File baru",
+    "newFolder": "Folder baru",
+    "emptyFolder": "Kosong",
+    "closeFile": "Tutup {{name}}",
+    "emptyState": "Pilih file di sebelah kiri, tekan <0>Ctrl+P</0> untuk mencarinya, atau <1>Ctrl+Shift+F</1> untuk mencari di dalam file.",
+    "quickOpen": {
+      "placeholder": "Buka file di {{name}}",
+      "listing": "Mendaftar file…",
+      "none": "Tidak ada file yang cocok."
+    },
+    "search": {
+      "placeholder": "Cari di file",
+      "matchCase": "Cocokkan huruf besar/kecil",
+      "noMatches": "Tidak ada kecocokan.",
+      "summary": "{{matches}} di {{files}}",
+      "matches_other": "{{n}} kecocokan",
+      "files_other": "{{count}} file",
+      "hint": "Mencari teks di setiap file proyek, melewati node_modules dan yang dicantumkan .gitignore."
+    },
+    "menu": {
+      "newFile": "File baru…",
+      "newFolder": "Folder baru…",
+      "rename": "Ganti nama…"
+    },
+    "remove": {
+      "file": "“{{name}}” akan dipindahkan ke Recycle Bin.",
+      "folder": "Folder “{{name}}” dan semua isinya akan dipindahkan ke Recycle Bin.",
+      "unsavedLost": "Perubahan yang belum disimpan di file yang terbuka akan hilang.",
+      "titleFile": "Hapus file?",
+      "titleFolder": "Hapus folder?"
+    }
+  },
+  "files": {
+    "opening": "Membuka…",
+    "couldntOpen": "Tidak dapat membuka file ini.",
+    "gone": "File ini sudah tidak ada.",
+    "tooLarge": "File ini terlalu besar untuk ditampilkan di sini ({{size}}).",
+    "binary": "File ini tidak dapat ditampilkan sebagai teks.",
+    "empty": "File ini kosong.",
+    "truncated": "Menampilkan 3 MB pertama dari file ini.",
+    "saveFailed": "Tidak dapat menyimpan: {{error}}",
+    "notSaved": "Belum disimpan",
+    "saved": "Disimpan",
+    "linesAndSize_other": "{{n}} baris · {{size}}",
+    "stopEditing": "Berhenti mengedit",
+    "showSource": "Tampilkan sumber",
+    "showPreview": "Tampilkan pratinjau",
+    "noWrap": "Jangan bungkus baris panjang",
+    "wrap": "Bungkus baris panjang",
+    "reload": "Muat ulang",
+    "saveShortcut": "Simpan (Ctrl+S)",
+    "copyFileName": "Salin nama file",
+    "copyAtPath": "Salin sebagai @path untuk Claude",
+    "conflict": "File ini diubah di luar Helm (mungkin oleh Claude) saat Anda sedang mengeditnya.",
+    "loadNew": "Muat versi baru",
+    "keepMine": "Pertahankan milik saya dan simpan",
+    "editorPlaceholder": "Mulai mengetik…",
+    "find": {
+      "placeholder": "Cari",
+      "label": "Cari di file ini",
+      "count": "{{current}} dari {{total}}",
+      "none": "Tidak ada",
+      "previous": "Sebelumnya (Shift+Enter)",
+      "next": "Berikutnya (Enter)",
+      "close": "Tutup (Esc)"
+    }
+  },
+  "actions": {
+    "closeWorking": {
+      "tab": "Claude masih bekerja di tab ini. Menutupnya akan menghentikannya.",
+      "pane": "Claude masih bekerja di panel ini. Menutupnya akan menghentikannya.",
+      "many": "Claude masih bekerja di satu atau beberapa tab. Menutupnya akan menghentikannya.",
+      "title": "Tutup saat Claude sedang bekerja?"
+    },
+    "keepOpen": "Biarkan terbuka",
+    "unsaved": {
+      "close_other": "{{names}} memiliki perubahan yang belum disimpan. Menutup akan menghilangkannya.",
+      "closeTitle": "Tutup tanpa menyimpan?",
+      "closeOk": "Tutup tanpa menyimpan",
+      "quit_other": "{{names}} memiliki perubahan yang belum disimpan. Keluar akan menghilangkannya.",
+      "quitTitle": "Keluar tanpa menyimpan?",
+      "quitOk": "Keluar tanpa menyimpan"
+    },
+    "export": {
+      "noConversation": "Tab ini belum memiliki percakapan Claude untuk diekspor.",
+      "title": "Ekspor percakapan",
+      "exported": "Diekspor ke {{name}}."
+    }
+  },
+  "pdf": {
+    "page": "Halaman {{number}}",
+    "pageOf": "Halaman {{current}} dari {{total}}",
+    "failed": "PDF ini tidak dapat dibuka. File mungkin rusak atau dilindungi kata sandi.",
+    "zoomOut": "Perkecil",
+    "zoomIn": "Perbesar",
+    "fitWidth": "Sesuaikan lebar",
+    "saveAs": "Simpan sebagai PDF",
+    "saved": "{{name}} disimpan.",
+    "saveFailed": "Tidak dapat menyimpan PDF: {{error}}"
+  }
+}

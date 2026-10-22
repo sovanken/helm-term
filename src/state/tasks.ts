@@ -6,6 +6,7 @@ import { typeCommand } from "../terminal/terminals";
 import { paneIds } from "../lib/layout";
 import { toolSummary } from "../lib/agents";
 import { ipc } from "../lib/ipc";
+import { t } from "../i18n";
 
 function toolSummaryLine(tool: string, input: unknown) {
   const s = toolSummary(tool, input);
@@ -65,7 +66,7 @@ export function trackTaskEvent(paneId: string, event: string, data: Record<strin
   if (eventAgentId && event === "PostToolUse") return;
 
   if (event === "PreToolUse" && isAgentTool) {
-    const label = str(input.description) ?? str(input.prompt)?.split("\n")[0]?.slice(0, 120) ?? "Subagent";
+    const label = str(input.description) ?? str(input.prompt)?.split("\n")[0]?.slice(0, 120) ?? t("taskHints.subagent");
     const type = str(input.subagent_type) ?? "general-purpose";
     setTasks(paneId, (tasks) => {
       // SubagentStart may have arrived first and created a placeholder for this agent.
@@ -75,7 +76,7 @@ export function trackTaskEvent(paneId: string, event: string, data: Record<strin
     });
     autoOpenAgents();
   } else if (event === "PreToolUse" && (tool === "Bash" || tool === "PowerShell") && input.run_in_background === true) {
-    const label = str(input.description) ?? str(input.command)?.split("\n")[0]?.slice(0, 120) ?? "Background command";
+    const label = str(input.description) ?? str(input.command)?.split("\n")[0]?.slice(0, 120) ?? t("taskHints.backgroundCommand");
     setTasks(paneId, (tasks) => [...tasks, { id: toolUseId ?? crypto.randomUUID(), kind: "command", label, startedAt: now, status: "running" }]);
     autoOpenAgents();
   } else if (event === "SubagentStart") {
@@ -84,7 +85,7 @@ export function trackTaskEvent(paneId: string, event: string, data: Record<strin
       if (eventAgentId && tasks.some((t) => t.agentId === eventAgentId)) return tasks;
       const i = tasks.findIndex((t) => t.kind === "agent" && t.status === "running" && !t.agentId && (!type || t.type === type));
       if (i >= 0) return tasks.map((t, j) => (j === i ? { ...t, agentId: eventAgentId } : t));
-      return [...tasks, { id: eventAgentId ?? crypto.randomUUID(), kind: "agent", label: type ?? "Subagent", type, agentId: eventAgentId, startedAt: now, status: "running", placeholder: true }];
+      return [...tasks, { id: eventAgentId ?? crypto.randomUUID(), kind: "agent", label: type ?? t("taskHints.subagent"), type, agentId: eventAgentId, startedAt: now, status: "running", placeholder: true }];
     });
     autoOpenAgents();
   } else if (event === "PostToolUse" && isAgentTool && toolUseId) {
@@ -123,6 +124,39 @@ export function trackTaskEvent(paneId: string, event: string, data: Record<strin
   } else if (event === "SessionEnd") {
     setTasks(paneId, (tasks) => tasks.map((t) => (t.status === "running" ? { ...t, status: "done", endedAt: now } : t)));
   }
+}
+
+/**
+ * Background commands (and background agents) end without a hook event: Claude Code only writes a
+ * finish notice into the transcript. Every few seconds, read the new part of each transcript that
+ * still has background work running and mark what has finished.
+ */
+export function startBackgroundWatch() {
+  let busy = false;
+  setInterval(async () => {
+    if (busy) return;
+    busy = true;
+    try {
+      const panes = Object.values(useStore.getState().panes).filter((p) => p.transcriptPath && p.bgTasks?.some((t) => t.status === "running" && (t.kind === "command" || t.background)));
+      for (const pane of panes) {
+        const finished = await ipc.backgroundFinished(pane.transcriptPath!).catch(() => []);
+        if (!finished.length) continue;
+        const byId = new Map(finished.map((f) => [f.toolUseId, f]));
+        const now = Date.now();
+        setTasks(pane.id, (tasks) =>
+          tasks.map((t) => {
+            const f = t.status === "running" ? byId.get(t.id) : undefined;
+            if (!f) return t;
+            const outcome = f.status === "failed" || f.status === "killed" ? f.status : "completed";
+            // An agent's own answer (from SubagentStop) beats the one-line notice.
+            return { ...t, status: "done", endedAt: now, doing: undefined, outcome, outputFile: f.outputFile, summary: t.summary ?? (t.kind === "command" ? f.summary : undefined) };
+          }),
+        );
+      }
+    } finally {
+      busy = false;
+    }
+  }, 3000);
 }
 
 // ---------- usage log ----------
@@ -170,8 +204,8 @@ export function contextHint(pane: Pane, pct: number | undefined) {
   for (const level of [60, 80]) {
     if (pct >= level) {
       once(`compact-${pane.sessionId ?? pane.id}-${level}`, () =>
-        showToast(`${folderName(pane.cwd)}: this conversation uses ${Math.round(pct)}% of its context. Compacting makes every next message cheaper.`, "info", {
-          label: "Compact now",
+        showToast(t("taskHints.compactHint", { project: folderName(pane.cwd), pct: Math.round(pct) }), "info", {
+          label: t("taskHints.compactNow"),
           run: () => {
             openPane(pane.id);
             typeCommand(pane.id, "/compact", true);
@@ -196,8 +230,8 @@ export function startUsageHints() {
         const left = cache.expiresAt - nowSec;
         if (left > 30 && left <= 75) {
           once(`cache-${pane.id}-${cache.expiresAt}`, () =>
-            showToast(`${folderName(pane.cwd)}: the cache expires in about a minute. Reply now to keep this conversation cheap.`, "info", {
-              label: "Open tab",
+            showToast(t("taskHints.cacheExpiring", { project: folderName(pane.cwd) }), "info", {
+              label: t("common.goToTab"),
               run: () => openPane(pane.id),
             }),
           );
@@ -206,8 +240,8 @@ export function startUsageHints() {
       const idleMin = pane.lastActivity ? (Date.now() - pane.lastActivity) / 60000 : 0;
       if (ctx >= 40 && idleMin >= 60) {
         once(`idle-${pane.id}-${today()}`, () =>
-          showToast(`${folderName(pane.cwd)} has a large conversation sitting idle. When you switch topics, /clear starts fresh and uses much less.`, "info", {
-            label: "Open tab",
+          showToast(t("taskHints.idleConversation", { project: folderName(pane.cwd) }), "info", {
+            label: t("common.goToTab"),
             run: () => openPane(pane.id),
           }),
         );

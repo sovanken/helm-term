@@ -1,11 +1,14 @@
+mod bgtasks;
 mod bridge;
 mod browser;
 mod claude_settings;
 mod clipboard;
 mod commands;
 mod details;
+mod devices;
 mod export;
 mod git;
+mod project_ops;
 mod projects;
 mod preview;
 mod pdf;
@@ -13,7 +16,11 @@ mod pty;
 mod report;
 mod sessions;
 mod shell;
+mod snip;
 mod toast;
+mod tools;
+mod voice;
+mod workspace;
 mod worktrees;
 
 #[cfg(test)]
@@ -112,7 +119,9 @@ fn open_in_editor(path: String, line: Option<u32>, column: Option<u32>) -> bool 
     // Launching code.cmd directly lets Rust apply its safe batch-file argument escaping, which
     // refuses arguments it can't pass through unchanged.
     let Ok(code) = which::which("code") else { return false };
-    git::hidden(&code.to_string_lossy()).args(["-g", &target]).status().is_ok_and(|s| s.success())
+    // A folder opens as a project; a file opens at the line.
+    let args: Vec<&str> = if Path::new(&target).is_dir() { vec![&target] } else { vec!["-g", &target] };
+    git::hidden(&code.to_string_lossy()).args(args).status().is_ok_and(|s| s.success())
 }
 
 /// Windows build number (e.g. 26100); the terminal uses it to match ConPTY's line reflow.
@@ -362,6 +371,13 @@ async fn session_details(transcript_path: Option<String>, session_id: Option<Str
     })
 }
 
+/// Background commands and agents that have finished in a conversation (from its transcript).
+#[tauri::command]
+async fn background_finished(app: AppHandle, transcript_path: String) -> Vec<bgtasks::Finished> {
+    let path = PathBuf::from(transcript_path);
+    tauri::async_runtime::spawn_blocking(move || bgtasks::finished(&app.state::<bgtasks::BgTaskCache>(), &path)).await.unwrap_or_default()
+}
+
 /// A subagent's final answer, from the transcript path its SubagentStop hook reports.
 #[tauri::command]
 async fn subagent_result(path: String) -> Option<String> {
@@ -418,6 +434,326 @@ async fn preview_file(path: String) -> Result<preview::FilePreview, String> {
     tauri::async_runtime::spawn_blocking(move || preview::read(std::path::Path::new(&path))).await.map_err(|e| e.to_string())?
 }
 
+/// A past conversation as a readable Markdown file (in Helm's data folder) for a file tab.
+#[tauri::command]
+async fn session_markdown(app: AppHandle, session_id: String, title: String) -> Result<String, String> {
+    let dir = data_dir(&app).join("conversations");
+    blocking!({
+        if !session_id.chars().all(|c| c.is_ascii_alphanumeric() || c == '-') {
+            return Err("Invalid session id".to_string());
+        }
+        let path = sessions::find_transcript(&session_id).ok_or("This conversation has no saved transcript")?;
+        let md = export::to_markdown(&path, true)?;
+        // Named after the conversation so the tab reads well: conversations/<id>/<title>.md
+        let name: String = title.chars().map(|c| if r#"<>:"/\|?*"#.contains(c) || c.is_control() { ' ' } else { c }).collect();
+        let name: String = name.trim().trim_end_matches('.').chars().take(80).collect();
+        let dir = dir.join(&session_id);
+        std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+        let out = dir.join(format!("{}.md", if name.is_empty() { "Conversation" } else { &name }));
+        std::fs::write(&out, md).map_err(|e| e.to_string())?;
+        Ok(out.to_string_lossy().into_owned())
+    })
+}
+
+/// Files Claude edited or created in a conversation, oldest first.
+#[tauri::command]
+async fn session_files(session_id: String) -> Result<Vec<String>, String> {
+    blocking!({
+        let path = sessions::find_transcript(&session_id).ok_or("This conversation has no saved transcript")?;
+        Ok(sessions::changed_files(&path))
+    })
+}
+
+/// Deletes a conversation's transcript for good (the page asks first).
+#[tauri::command]
+async fn session_delete(session_id: String) -> Result<(), String> {
+    blocking!({
+        let path = sessions::find_transcript(&session_id).ok_or("This conversation is already gone")?;
+        // Only ever a transcript inside Claude's projects folder.
+        let root = sessions::projects_dir().ok_or("Claude's projects folder wasn't found")?;
+        if !path.starts_with(&root) || path.extension().and_then(|e| e.to_str()) != Some("jsonl") {
+            return Err("That isn't a Claude conversation file".to_string());
+        }
+        std::fs::remove_file(&path).map_err(|e| e.to_string())?;
+        // Its folder of subagent transcripts and tool output, if any.
+        let side = path.with_extension("");
+        if side.is_dir() && side.starts_with(&root) {
+            let _ = std::fs::remove_dir_all(side);
+        }
+        Ok(())
+    })
+}
+
+/// Workspace tab: one folder's contents for the file tree.
+#[tauri::command]
+async fn list_dir(path: String) -> Result<Vec<workspace::Entry>, String> {
+    blocking!(workspace::list_dir(Path::new(&path)))
+}
+
+/// Workspace tab: every file in the project (for quick open), skipping what git ignores.
+#[tauri::command]
+async fn list_project_files(root: String) -> Result<Vec<String>, String> {
+    blocking!(Ok::<_, String>(workspace::list_files(Path::new(&root), 50_000)))
+}
+
+/// Workspace tab: find text across the project's files.
+#[tauri::command]
+async fn search_project(root: String, query: String, case_sensitive: bool) -> Result<workspace::SearchResult, String> {
+    blocking!(Ok::<_, String>(workspace::search(Path::new(&root), &query, case_sensitive, 2000)))
+}
+
+#[tauri::command]
+fn create_dir(parent: String, name: String) -> Result<String, String> {
+    workspace::create_dir(Path::new(&parent), &name).map(|p| p.to_string_lossy().into_owned())
+}
+
+#[tauri::command]
+fn rename_path(path: String, new_name: String) -> Result<String, String> {
+    workspace::rename(Path::new(&path), &new_name).map(|p| p.to_string_lossy().into_owned())
+}
+
+/// Moves a file or folder to the Recycle Bin (the page asks first).
+#[tauri::command]
+async fn trash_path(path: String) -> Result<(), String> {
+    blocking!(workspace::trash(Path::new(&path)))
+}
+
+/// Before renaming or deleting a project folder: is it allowed, in use, and what's inside.
+#[tauri::command]
+async fn project_check(path: String) -> Result<project_ops::Check, String> {
+    blocking!(Ok::<_, String>(project_ops::check(Path::new(&path))))
+}
+
+/// Renames a project folder and moves its Claude Code chat history to the new name.
+#[tauri::command]
+async fn project_rename(path: String, new_name: String) -> Result<project_ops::Renamed, String> {
+    blocking!(project_ops::rename(Path::new(&path), &new_name))
+}
+
+/// Moves a project folder to the Recycle Bin (the page checks and asks first).
+#[tauri::command]
+async fn project_trash(path: String) -> Result<(), String> {
+    blocking!(project_ops::trash_folder(Path::new(&path)))
+}
+
+/// Moves a conversation to the Recycle Bin.
+#[tauri::command]
+async fn session_trash(session_id: String) -> Result<(), String> {
+    blocking!(project_ops::trash_session(&session_id))
+}
+
+#[tauri::command]
+async fn project_remote(path: String) -> Result<Option<project_ops::Remote>, String> {
+    blocking!(Ok::<_, String>(project_ops::remote(Path::new(&path))))
+}
+
+/// Voice input: is the model there, and is it downloading.
+#[tauri::command]
+fn voice_status(app: AppHandle, install: State<'_, std::sync::Arc<voice::Install>>) -> voice::Status {
+    voice::status(&app, &install)
+}
+
+/// Downloads the voice model (progress arrives as "voice-install" events).
+#[tauri::command]
+async fn voice_install(app: AppHandle, install: State<'_, std::sync::Arc<voice::Install>>) -> Result<(), String> {
+    voice::install(app, install.inner().clone()).await
+}
+
+#[tauri::command]
+fn voice_cancel_install(install: State<'_, std::sync::Arc<voice::Install>>) {
+    voice::cancel_install(&install);
+}
+
+#[tauri::command]
+async fn voice_remove(app: AppHandle) -> Result<(), String> {
+    let v = app.state::<voice::Voice>();
+    voice::remove(&app, &v)
+}
+
+#[tauri::command]
+async fn voice_mics() -> Vec<String> {
+    tauri::async_runtime::spawn_blocking(voice::microphones).await.unwrap_or_default()
+}
+
+/// Starts listening (text arrives as "voice" events). `test` only reports the level.
+#[tauri::command]
+fn voice_start(app: AppHandle, v: State<'_, voice::Voice>, mic: Option<String>, test: bool) -> Result<(), String> {
+    voice::start(&app, &v, mic, test)
+}
+
+/// Stops listening; `keep` types what was still being said, otherwise it's dropped.
+#[tauri::command]
+fn voice_stop(v: State<'_, voice::Voice>, keep: bool) {
+    voice::stop(&v, keep);
+}
+
+/// Screenshots: freeze the screen and open the snip overlay.
+// Async so it runs off the main thread: creating a window from a sync command deadlocks on Windows.
+#[tauri::command]
+async fn snip_start(app: AppHandle) -> Result<(), String> {
+    snip::start(&app)
+}
+
+/// The overlay asks for what it shows: monitors, windows and the desktop's size and origin.
+#[tauri::command]
+fn snip_info(state: State<snip::SnipState>) -> Result<snip::SnipInfo, String> {
+    state.info.lock().unwrap().clone().ok_or_else(|| "No snip in progress".to_string())
+}
+
+/// The frozen screen as raw pixels (size header + BGRA).
+#[tauri::command]
+fn snip_pixels(state: State<snip::SnipState>) -> Result<tauri::ipc::Response, String> {
+    let pixels = state.pixels.lock().unwrap().take().ok_or("No snip in progress")?;
+    Ok(tauri::ipc::Response::new(pixels))
+}
+
+/// The overlay sends the chosen part as PNG bytes (raw request body).
+#[tauri::command]
+async fn snip_finish(app: AppHandle, request: tauri::ipc::Request<'_>) -> Result<String, String> {
+    let tauri::ipc::InvokeBody::Raw(png) = request.body() else { return Err("Expected image bytes".into()) };
+    snip::finish(&app, png)
+}
+
+#[tauri::command]
+async fn snip_cancel(app: AppHandle) {
+    snip::cancel(&app);
+}
+
+#[tauri::command]
+fn snip_list(app: AppHandle) -> Vec<snip::SnipFile> {
+    snip::list(&snip::dir(&app))
+}
+
+#[tauri::command]
+fn snip_delete(app: AppHandle, path: String) -> Result<(), String> {
+    snip::delete(&snip::dir(&app), Path::new(&path))
+}
+
+/// Copies a PNG file to the clipboard as an image.
+#[tauri::command]
+async fn copy_image_file(path: String) -> Result<(), String> {
+    blocking!(snip::copy_image(Path::new(&path)))
+}
+
+/// Phones and tablets connected to the PC (status bar).
+#[tauri::command]
+async fn devices_list() -> Result<devices::DeviceList, String> {
+    blocking!(Ok::<_, String>(devices::list()))
+}
+
+#[tauri::command]
+async fn device_details(serial: String) -> Result<devices::DeviceDetails, String> {
+    blocking!(devices::details(&serial))
+}
+
+/// The phone's screen, saved as a snip and opened in Screenshots.
+#[tauri::command]
+async fn device_screenshot(app: AppHandle, serial: String) -> Result<String, String> {
+    let png = blocking!(devices::screenshot(&serial))?;
+    snip::finish(&app, &png)
+}
+
+#[tauri::command]
+fn device_mirror(serial: String, title: String) -> Result<(), String> {
+    devices::mirror(&serial, &title)
+}
+
+/// The project's Android app id, if it is an Android or Flutter project.
+#[tauri::command]
+fn android_app_id(project: String) -> Option<String> {
+    devices::app_id(Path::new(&project))
+}
+
+/// The project's app as installed on the device (exact id or flavour builds like ".dev").
+#[tauri::command]
+async fn device_app_variants(serial: String, app: String) -> Result<Vec<String>, String> {
+    blocking!(devices::installed_variants(&serial, &app))
+}
+
+#[tauri::command]
+async fn device_logcat_command(serial: String, app: Option<String>, powershell: bool) -> Result<String, String> {
+    blocking!(devices::logcat_command(&serial, app.as_deref(), powershell))
+}
+
+#[tauri::command]
+async fn device_to_wifi(serial: String, ip: String) -> Result<String, String> {
+    blocking!(devices::to_wifi(&serial, &ip))
+}
+
+#[tauri::command]
+async fn device_disconnect(serial: String) -> Result<(), String> {
+    blocking!(devices::disconnect(&serial))
+}
+
+/// A new, empty file for a file tab (never replaces an existing one).
+#[tauri::command]
+fn create_file(dir: String, name: String) -> Result<String, String> {
+    preview::create(std::path::Path::new(&dir), &name).map(|p| p.to_string_lossy().into_owned())
+}
+
+/// Saves a file edited in a file tab; fails with "changed" if it changed on disk meanwhile.
+#[tauri::command]
+async fn save_file(path: String, text: String, expected: u64, force: bool) -> Result<u64, String> {
+    tauri::async_runtime::spawn_blocking(move || preview::save(std::path::Path::new(&path), &text, expected, force)).await.map_err(|e| e.to_string())?
+}
+
+/// Developer tools: small saved data (requests, colours, scratchpads) in Helm's data folder.
+#[tauri::command]
+fn tool_data_read(app: AppHandle, name: String) -> Result<Option<String>, String> {
+    tools::data_read(&data_dir(&app).join("tools"), &name)
+}
+
+#[tauri::command]
+fn tool_data_write(app: AppHandle, name: String, text: String) -> Result<(), String> {
+    tools::data_write(&data_dir(&app).join("tools"), &name, &text)
+}
+
+#[tauri::command]
+fn hash_text(text: String, algo: String) -> Result<String, String> {
+    tools::hash_text(&text, &algo)
+}
+
+#[tauri::command]
+async fn hash_file(path: String, algo: String) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || tools::hash_file(std::path::Path::new(&path), &algo)).await.map_err(|e| e.to_string())?
+}
+
+/// Sends an HTTP request from Helm (not the page), so CORS doesn't apply.
+#[tauri::command]
+async fn http_request(request: tools::HttpRequest) -> Result<tools::HttpResponse, String> {
+    tools::http(request).await
+}
+
+#[tauri::command]
+async fn env_vars() -> Result<tools::EnvVars, String> {
+    tauri::async_runtime::spawn_blocking(tools::env_vars).await.map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn ports_in_use() -> Result<Vec<tools::PortUse>, String> {
+    tauri::async_runtime::spawn_blocking(tools::ports).await.map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+fn stop_process(pid: u32) -> Result<(), String> {
+    tools::stop_process(pid)
+}
+
+/// The whole screen for the ruler, as raw pixels (Helm hides itself first, from the page).
+#[tauri::command]
+async fn capture_screen() -> Result<tauri::ipc::Response, String> {
+    let bytes = tauri::async_runtime::spawn_blocking(tools::capture_screen).await.map_err(|e| e.to_string())??;
+    Ok(tauri::ipc::Response::new(bytes))
+}
+
+/// Saves bytes made by a tool (a converted image) to a path the user picked.
+#[tauri::command]
+fn write_file_base64(path: String, data: String) -> Result<(), String> {
+    use base64::Engine;
+    let bytes = base64::engine::general_purpose::STANDARD.decode(data).map_err(|e| e.to_string())?;
+    std::fs::write(path, bytes).map_err(|e| e.to_string())
+}
+
 /// Bytes of a PDF, video or audio file for a file tab, sent as a binary response (no JSON).
 #[tauri::command]
 async fn file_bytes(path: String) -> Result<tauri::ipc::Response, String> {
@@ -439,7 +775,9 @@ pub fn run() {
                 let _ = window.set_focus();
             }
         }))
-        .plugin(tauri_plugin_window_state::Builder::new().build())
+        // The window starts hidden and the page shows it once the splash has painted, so don't let the
+        // saved state show it earlier.
+        .plugin(tauri_plugin_window_state::Builder::new().with_state_flags(tauri_plugin_window_state::StateFlags::all() & !tauri_plugin_window_state::StateFlags::VISIBLE).build())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
@@ -447,6 +785,11 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_autostart::Builder::new().build())
+        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+        .manage(snip::SnipState::default())
+        .manage(bgtasks::BgTaskCache::default())
+        .manage(std::sync::Arc::new(voice::Install::default()))
+        .manage(voice::Voice::default())
         .manage(PtyManager::default())
         .manage(SessionCache::default())
         .manage(report::TotalsCache::default())
@@ -459,6 +802,17 @@ pub fn run() {
             std::thread::spawn(move || {
                 clipboard::prune(dir.join("screenshots"));
                 clipboard::prune(dir.join("pastes"));
+            });
+            // The page shows the window once its splash has painted; if the page fails to load,
+            // show it anyway so Helm never stays invisible.
+            let handle = app.handle().clone();
+            std::thread::spawn(move || {
+                std::thread::sleep(std::time::Duration::from_secs(4));
+                if let Some(window) = handle.get_webview_window("main") {
+                    if !window.is_visible().unwrap_or(true) {
+                        let _ = window.show();
+                    }
+                }
             });
             Ok(())
         })
@@ -524,6 +878,57 @@ pub fn run() {
             browser::browser_screenshot,
             browser::browser_pick,
             file_bytes,
+            create_file,
+            save_file,
+            background_finished,
+            devices_list,
+            device_details,
+            device_screenshot,
+            device_mirror,
+            android_app_id,
+            device_logcat_command,
+            device_app_variants,
+            device_to_wifi,
+            device_disconnect,
+            snip_start,
+            snip_info,
+            snip_pixels,
+            snip_finish,
+            snip_cancel,
+            snip_list,
+            snip_delete,
+            copy_image_file,
+            list_dir,
+            list_project_files,
+            search_project,
+            create_dir,
+            rename_path,
+            trash_path,
+            voice_status,
+            voice_install,
+            voice_cancel_install,
+            voice_remove,
+            voice_mics,
+            voice_start,
+            voice_stop,
+            project_check,
+            project_rename,
+            project_trash,
+            session_trash,
+            project_remote,
+            session_markdown,
+            session_files,
+            session_delete,
+            tool_data_read,
+            tool_data_write,
+            hash_text,
+            hash_file,
+            http_request,
+            env_vars,
+            ports_in_use,
+            stop_process,
+            capture_screen,
+            write_file_base64,
             home_dir,
         ])
         .build(tauri::generate_context!())

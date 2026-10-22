@@ -71,8 +71,27 @@ export async function restore() {
     useStore.getState().set({ panes, tabs, activeTabId: tabs[session.activeIndex]?.id ?? tabs[0].id });
   }
 
+  // Project workspace tabs: their folder, open files and expanded folders (unsaved edits are not kept).
+  const savedWorkspaces = settings.restoreTabs ? await store.get<SavedWorkspace[]>("workspaces") : undefined;
+  if (savedWorkspaces?.length) {
+    const workspaces = savedWorkspaces.map((w) => {
+      const files = w.files.map((path) => ({ id: crypto.randomUUID(), path, cwd: w.root }));
+      return { id: crypto.randomUUID(), root: w.root, files, activeFileId: files[w.active]?.id ?? null, expanded: w.expanded ?? [] };
+    });
+    useStore.getState().set({ workspaces, activeWorkspaceId: workspaces[0].id });
+  }
+
   useStore.subscribe((s, prev) => {
     if (!store) return;
+    if (s.workspaces !== prev.workspaces) {
+      const list: SavedWorkspace[] = s.workspaces.map((w) => ({
+        root: w.root,
+        files: w.files.map((f) => f.path),
+        active: Math.max(0, w.files.findIndex((f) => f.id === w.activeFileId)),
+        expanded: w.expanded,
+      }));
+      void store.set("workspaces", list);
+    }
     if (s.settings !== prev.settings) void store.set("settings", s.settings);
     if (s.pinned !== prev.pinned) void store.set("pinned", s.pinned);
     if (s.sidebarOpen !== prev.sidebarOpen) void store.set("sidebarOpen", s.sidebarOpen);
@@ -84,6 +103,13 @@ export async function restore() {
       void store.set("session", snapshot());
     }
   });
+}
+
+interface SavedWorkspace {
+  root: string;
+  files: string[];
+  active: number;
+  expanded?: string[];
 }
 
 function snapshot(): SavedSession {

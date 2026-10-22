@@ -1,0 +1,431 @@
+{
+  "agents": {
+    "title": "에이전트",
+    "noTabs": "열려 있는 Claude 탭이 없습니다.",
+    "summary_other": "세션 {{count}}개 열림 · {{working}}개 작업 중 · {{waiting}}개 응답 대기",
+    "tabs": {
+      "live": "실시간",
+      "usage": "사용량"
+    },
+    "exportTitle_other": "최근 {{count}}일(한도, 합계, 프로젝트, 대화)을 PDF로 저장",
+    "exportPdf": "PDF 내보내기…",
+    "newParallelTask": "새 병렬 작업…",
+    "replies_other": "응답 {{n}}개",
+    "live": {
+      "newConversation": "새 대화",
+      "waitingForYou": "응답 대기 중",
+      "workingNow": "작업 중…",
+      "finishedYourTurn": "완료, 내 차례",
+      "ready": "준비됨",
+      "task": "작업",
+      "contextTitle": "컨텍스트 {{window}} 중 {{pct}}%",
+      "contextPending": "Claude의 첫 응답 후 컨텍스트가 표시됩니다",
+      "goToTab": "이 탭으로 이동",
+      "column": {
+        "conversation": "대화",
+        "doingNow": "현재 작업",
+        "context": "컨텍스트",
+        "cost": "비용",
+        "lastActive": "마지막 활동"
+      },
+      "group": {
+        "needsYou": "응답 필요",
+        "working": "작업 중",
+        "finished": "완료",
+        "ready": "준비됨"
+      },
+      "waitingApproval": "승인 대기 중",
+      "empty": "여러 탭이나 병렬 작업에서 Claude를 시작하세요. 각 항목이 현재 작업과 응답 필요 여부와 함께 여기에 표시됩니다.",
+      "startClaude": "Claude 시작",
+      "clickHint": "대화를 클릭하면 진행 내용, 변경된 파일, 컨텍스트, 비용을 볼 수 있습니다."
+    },
+    "today": {
+      "title": "오늘",
+      "reading": "오늘 대화를 읽는 중…",
+      "repliesSoFar_other": "지금까지 응답 {{n}}개",
+      "noWork": "오늘은 아직 작업이 없습니다",
+      "tooltip_other": "{{time}} · 응답 {{n}}개",
+      "note": "막대 하나는 15분이며, 자정부터 현재까지 표시합니다(아래쪽에 시간 표시)."
+    },
+    "usage": {
+      "lastDays_other": "최근 {{count}}일",
+      "source": "이 PC의 모든 Claude Code 대화를 기준으로 합니다. Claude Code는 대화를 30일 동안 보관합니다.",
+      "kpi": {
+        "cost": "비용",
+        "costPerDay": "하루 평균 {{amount}}",
+        "tokens": "토큰",
+        "cached": "캐시에서 다시 읽은 {{tokens}} 추가",
+        "cachedWithHit": "캐시에서 다시 읽은 {{tokens}} 추가(입력의 {{pct}}%)",
+        "time": "Claude 작업 시간",
+        "lines": "변경된 줄"
+      },
+      "chart": {
+        "costPerDay": "일별 비용",
+        "tokensPerDay": "일별 토큰",
+        "timePerDay": "일별 Claude 작업 시간"
+      },
+      "metric": {
+        "cost": "비용",
+        "tokens": "토큰",
+        "time": "시간"
+      },
+      "byProject": "프로젝트별",
+      "byProjectNote": "Claude가 변경한 파일 기준",
+      "noProject": "{{name}}(프로젝트 없음)",
+      "homeFolderTitle": "홈 폴더에서 진행했으며 프로젝트의 파일을 편집하지 않은 대화",
+      "noWork": "이 기간에는 작업이 없습니다.",
+      "byModel": "모델별",
+      "whenYouWork": "Claude와 작업하는 시간대",
+      "busiest": "{{hour}} 무렵에 가장 많이 사용",
+      "hourTooltip_other": "{{from}}–{{to}} · 응답 {{n}}개"
+    }
+  },
+  "background": {
+    "duration": {
+      "seconds": "{{s}}초",
+      "minutesSeconds": "{{m}}분 {{s}}초",
+      "hoursMinutes": "{{h}}시간 {{m}}분"
+    },
+    "state": {
+      "running": "작업 중",
+      "done": "완료",
+      "failed": "실패",
+      "stopped": "중지됨"
+    },
+    "answer": "답변",
+    "result": "결과",
+    "fullOutput": "전체 출력",
+    "earlierSteps_other": "이전 단계 {{count}}개",
+    "subagent": "하위 에이전트",
+    "command": "명령",
+    "inBackground": "백그라운드에서",
+    "steps_other": "{{count}}단계",
+    "running": "실행 중…",
+    "gettingStarted": "시작하는 중…",
+    "finishedNoAnswer": "작성된 답변 없이 완료되었습니다.",
+    "finishedCommand": "완료되었습니다. Claude가 출력을 받았습니다.",
+    "activity": "활동",
+    "goToTab": "이 탭으로 이동",
+    "thisTab": "이 탭",
+    "workingCount_other": "{{count}}개 작업 중",
+    "empty": {
+      "title": "아직 백그라운드 작업이 없습니다",
+      "text": "Claude가 하위 에이전트나 백그라운드 명령을 시작하면 현재 하는 작업, 실행 시간, 답변이 여기에 표시됩니다."
+    },
+    "filter": {
+      "all": "전체"
+    },
+    "clearFinishedTitle": "완료된 하위 에이전트와 명령을 이 목록에서 제거",
+    "clearFinished": "완료된 항목 지우기",
+    "nothingWorking": "현재 작업 중인 항목이 없습니다.",
+    "nothingFinished": "아직 완료된 항목이 없습니다."
+  },
+  "sessionDetail": {
+    "dialogLabel": "대화 세부 정보",
+    "newConversation": "새 대화",
+    "effort": "노력 수준: {{effort}}",
+    "started": "{{time}}에 시작",
+    "savePdfTitle": "이 보고서를 PDF로 저장",
+    "savePdf": "PDF로 저장…",
+    "goToTab": "이 탭으로 이동",
+    "openTab": "탭 열기",
+    "continueTitle": "탭에서 이 대화 이어서 진행",
+    "continue": "이어서 진행",
+    "reading": "대화를 읽는 중…",
+    "noTranscript": "이 대화에는 아직 저장된 기록이 없습니다.",
+    "stat": {
+      "cost": "비용",
+      "worked": "Claude 작업 시간",
+      "messages": "메시지",
+      "messagesSub": "내 메시지 → Claude 응답",
+      "filesChanged": "변경된 파일"
+    },
+    "tabs": {
+      "happened": "진행 내용",
+      "files": "파일",
+      "context": "컨텍스트",
+      "cost": "비용 및 토큰"
+    },
+    "toast": {
+      "busyRetry": "Claude가 이 탭에서 작업 중입니다. 작업이 끝나면 다시 시도하세요.",
+      "busyCompact": "Claude가 이 탭에서 작업 중입니다. 작업이 끝나면 압축해 보세요.",
+      "askedExact": "Claude에게 정확한 수치를 요청했습니다. 잠시 후 여기에 표시됩니다.",
+      "sentCommand": "이 탭에 {{cmd}}을(를) 보냈습니다."
+    },
+    "happened": {
+      "empty": "아직 없습니다. 첫 메시지를 보내면 단계가 표시됩니다.",
+      "you": "나 · {{time}}",
+      "showEarlier_other": "이전 단계 {{count}}개 표시"
+    },
+    "files": {
+      "empty": "이 대화에서 Claude가 편집하거나 만든 파일이 없습니다.",
+      "summary_other": "파일 {{count}}개 · Claude 편집에서 <0>+{{added}}</0> <1>−{{removed}}</1>줄",
+      "clickToOpen": "클릭하여 열기",
+      "new": "새 파일",
+      "edits_other": "편집 {{count}}회",
+      "note": "Claude의 편집을 기준으로 계산하므로 두 번 변경한 줄은 두 번 계산됩니다. Git과 다른 부분은 사이드 패널의 변경 내용에서 확인하세요."
+    },
+    "context": {
+      "title": "컨텍스트 구성",
+      "usedAria": "{{window}}개 토큰 중 {{used}}개 사용",
+      "usedOf": "{{window}}개 토큰 중 {{used}}개",
+      "setupTitle": "설정: {{tokens}}",
+      "conversationTitle": "대화: {{tokens}}",
+      "reserveTitle": "자동 압축용 예약: {{tokens}}",
+      "setup": "설정",
+      "setupHint": "시스템 프롬프트, 도구, MCP, 메모리 파일, 스킬: 모든 메시지와 함께 전송됨",
+      "conversation": "대화",
+      "conversationHint": "내 메시지, Claude 응답, 도구 결과",
+      "reserve": "자동 압축 예약",
+      "reserveHint": "대화가 가득 찼을 때 Claude가 요약할 수 있도록 비워 둔 공간",
+      "free": "여유 공간",
+      "setupNote": "설정은 모든 메시지와 함께 전송되는 시스템 프롬프트, 도구, MCP, 메모리 파일, 스킬입니다.",
+      "exactTitle": "이 탭에서 /context를 실행하여(무료) Claude의 정확한 수치를 읽습니다",
+      "refreshExact": "정확한 수치 새로 고침",
+      "getExact": "정확한 수치 가져오기",
+      "pending": "Claude의 첫 응답 후 표시됩니다.",
+      "exact": "정확한 값 · {{time}}",
+      "estimate": "추정치",
+      "adviceFull": "거의 가득 찼습니다. Claude가 곧 이전 메시지를 자동으로 요약합니다. 시점을 직접 정하려면 지금 압축하거나, 다음 작업은 새 대화에서 시작하세요.",
+      "adviceHalf": "절반 이상 찼습니다. 메시지를 보낼 때마다 이 내용이 모두 다시 전송되므로 대화가 길어질수록 느려지고 비용이 늘어납니다. 이 작업이 끝나면 압축하세요.",
+      "adviceRoom": "공간이 충분합니다.",
+      "compactNow": "지금 압축",
+      "newConversation": "새 대화 시작",
+      "estimatedOpen": "대화를 바탕으로 추정한 값입니다. \"정확한 수치 가져오기\"를 누르면 이 탭에서 Claude의 무료 /context 명령을 실행합니다.",
+      "estimatedPast": "대화를 바탕으로 추정한 값입니다. 탭에서 대화를 이어서 진행하면 Claude의 정확한 수치를 가져올 수 있습니다."
+    },
+    "growth": {
+      "title": "증가 추이",
+      "peak": "최대 {{tokens}}",
+      "tooltip": "응답 {{n}} · 컨텍스트 <0>{{tokens}}</0> · {{time}}",
+      "compacted_other": "{{count}}회 압축됨"
+    },
+    "cost": {
+      "title": "비용",
+      "thisConversation": "이 대화",
+      "asReported": "Claude 보고 기준",
+      "perMessage": "메시지당",
+      "onAverage": "평균",
+      "linesChanged": "변경된 줄"
+    },
+    "tokens": {
+      "title": "토큰",
+      "sent": "전송(새로)",
+      "cacheRead": "캐시에서 다시 읽음",
+      "cacheWrite": "캐시에 저장됨",
+      "output": "Claude 작성",
+      "cacheHits": "캐시 적중",
+      "hitPct": "전송한 양의 {{pct}}%",
+      "cacheNote": "캐시에서 다시 읽는 비용은 새로 보내는 비용의 약 10분의 1이므로 이 수치가 높을수록 좋습니다.",
+      "warmUntil": "{{time}}까지 캐시가 유지됩니다. 그 전에 답장하면 비용이 적게 듭니다.",
+      "warm": "캐시가 유지되고 있습니다. 만료 전에 답장하면 비용이 적게 듭니다.",
+      "cold": "캐시가 만료되었습니다. 다음 메시지에서 전체 대화를 다시 읽습니다."
+    },
+    "tools": {
+      "title": "Claude가 사용한 도구 · {{count}}"
+    }
+  },
+  "inspector": {
+    "tabs": {
+      "changes": "변경 내용",
+      "background": "백그라운드",
+      "details": "세부 정보"
+    },
+    "closePanel": "패널 닫기",
+    "closeShortcut": "닫기(Ctrl+Shift+G)",
+    "details": {
+      "projectFolder": "프로젝트 폴더",
+      "openProject": "프로젝트 열기",
+      "openInNewTab": "새 탭에서 열기",
+      "editCount_other": "편집 {{count}}회",
+      "readCount_other": "{{count}}회",
+      "search": "검색",
+      "copyLink": "링크 복사",
+      "noClaude": {
+        "title": "여기에는 Claude 대화가 없습니다",
+        "text": "Claude 탭을 열면 첨부한 스크린샷과 파일, Claude가 읽고 변경하고 조회한 파일을 볼 수 있습니다."
+      },
+      "nothingYet": {
+        "title": "아직 없음",
+        "text": "이 대화의 첫 메시지 후 세부 정보가 표시됩니다."
+      },
+      "nothingUsed": {
+        "title": "아직 첨부하거나 사용한 항목이 없습니다",
+        "text": "붙여넣은 스크린샷, @로 멘션한 파일, 이 대화에서 Claude가 읽거나 변경한 모든 항목이 여기에 나열됩니다."
+      },
+      "stat": {
+        "changed": "변경됨",
+        "read": "읽음",
+        "attached": "첨부됨",
+        "web": "웹"
+      },
+      "group": {
+        "changed": "Claude가 변경한 파일",
+        "screenshots": "붙여넣은 스크린샷",
+        "mentioned": "첨부한 파일",
+        "read": "Claude가 읽은 파일",
+        "web": "웹 페이지 및 검색",
+        "subagents": "사용한 하위 에이전트",
+        "mcp": "사용한 MCP 도구"
+      },
+      "pastedScreenshot": "붙여넣은 스크린샷 {{n}}",
+      "screenshot": "스크린샷"
+    }
+  },
+  "changes": {
+    "status": {
+      "changed": "변경됨",
+      "added": "추가됨",
+      "new": "새 파일",
+      "deleted": "삭제됨",
+      "renamed": "이름 바뀜"
+    },
+    "revert": {
+      "deleteNewMessage": "다음 새 파일이 삭제됩니다.\n\n{{path}}\n\n이 작업은 되돌릴 수 없습니다.",
+      "undoMessage": "이 파일의 모든 변경 내용이 취소됩니다.\n\n{{path}}\n\n이 작업은 되돌릴 수 없습니다.",
+      "title": "변경 내용을 취소할까요?",
+      "deleteFile": "파일 삭제",
+      "undoChanges": "변경 내용 취소"
+    },
+    "reviewComments_other": "검토 댓글 {{count}}개",
+    "clear": "지우기",
+    "sendToClaude": "Claude에 보내기",
+    "filesSinceCommit_other": "마지막 커밋 이후 파일 {{count}}개",
+    "noTab": "탭을 열면 변경 내용을 볼 수 있습니다.",
+    "notRepo": "이 폴더는 Git 리포지토리가 아닙니다. Helm은 Git을 사용해 변경 내용을 표시하고 취소합니다. 이 기능을 사용하려면 여기에서 <0>git init</0>을 실행하세요.",
+    "noChanges": "마지막 커밋 이후 변경 내용이 없습니다.",
+    "fileTitle": "{{status}}: {{path}}",
+    "undoFileNamed": "{{path}}의 변경 내용 취소",
+    "undoFile": "이 파일의 변경 내용 취소",
+    "openClaudeFirst": "먼저 이 프로젝트에서 Claude를 연 다음 댓글을 보내세요.",
+    "sentComments_other": "Claude에 검토 댓글 {{count}}개를 보냈습니다.",
+    "commentOnLine": "이 줄에 댓글 달기",
+    "commentPlaceholder": "여기서 Claude가 무엇을 변경해야 하나요? (Enter로 추가, Shift+Enter로 줄 바꿈)",
+    "addComment": "댓글 추가",
+    "hunk": {
+      "message": "파일의 이 부분을 취소할까요? 파일의 다른 변경 내용은 유지됩니다.",
+      "title": "이 부분을 취소할까요?",
+      "ok": "부분 취소",
+      "done": "파일의 해당 부분을 취소했습니다.",
+      "button": "이 부분 취소"
+    },
+    "sendComments_other": "Claude에 댓글 {{count}}개 보내기",
+    "undoFileChanges": "파일 변경 내용 취소",
+    "closeDiff": "diff 닫기",
+    "closeEsc": "닫기(Esc)",
+    "before": "이전(마지막 커밋)",
+    "now": "현재 <0>· 줄 번호를 클릭해 댓글 달기</0>",
+    "binary": "이진 파일이므로 비교할 텍스트가 없습니다.",
+    "noTextChanged": "텍스트는 변경되지 않았습니다. 파일의 권한이나 이름만 변경되었습니다.",
+    "removeComment": "댓글 제거"
+  },
+  "reports": {
+    "generated": "생성 시각",
+    "footer": "수치는 이 PC의 Claude Code에서 가져옵니다. \"추정치\"로 표시된 컨텍스트 수치는 근사값이며, 비용은 Claude Code가 보고한 값입니다.",
+    "cost": "비용",
+    "timeWorking": "작업 시간",
+    "replies_other": "응답 {{count}}개",
+    "session": {
+      "title": "{{project}} · 대화 보고서",
+      "conversation": "대화",
+      "effort": "노력 수준: {{effort}}",
+      "contextExact": "컨텍스트 창 · 정확한 값",
+      "contextEstimate": "컨텍스트 창 · 추정치",
+      "usedOf": "{{window}}개 토큰 중 <0>{{used}}</0>개({{pct}}%)",
+      "category": "범주",
+      "tokens": "토큰",
+      "ofWindow": "창 대비",
+      "grew": "컨텍스트 증가 추이",
+      "grewCompacted_other": "컨텍스트 증가 추이 · {{count}}회 압축됨",
+      "sent": "전송(새로)",
+      "fromCache": "캐시에서",
+      "cacheHits": "캐시 적중률 {{pct}}%",
+      "writtenToCache": "캐시에 기록됨",
+      "claudeWrote": "Claude 작성",
+      "activity": "활동",
+      "yourMessages": "내 메시지",
+      "toolCalls": "도구 호출",
+      "lines": "+{{added}} −{{removed}}줄",
+      "toolsUsed": "Claude가 사용한 도구"
+    },
+    "usage": {
+      "fiveHourLimit": "5시간 한도",
+      "weeklyLimit": "주간 한도(모든 모델)",
+      "spendLimit": "지출 한도",
+      "noProject": "{{name}}(프로젝트 없음)",
+      "title": "Claude 사용량 보고서",
+      "subtitle_other": "이 PC의 최근 {{count}}일 · {{span}}",
+      "limits": "사용 한도",
+      "limit": "한도",
+      "used": "사용량",
+      "resets": "초기화",
+      "startsNext": "다음 메시지부터 시작",
+      "totals": "합계",
+      "tokens": "토큰",
+      "fromCacheSub": "캐시에서 {{tokens}}",
+      "linesChanged": "변경된 줄",
+      "byDay": "일별",
+      "col": {
+        "day": "날짜",
+        "fromCache": "캐시에서",
+        "time": "시간",
+        "lines": "줄",
+        "conversations": "대화",
+        "project": "프로젝트",
+        "conversation": "대화",
+        "model": "모델",
+        "context": "컨텍스트"
+      },
+      "byProject": "프로젝트별",
+      "byModel": "모델별",
+      "openConversations": "열린 Claude 대화"
+    }
+  },
+  "usage": {
+    "window": {
+      "fiveHour": "5시간",
+      "weekly": "주간"
+    },
+    "title": "사용 한도",
+    "startsWithNextMessage": "다음 메시지부터 시작",
+    "resetsIn": "{{time}} 후 초기화 · {{clock}}",
+    "notYet": "아무 탭에서나 Claude의 다음 응답 후 표시됩니다. 한도는 Claude Pro 및 Max 요금제(그리고 팀 지출 한도)에 대해 표시됩니다. 직접 Claude 상태 줄을 설정한 경우 Helm은 이를 변경하지 않으며 한도를 표시할 수 없습니다.",
+    "turnedOff": "설정 → Helm의 Claude에서 꺼져 있습니다.",
+    "updated": "{{ago}} 업데이트됨",
+    "fiveHourLimit": "5시간 한도",
+    "currentSession": "현재 세션",
+    "weeklyLimit": "주간 한도",
+    "allModels": "모든 모델",
+    "spendLimit": "지출 한도",
+    "spendOf": "${{limit}} 중 ${{used}}",
+    "byTab": "이번 5시간 동안의 탭별 사용량(근사값)",
+    "duration": {
+      "hoursMinutes": "{{h}}시간 {{m}}분",
+      "minutes": "{{m}}분"
+    },
+    "pace": {
+      "weekJustStarted": "새로운 주가 방금 시작되었습니다",
+      "even": "균등한 속도입니다(이번 주의 {{pct}}% 경과)",
+      "ahead_other": "균등한 속도보다 {{count}}포인트 빠름",
+      "under_other": "균등한 속도보다 {{count}}포인트 느림",
+      "soon": "몇 분 작업하면 사용 속도가 표시됩니다",
+      "eta": "이 속도라면 약 {{time}} 후 한도에 도달합니다",
+      "perHour": "시간당 약 {{rate}}% · 초기화 전에 소진되지 않습니다"
+    },
+    "history": {
+      "title": "사용 기록",
+      "showChart": "차트 표시",
+      "showTable": "표로 표시",
+      "subtitle": "일별 주간 한도 사용 비율 · 최근 7일: {{pct}}%",
+      "empty": "Helm이 지금부터 사용량을 기록합니다. 하루 작업한 후 다시 확인하세요.",
+      "day": "날짜",
+      "weeklyUsed": "주간 한도 사용량",
+      "chartLabel": "주간 한도의 일별 사용 비율, 최근 14일",
+      "tooltip": "<0>{{pct}}%</0> <1>주간 한도 대비 · {{day}}</1>",
+      "mostUsed": "이번 주에 가장 많이 사용"
+    }
+  },
+  "charts": {
+    "barChartLabel": "막대 차트, 최대 {{max}}"
+  }
+}

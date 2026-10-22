@@ -1,24 +1,35 @@
 // Printable reports for PDF export (lib/pdf.tsx renders these in light colours on A4).
 
 import type { ReactNode } from "react";
+import { Trans } from "react-i18next";
+import { locale, t } from "../i18n";
 import type { SessionReport, UsageTotals } from "../lib/ipc";
-import { clock, duration, money, tokens, windowFor } from "../lib/format";
+import { duration, money, tokens, windowFor } from "../lib/format";
 import { cleanTitle, folderName, type Pane, type Usage } from "../state/store";
 import { type Breakdown, ContextBar, GrowthChart } from "./SessionDetail";
 import { modelLabel } from "./StatusBar";
 
+/** "Oct 19, 2026, 3:48 – 8:18 PM" on one day, else both dates in full. */
+function timeRange(start: number, end?: number) {
+  const day = (t: number) => new Date(t).toLocaleDateString(locale(), { dateStyle: "medium" });
+  const time = (t: number) => new Date(t).toLocaleTimeString(locale(), { timeStyle: "short" });
+  if (!end || end <= start) return `${day(start)}, ${time(start)}`;
+  if (day(start) === day(end)) return `${day(start)}, ${time(start)} – ${time(end)}`;
+  return `${day(start)}, ${time(start)} – ${day(end)}, ${time(end)}`;
+}
+
 function Header({ title, subtitle }: { title: string; subtitle?: ReactNode }) {
   return (
     <header className="mb-6 flex items-end justify-between border-b-2 border-fg pb-3">
-      <div>
+      <div className="min-w-0">
         <div className="text-[10px] font-semibold tracking-[0.18em] text-accent uppercase">Helm</div>
         <h1 className="text-[20px] leading-tight font-semibold">{title}</h1>
         {subtitle && <div className="mt-0.5 text-[12px] text-muted">{subtitle}</div>}
       </div>
-      <div className="text-right text-[10.5px] text-faint">
-        Generated
+      <div className="shrink-0 pl-6 text-right text-[10.5px] whitespace-nowrap text-faint">
+        {t("reports.generated")}
         <br />
-        {new Date().toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}
+        {new Date().toLocaleString(locale(), { dateStyle: "medium", timeStyle: "short" })}
       </div>
     </header>
   );
@@ -48,7 +59,7 @@ function Figures({ items }: { items: [string, ReactNode, ReactNode?][] }) {
 }
 
 function Footer() {
-  return <footer className="mt-5 border-t border-line pt-2 text-[9.5px] text-faint">Numbers come from Claude Code on this PC. Context figures marked "estimate" are approximate; costs are what Claude Code reports.</footer>;
+  return <footer className="mt-5 border-t border-line pt-2 text-[9.5px] text-faint">{t("reports.footer")}</footer>;
 }
 
 export function SessionPrint({ pane, report: r, b }: { pane: Pane; report: SessionReport | null; b: Breakdown | null }) {
@@ -58,28 +69,32 @@ export function SessionPrint({ pane, report: r, b }: { pane: Pane; report: Sessi
   return (
     <div className="print-page">
       <Header
-        title={`${folderName(pane.cwd)} · session report`}
+        title={t("reports.session.title", { project: folderName(pane.cwd) })}
         subtitle={
           <>
-            {cleanTitle(pane.title) || "Conversation"} · {model ? modelLabel(model) : "Claude"}
-            {pane.stats?.effort && ` · ${pane.stats.effort} effort`}
-            {r?.started && ` · ${new Date(r.started).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })} – ${clock(r.last)}`}
+            {cleanTitle(pane.title) || t("reports.session.conversation")} · {model ? modelLabel(model) : "Claude"}
+            {pane.stats?.effort && ` · ${t("reports.session.effort", { effort: pane.stats.effort })}`}
+            {r?.started && <div>{timeRange(r.started, r.last)}</div>}
           </>
         }
       />
       {b && (
-        <Block title={`Context window · ${b.exact ? "exact" : "estimate"}`}>
+        <Block title={b.exact ? t("reports.session.contextExact") : t("reports.session.contextEstimate")}>
           <div className="mb-2 text-[13px]">
-            <span className="text-[18px] font-semibold">{tokens(b.used)}</span> of {tokens(b.window)} tokens ({((b.used / b.window) * 100).toFixed(1)}%)
+            <Trans
+              i18nKey="reports.session.usedOf"
+              values={{ used: tokens(b.used), window: tokens(b.window), pct: ((b.used / b.window) * 100).toFixed(1) }}
+              components={[<span className="text-[18px] font-semibold" />]}
+            />
           </div>
           <ContextBar b={b} />
           {b.exact && b.details.length > 0 && (
             <table className="mt-3">
               <thead>
                 <tr>
-                  <th>Category</th>
-                  <th className="num">Tokens</th>
-                  <th className="num">Of window</th>
+                  <th>{t("reports.session.category")}</th>
+                  <th className="num">{t("reports.session.tokens")}</th>
+                  <th className="num">{t("reports.session.ofWindow")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -96,40 +111,40 @@ export function SessionPrint({ pane, report: r, b }: { pane: Pane; report: Sessi
         </Block>
       )}
       {r && r.series.length > 1 && (
-        <Block title={`How the context grew${r.compactions ? ` · compacted ${r.compactions}×` : ""}`}>
+        <Block title={r.compactions ? t("reports.session.grewCompacted", { count: r.compactions }) : t("reports.session.grew")}>
           <GrowthChart series={r.series} height={64} />
         </Block>
       )}
       {r && (
-        <Block title="Tokens">
+        <Block title={t("reports.session.tokens")}>
           <Figures
             items={[
-              ["Sent (new)", tokens(r.inputTokens)],
-              ["From cache", tokens(r.cacheReadTokens), hit != null ? `${hit}% cache hits` : undefined],
-              ["Written to cache", tokens(r.cacheWriteTokens)],
-              ["Claude wrote", tokens(r.outputTokens)],
+              [t("reports.session.sent"), tokens(r.inputTokens)],
+              [t("reports.session.fromCache"), tokens(r.cacheReadTokens), hit != null ? t("reports.session.cacheHits", { pct: hit }) : undefined],
+              [t("reports.session.writtenToCache"), tokens(r.cacheWriteTokens)],
+              [t("reports.session.claudeWrote"), tokens(r.outputTokens)],
             ]}
           />
         </Block>
       )}
-      <Block title="Activity">
+      <Block title={t("reports.session.activity")}>
         <Figures
           items={[
-            ["Your messages", r?.prompts ?? "–", r ? `${r.replies} replies` : undefined],
-            ["Tool calls", r?.toolCalls ?? "–"],
-            ["Time working", duration(r?.activeMs)],
-            ["Cost", money(pane.stats?.costUsd ?? r?.costUsd), `+${pane.stats?.linesAdded ?? r?.linesAdded ?? 0} −${pane.stats?.linesRemoved ?? r?.linesRemoved ?? 0} lines`],
+            [t("reports.session.yourMessages"), r?.prompts ?? "–", r ? t("reports.replies", { count: r.replies }) : undefined],
+            [t("reports.session.toolCalls"), r?.toolCalls ?? "–"],
+            [t("reports.timeWorking"), duration(r?.activeMs)],
+            [t("reports.cost"), money(pane.stats?.costUsd ?? r?.costUsd), t("reports.session.lines", { added: pane.stats?.linesAdded ?? r?.linesAdded ?? 0, removed: pane.stats?.linesRemoved ?? r?.linesRemoved ?? 0 })],
           ]}
         />
       </Block>
       {r && r.tools.length > 0 && (
-        <Block title="Tools Claude used">
+        <Block title={t("reports.session.toolsUsed")}>
           <table>
             <tbody>
-              {r.tools.map((t) => (
-                <tr key={t.name}>
-                  <td className="font-mono">{t.name}</td>
-                  <td className="num">{t.count}</td>
+              {r.tools.map((tool) => (
+                <tr key={tool.name}>
+                  <td className="font-mono">{tool.name}</td>
+                  <td className="num">{tool.count}</td>
                 </tr>
               ))}
             </tbody>
@@ -141,30 +156,36 @@ export function SessionPrint({ pane, report: r, b }: { pane: Pane; report: Sessi
   );
 }
 
-const windowName = (key: string) => (key.startsWith("five_hour") ? "5-hour" : key.startsWith("seven_day") ? "Weekly" : key.replace(/_/g, " "));
+const windowName = (key: string) => (key.startsWith("five_hour") ? t("usage.window.fiveHour") : key.startsWith("seven_day") ? t("usage.window.weekly") : key.replace(/_/g, " "));
 
-export function UsagePrint({ usage, totals, sessions }: { usage: Usage | null; totals: UsageTotals | null; sessions: Pane[] }) {
+export function UsagePrint({ usage, totals, sessions, rangeDays = 7, homeDir = "" }: { usage: Usage | null; totals: UsageTotals | null; sessions: Pane[]; rangeDays?: number; homeDir?: string }) {
   const limits: [string, Usage["fiveHour"]][] = usage
     ? ([
-        ["5-hour limit", usage.fiveHour],
-        ["Weekly limit (all models)", usage.sevenDay],
+        [t("reports.usage.fiveHourLimit"), usage.fiveHour],
+        [t("reports.usage.weeklyLimit"), usage.sevenDay],
         ...Object.entries(usage.other ?? {}).map(([k, w]) => [`${windowName(k)} · ${k.replace(/^(five_hour|seven_day)_?/, "")}`, w] as [string, Usage["fiveHour"]]),
-        ["Spend limit", usage.spend],
+        [t("reports.usage.spendLimit"), usage.spend],
       ] as [string, Usage["fiveHour"]][]).filter(([, w]) => w)
     : [];
-  const days = totals?.days ?? [];
+  // Only days inside the chosen range, oldest first.
+  const first = new Date();
+  first.setDate(first.getDate() - (rangeDays - 1));
+  const from = first.toLocaleDateString("en-CA");
+  const days = (totals?.days ?? []).filter((d) => d.day >= from);
   const sum = (k: keyof (typeof days)[number]) => days.reduce((n, d) => n + (d[k] as number), 0);
+  const span = `${first.toLocaleDateString(locale(), { month: "short", day: "numeric" })} – ${new Date().toLocaleDateString(locale(), { month: "short", day: "numeric", year: "numeric" })}`;
+  const project = (key: string) => (homeDir && key.toLowerCase() === homeDir.toLowerCase() ? t("reports.usage.noProject", { name: folderName(key) }) : folderName(key));
   return (
     <div className="print-page">
-      <Header title="Claude usage report" subtitle="Last 7 days on this PC" />
+      <Header title={t("reports.usage.title")} subtitle={t("reports.usage.subtitle", { count: rangeDays, span })} />
       {limits.length > 0 && (
-        <Block title="Usage limits">
+        <Block title={t("reports.usage.limits")}>
           <table>
             <thead>
               <tr>
-                <th>Limit</th>
-                <th className="num">Used</th>
-                <th>Resets</th>
+                <th>{t("reports.usage.limit")}</th>
+                <th className="num">{t("reports.usage.used")}</th>
+                <th>{t("reports.usage.resets")}</th>
               </tr>
             </thead>
             <tbody>
@@ -172,41 +193,41 @@ export function UsagePrint({ usage, totals, sessions }: { usage: Usage | null; t
                 <tr key={label}>
                   <td>{label}</td>
                   <td className="num">{Math.round(w!.pct)}%</td>
-                  <td>{w!.idle ? "Starts with the next message" : w!.resetsAt ? new Date(w!.resetsAt * 1000).toLocaleString([], { weekday: "short", hour: "numeric", minute: "2-digit" }) : "–"}</td>
+                  <td>{w!.idle ? t("reports.usage.startsNext") : w!.resetsAt ? new Date(w!.resetsAt * 1000).toLocaleString(locale(), { weekday: "short", hour: "numeric", minute: "2-digit" }) : "–"}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </Block>
       )}
-      <Block title="Totals">
+      <Block title={t("reports.usage.totals")}>
         <Figures
           items={[
-            ["Cost", money(sum("costUsd"))],
-            ["Tokens", tokens(sum("inputTokens") + sum("cacheWriteTokens") + sum("outputTokens")), `${tokens(sum("cacheReadTokens"))} from cache`],
-            ["Time working", duration(sum("activeMs")), `${sum("replies")} replies`],
-            ["Lines changed", `+${sum("linesAdded")} −${sum("linesRemoved")}`],
+            [t("reports.cost"), money(sum("costUsd"))],
+            [t("reports.usage.tokens"), tokens(sum("inputTokens") + sum("cacheWriteTokens") + sum("outputTokens")), t("reports.usage.fromCacheSub", { tokens: tokens(sum("cacheReadTokens")) })],
+            [t("reports.timeWorking"), duration(sum("activeMs")), t("reports.replies", { count: sum("replies") })],
+            [t("reports.usage.linesChanged"), `+${sum("linesAdded")} −${sum("linesRemoved")}`],
           ]}
         />
       </Block>
       {days.length > 0 && (
-        <Block title="By day">
+        <Block title={t("reports.usage.byDay")}>
           <table>
             <thead>
               <tr>
-                <th>Day</th>
-                <th className="num">Cost</th>
-                <th className="num">Tokens</th>
-                <th className="num">From cache</th>
-                <th className="num">Time</th>
-                <th className="num">Lines</th>
-                <th className="num">Sessions</th>
+                <th>{t("reports.usage.col.day")}</th>
+                <th className="num">{t("reports.cost")}</th>
+                <th className="num">{t("reports.usage.tokens")}</th>
+                <th className="num">{t("reports.usage.col.fromCache")}</th>
+                <th className="num">{t("reports.usage.col.time")}</th>
+                <th className="num">{t("reports.usage.col.lines")}</th>
+                <th className="num">{t("reports.usage.col.conversations")}</th>
               </tr>
             </thead>
             <tbody>
               {days.map((d) => (
                 <tr key={d.day}>
-                  <td>{new Date(`${d.day}T12:00:00`).toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" })}</td>
+                  <td>{new Date(`${d.day}T12:00:00`).toLocaleDateString(locale(), { weekday: "short", month: "short", day: "numeric" })}</td>
                   <td className="num">{money(d.costUsd)}</td>
                   <td className="num">{tokens(d.inputTokens + d.cacheWriteTokens + d.outputTokens)}</td>
                   <td className="num">{tokens(d.cacheReadTokens)}</td>
@@ -223,12 +244,12 @@ export function UsagePrint({ usage, totals, sessions }: { usage: Usage | null; t
       )}
       {totals && totals.byProject.length > 0 && (
         <div className="grid grid-cols-2 gap-6">
-          <Block title="By project">
+          <Block title={t("reports.usage.byProject")}>
             <table>
               <tbody>
                 {totals.byProject.slice(0, 12).map((g) => (
                   <tr key={g.key}>
-                    <td>{folderName(g.key)}</td>
+                    <td>{project(g.key)}</td>
                     <td className="num">{money(g.costUsd)}</td>
                     <td className="num">{tokens(g.tokens)}</td>
                   </tr>
@@ -236,7 +257,7 @@ export function UsagePrint({ usage, totals, sessions }: { usage: Usage | null; t
               </tbody>
             </table>
           </Block>
-          <Block title="By model">
+          <Block title={t("reports.usage.byModel")}>
             <table>
               <tbody>
                 {totals.byModel.map((g) => (
@@ -252,15 +273,15 @@ export function UsagePrint({ usage, totals, sessions }: { usage: Usage | null; t
         </div>
       )}
       {sessions.length > 0 && (
-        <Block title="Open Claude sessions">
+        <Block title={t("reports.usage.openConversations")}>
           <table>
             <thead>
               <tr>
-                <th>Project</th>
-                <th>Conversation</th>
-                <th>Model</th>
-                <th className="num">Context</th>
-                <th className="num">Cost</th>
+                <th>{t("reports.usage.col.project")}</th>
+                <th>{t("reports.usage.col.conversation")}</th>
+                <th>{t("reports.usage.col.model")}</th>
+                <th className="num">{t("reports.usage.col.context")}</th>
+                <th className="num">{t("reports.cost")}</th>
               </tr>
             </thead>
             <tbody>

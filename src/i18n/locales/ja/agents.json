@@ -1,0 +1,431 @@
+{
+  "agents": {
+    "title": "エージェント",
+    "noTabs": "開いている Claude タブはありません。",
+    "summary_other": "{{count}} 個のセッションを開いています · {{working}} 個が作業中 · {{waiting}} 個が応答待ち",
+    "tabs": {
+      "live": "ライブ",
+      "usage": "使用量"
+    },
+    "exportTitle_other": "過去 {{count}} 日間 (上限、合計、プロジェクト、会話) を PDF として保存",
+    "exportPdf": "PDF をエクスポート…",
+    "newParallelTask": "新しい並列タスク…",
+    "replies_other": "{{n}} 件の返信",
+    "live": {
+      "newConversation": "新しい会話",
+      "waitingForYou": "応答待ち",
+      "workingNow": "作業中…",
+      "finishedYourTurn": "完了しました。次はあなたの番です",
+      "ready": "準備完了",
+      "task": "タスク",
+      "contextTitle": "コンテキスト: {{window}} の {{pct}}%",
+      "contextPending": "コンテキストは Claude の最初の返信の後に表示されます",
+      "goToTab": "このタブに移動",
+      "column": {
+        "conversation": "会話",
+        "doingNow": "現在の作業",
+        "context": "コンテキスト",
+        "cost": "コスト",
+        "lastActive": "最終アクティブ"
+      },
+      "group": {
+        "needsYou": "応答待ち",
+        "working": "作業中",
+        "finished": "完了",
+        "ready": "準備完了"
+      },
+      "waitingApproval": "承認待ち",
+      "empty": "いくつかのタブや並列タスクで Claude を開始してください。それぞれがここに表示され、作業内容と応答が必要かどうかがわかります。",
+      "startClaude": "Claude を開始",
+      "clickHint": "会話をクリックすると、経過、変更したファイル、コンテキスト、コストを確認できます。"
+    },
+    "today": {
+      "title": "今日",
+      "reading": "今日の会話を読み込んでいます…",
+      "repliesSoFar_other": "これまでに {{n}} 件の返信",
+      "noWork": "今日はまだ作業がありません",
+      "tooltip_other": "{{time}} · {{n}} 件の返信",
+      "note": "各バーは 15 分間で、午前 0 時から現在までを表します (下部に時刻)。"
+    },
+    "usage": {
+      "lastDays_other": "過去 {{count}} 日間",
+      "source": "この PC 上のすべての Claude Code の会話から集計しています。Claude Code は会話を 30 日間保持します。",
+      "kpi": {
+        "cost": "コスト",
+        "costPerDay": "1 日平均 {{amount}}",
+        "tokens": "トークン",
+        "cached": "ほかにキャッシュから再読み込み {{tokens}}",
+        "cachedWithHit": "ほかにキャッシュから再読み込み {{tokens}} (入力の {{pct}}%)",
+        "time": "Claude の作業時間",
+        "lines": "変更行数"
+      },
+      "chart": {
+        "costPerDay": "1 日あたりのコスト",
+        "tokensPerDay": "1 日あたりのトークン",
+        "timePerDay": "1 日あたりの Claude の作業時間"
+      },
+      "metric": {
+        "cost": "コスト",
+        "tokens": "トークン",
+        "time": "時間"
+      },
+      "byProject": "プロジェクト別",
+      "byProjectNote": "Claude が変更したファイルに基づく",
+      "noProject": "{{name}} (プロジェクトなし)",
+      "homeFolderTitle": "ホーム フォルダーでの会話のうち、プロジェクト内のファイルを編集しなかったもの",
+      "noWork": "この期間の作業はありません。",
+      "byModel": "モデル別",
+      "whenYouWork": "Claude と作業する時間帯",
+      "busiest": "最も多いのは {{hour}} ごろ",
+      "hourTooltip_other": "{{from}}–{{to}} · {{n}} 件の返信"
+    }
+  },
+  "background": {
+    "duration": {
+      "seconds": "{{s}}秒",
+      "minutesSeconds": "{{m}}分{{s}}秒",
+      "hoursMinutes": "{{h}}時間{{m}}分"
+    },
+    "state": {
+      "running": "作業中",
+      "done": "完了",
+      "failed": "失敗",
+      "stopped": "停止"
+    },
+    "answer": "回答",
+    "result": "結果",
+    "fullOutput": "すべての出力",
+    "earlierSteps_other": "以前のステップ {{count}} 個",
+    "subagent": "サブエージェント",
+    "command": "コマンド",
+    "inBackground": "バックグラウンド",
+    "steps_other": "{{count}} ステップ",
+    "running": "実行中…",
+    "gettingStarted": "開始しています…",
+    "finishedNoAnswer": "書かれた回答なしで完了しました。",
+    "finishedCommand": "完了しました。出力は Claude に渡されています。",
+    "activity": "アクティビティ",
+    "goToTab": "このタブに移動",
+    "thisTab": "このタブ",
+    "workingCount_other": "{{count}} 個が作業中",
+    "empty": {
+      "title": "バックグラウンドの作業はまだありません",
+      "text": "Claude がサブエージェントやバックグラウンド コマンドを開始すると、ここに表示されます。現在の作業内容、実行時間、回答を確認できます。"
+    },
+    "filter": {
+      "all": "すべて"
+    },
+    "clearFinishedTitle": "完了したサブエージェントとコマンドをこの一覧から削除",
+    "clearFinished": "完了したものをクリア",
+    "nothingWorking": "現在作業中のものはありません。",
+    "nothingFinished": "まだ完了したものはありません。"
+  },
+  "sessionDetail": {
+    "dialogLabel": "会話の詳細",
+    "newConversation": "新しい会話",
+    "effort": "労力: {{effort}}",
+    "started": "{{time}} に開始",
+    "savePdfTitle": "このレポートを PDF として保存",
+    "savePdf": "PDF として保存…",
+    "goToTab": "このタブに移動",
+    "openTab": "タブを開く",
+    "continueTitle": "この会話をタブで続ける",
+    "continue": "続ける",
+    "reading": "会話を読み込んでいます…",
+    "noTranscript": "この会話にはまだ保存された記録がありません。",
+    "stat": {
+      "cost": "コスト",
+      "worked": "Claude の作業時間",
+      "messages": "メッセージ",
+      "messagesSub": "自分のメッセージ → Claude の返信",
+      "filesChanged": "変更したファイル"
+    },
+    "tabs": {
+      "happened": "経過",
+      "files": "ファイル",
+      "context": "コンテキスト",
+      "cost": "コストとトークン"
+    },
+    "toast": {
+      "busyRetry": "このタブでは Claude が作業中です。完了してからもう一度お試しください。",
+      "busyCompact": "このタブでは Claude が作業中です。完了してから圧縮してください。",
+      "askedExact": "Claude に正確な数値を問い合わせました。まもなくここに表示されます。",
+      "sentCommand": "{{cmd}} をこのタブに送信しました。"
+    },
+    "happened": {
+      "empty": "まだ何もありません。最初のメッセージの後にステップが表示されます。",
+      "you": "自分 · {{time}}",
+      "showEarlier_other": "以前のステップ {{count}} 個を表示"
+    },
+    "files": {
+      "empty": "この会話で Claude が編集または作成したファイルはありません。",
+      "summary_other": "{{count}} 個のファイル · Claude の編集で <0>+{{added}}</0> <1>−{{removed}}</1> 行",
+      "clickToOpen": "クリックして開く",
+      "new": "新規",
+      "edits_other": "{{count}} 回の編集",
+      "note": "Claude の編集回数から集計するため、2 回変更された行は 2 回と数えます。Git との差分はサイド パネルの [変更] で確認できます。"
+    },
+    "context": {
+      "title": "コンテキストの内訳",
+      "usedAria": "{{window}} トークン中 {{used}} トークンを使用",
+      "usedOf": "{{used}}/{{window}} トークン",
+      "setupTitle": "セットアップ: {{tokens}}",
+      "conversationTitle": "会話: {{tokens}}",
+      "reserveTitle": "自動圧縮用に予約: {{tokens}}",
+      "setup": "セットアップ",
+      "setupHint": "システム プロンプト、ツール、MCP、メモリ ファイル、スキル: すべてのメッセージと一緒に送信されます",
+      "conversation": "会話",
+      "conversationHint": "自分のメッセージ、Claude の返信、ツールの結果",
+      "reserve": "自動圧縮用の予約",
+      "reserveHint": "コンテキストがいっぱいになったときに Claude が会話を要約できるよう空けてある領域",
+      "free": "空き",
+      "setupNote": "セットアップとは、すべてのメッセージと一緒に送信されるシステム プロンプト、ツール、MCP、メモリ ファイル、スキルのことです。",
+      "exactTitle": "このタブで /context を実行し (無料)、Claude の正確な数値を読み取ります",
+      "refreshExact": "正確な数値を更新",
+      "getExact": "正確な数値を取得",
+      "pending": "Claude の最初の返信の後に表示されます。",
+      "exact": "正確 · {{time}}",
+      "estimate": "推定",
+      "adviceFull": "ほぼいっぱいです。まもなく Claude が古いメッセージを自動的に要約します。タイミングを自分で決めるには今すぐ圧縮するか、次のタスクは新しい会話で始めてください。",
+      "adviceHalf": "半分を超えています。メッセージごとにこの内容がすべて再送信されるため、長い会話ほど遅くなり、コストも増えます。このタスクが終わったら圧縮してください。",
+      "adviceRoom": "まだ十分な空きがあります。",
+      "compactNow": "今すぐ圧縮",
+      "newConversation": "新しい会話を開始",
+      "estimatedOpen": "会話から推定しています。[正確な数値を取得] を押すと、このタブで Claude の無料の /context コマンドを実行します。",
+      "estimatedPast": "会話から推定しています。タブで会話を続けると、Claude の正確な数値を取得できます。"
+    },
+    "growth": {
+      "title": "増え方",
+      "peak": "最大 {{tokens}}",
+      "tooltip": "返信 {{n}} · コンテキスト <0>{{tokens}}</0> · {{time}}",
+      "compacted_other": "{{count}} 回圧縮"
+    },
+    "cost": {
+      "title": "コスト",
+      "thisConversation": "この会話",
+      "asReported": "Claude の報告値",
+      "perMessage": "メッセージあたり",
+      "onAverage": "平均",
+      "linesChanged": "変更行数"
+    },
+    "tokens": {
+      "title": "トークン",
+      "sent": "送信 (新規)",
+      "cacheRead": "キャッシュから再読み込み",
+      "cacheWrite": "キャッシュに保存",
+      "output": "Claude の出力",
+      "cacheHits": "キャッシュ ヒット",
+      "hitPct": "送信量の {{pct}}%",
+      "cacheNote": "キャッシュからの再読み込みは、新しく送信する場合の約 10 分の 1 のコストで済むため、この数値は高いほど良好です。",
+      "warmUntil": "キャッシュは {{time}} まで有効です。それまでに返信すると安くなります。",
+      "warm": "キャッシュは有効です。期限切れになる前に返信すると安くなります。",
+      "cold": "キャッシュの有効期限が切れました。次のメッセージでは会話全体が再読み込みされます。"
+    },
+    "tools": {
+      "title": "Claude が使用したツール · {{count}}"
+    }
+  },
+  "inspector": {
+    "tabs": {
+      "changes": "変更",
+      "background": "バックグラウンド",
+      "details": "詳細"
+    },
+    "closePanel": "パネルを閉じる",
+    "closeShortcut": "閉じる (Ctrl+Shift+G)",
+    "details": {
+      "projectFolder": "プロジェクト フォルダー",
+      "openProject": "プロジェクトを開く",
+      "openInNewTab": "新しいタブで開く",
+      "editCount_other": "{{count}} 回の編集",
+      "readCount_other": "{{count}} 回",
+      "search": "検索",
+      "copyLink": "リンクをコピー",
+      "noClaude": {
+        "title": "ここに Claude の会話はありません",
+        "text": "Claude タブを開くと、添付したスクリーンショットとファイル、Claude が読み取り・変更・参照したファイルを確認できます。"
+      },
+      "nothingYet": {
+        "title": "まだ何もありません",
+        "text": "この会話の最初のメッセージの後に詳細が表示されます。"
+      },
+      "nothingUsed": {
+        "title": "添付・使用されたものはまだありません",
+        "text": "貼り付けたスクリーンショット、@ で指定したファイル、この会話で Claude が読み取ったり変更したりしたものがすべてここに表示されます。"
+      },
+      "stat": {
+        "changed": "変更",
+        "read": "読み取り",
+        "attached": "添付",
+        "web": "Web"
+      },
+      "group": {
+        "changed": "Claude が変更したファイル",
+        "screenshots": "貼り付けたスクリーンショット",
+        "mentioned": "添付したファイル",
+        "read": "Claude が読み取ったファイル",
+        "web": "Web ページと検索",
+        "subagents": "使用したサブエージェント",
+        "mcp": "使用した MCP ツール"
+      },
+      "pastedScreenshot": "貼り付けたスクリーンショット {{n}}",
+      "screenshot": "スクリーンショット"
+    }
+  },
+  "changes": {
+    "status": {
+      "changed": "変更",
+      "added": "追加",
+      "new": "新規",
+      "deleted": "削除",
+      "renamed": "名前変更"
+    },
+    "revert": {
+      "deleteNewMessage": "次の新しいファイルを削除します:\n\n{{path}}\n\nこの操作は元に戻せません。",
+      "undoMessage": "このファイルへのすべての変更を元に戻します:\n\n{{path}}\n\nこの操作は元に戻せません。",
+      "title": "変更を元に戻しますか?",
+      "deleteFile": "ファイルを削除",
+      "undoChanges": "変更を元に戻す"
+    },
+    "reviewComments_other": "{{count}} 件のレビュー コメント",
+    "clear": "クリア",
+    "sendToClaude": "Claude に送信",
+    "filesSinceCommit_other": "前回のコミット以降 {{count}} 個のファイル",
+    "noTab": "タブを開くと変更が表示されます。",
+    "notRepo": "このフォルダーは Git リポジトリではありません。Helm は Git を使って変更内容の表示と取り消しを行います。有効にするには、ここで <0>git init</0> を実行してください。",
+    "noChanges": "前回のコミット以降の変更はありません。",
+    "fileTitle": "{{status}}: {{path}}",
+    "undoFileNamed": "{{path}} の変更を元に戻す",
+    "undoFile": "このファイルの変更を元に戻す",
+    "openClaudeFirst": "先にこのプロジェクトで Claude を開いてから、コメントを送信してください。",
+    "sentComments_other": "{{count}} 件のレビュー コメントを Claude に送信しました。",
+    "commentOnLine": "この行にコメント",
+    "commentPlaceholder": "ここで Claude に何を変更してほしいですか? (Enter で追加、Shift+Enter で改行)",
+    "addComment": "コメントを追加",
+    "hunk": {
+      "message": "ファイルのこの部分を元に戻しますか? ファイル内のほかの変更はそのまま残ります。",
+      "title": "この部分を元に戻しますか?",
+      "ok": "部分的に元に戻す",
+      "done": "ファイルのその部分を元に戻しました。",
+      "button": "この部分を元に戻す"
+    },
+    "sendComments_other": "{{count}} 件のコメントを Claude に送信",
+    "undoFileChanges": "ファイルの変更を元に戻す",
+    "closeDiff": "差分を閉じる",
+    "closeEsc": "閉じる (Esc)",
+    "before": "変更前 (前回のコミット)",
+    "now": "現在 <0>· 行番号をクリックしてコメント</0>",
+    "binary": "バイナリ ファイルのため、比較するテキストがありません。",
+    "noTextChanged": "テキストは変更されていません。ファイルのアクセス許可または名前だけが変更されました。",
+    "removeComment": "コメントを削除"
+  },
+  "reports": {
+    "generated": "作成日時",
+    "footer": "数値はこの PC 上の Claude Code から取得しています。「推定」と記載されたコンテキストの数値は概算で、コストは Claude Code が報告した値です。",
+    "cost": "コスト",
+    "timeWorking": "作業時間",
+    "replies_other": "{{count}} 件の返信",
+    "session": {
+      "title": "{{project}} · 会話レポート",
+      "conversation": "会話",
+      "effort": "労力: {{effort}}",
+      "contextExact": "コンテキスト ウィンドウ · 正確",
+      "contextEstimate": "コンテキスト ウィンドウ · 推定",
+      "usedOf": "<0>{{used}}</0>/{{window}} トークン ({{pct}}%)",
+      "category": "カテゴリ",
+      "tokens": "トークン",
+      "ofWindow": "ウィンドウ比",
+      "grew": "コンテキストの増え方",
+      "grewCompacted_other": "コンテキストの増え方 · {{count}} 回圧縮",
+      "sent": "送信 (新規)",
+      "fromCache": "キャッシュから",
+      "cacheHits": "キャッシュ ヒット率 {{pct}}%",
+      "writtenToCache": "キャッシュに書き込み",
+      "claudeWrote": "Claude の出力",
+      "activity": "アクティビティ",
+      "yourMessages": "自分のメッセージ",
+      "toolCalls": "ツールの呼び出し",
+      "lines": "+{{added}} −{{removed}} 行",
+      "toolsUsed": "Claude が使用したツール"
+    },
+    "usage": {
+      "fiveHourLimit": "5 時間の上限",
+      "weeklyLimit": "週間の上限 (すべてのモデル)",
+      "spendLimit": "支出の上限",
+      "noProject": "{{name}} (プロジェクトなし)",
+      "title": "Claude 使用量レポート",
+      "subtitle_other": "この PC での過去 {{count}} 日間 · {{span}}",
+      "limits": "使用量の上限",
+      "limit": "上限",
+      "used": "使用済み",
+      "resets": "リセット",
+      "startsNext": "次のメッセージで開始",
+      "totals": "合計",
+      "tokens": "トークン",
+      "fromCacheSub": "キャッシュから {{tokens}}",
+      "linesChanged": "変更行数",
+      "byDay": "日別",
+      "col": {
+        "day": "日",
+        "fromCache": "キャッシュから",
+        "time": "時間",
+        "lines": "行",
+        "conversations": "会話",
+        "project": "プロジェクト",
+        "conversation": "会話",
+        "model": "モデル",
+        "context": "コンテキスト"
+      },
+      "byProject": "プロジェクト別",
+      "byModel": "モデル別",
+      "openConversations": "開いている Claude の会話"
+    }
+  },
+  "usage": {
+    "window": {
+      "fiveHour": "5 時間",
+      "weekly": "週間"
+    },
+    "title": "使用量の上限",
+    "startsWithNextMessage": "次のメッセージで開始",
+    "resetsIn": "{{time}}後にリセット · {{clock}}",
+    "notYet": "いずれかのタブで Claude が次に返信した後に表示されます。上限は Claude Pro プランと Max プラン (およびチームの支出の上限) で表示されます。独自の Claude ステータス ラインを設定している場合、Helm はそれを変更しないため、上限を表示できません。",
+    "turnedOff": "[設定] → [Helm での Claude] でオフになっています。",
+    "updated": "{{ago}}に更新",
+    "fiveHourLimit": "5 時間の上限",
+    "currentSession": "現在のセッション",
+    "weeklyLimit": "週間の上限",
+    "allModels": "すべてのモデル",
+    "spendLimit": "支出の上限",
+    "spendOf": "${{used}}/${{limit}}",
+    "byTab": "この 5 時間枠のタブ別内訳 (概算)",
+    "duration": {
+      "hoursMinutes": "{{h}}時間{{m}}分",
+      "minutes": "{{m}}分"
+    },
+    "pace": {
+      "weekJustStarted": "新しい週が始まったところです",
+      "even": "均等なペースです (週の {{pct}}% が経過)",
+      "ahead_other": "均等なペースより {{count}} ポイント速いペースです",
+      "under_other": "均等なペースより {{count}} ポイント遅いペースです",
+      "soon": "数分作業するとペースが表示されます",
+      "eta": "このペースだと約 {{time}}で上限に達します",
+      "perHour": "1 時間あたり約 {{rate}}% · リセットまでに上限に達することはありません"
+    },
+    "history": {
+      "title": "使用履歴",
+      "showChart": "グラフを表示",
+      "showTable": "表で表示",
+      "subtitle": "毎日使用した週間の上限の割合 · 過去 7 日間: {{pct}}%",
+      "empty": "これ以降、Helm が使用量を記録します。1 日作業した後に確認してください。",
+      "day": "日",
+      "weeklyUsed": "週間の上限の使用量",
+      "chartLabel": "週間の上限に対する 1 日ごとの割合 (過去 14 日間)",
+      "tooltip": "<0>{{pct}}%</0> <1>(週間の上限) · {{day}}</1>",
+      "mostUsed": "今週最も使用"
+    }
+  },
+  "charts": {
+    "barChartLabel": "棒グラフ、最大値 {{max}}"
+  }
+}

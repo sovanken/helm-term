@@ -1,7 +1,8 @@
 import { useId } from "react";
-import { FolderOpen, Sparkles, SquareTerminal } from "lucide-react";
+import { FolderOpen, Sparkles } from "lucide-react";
 import { defaultFolder, folderName, useStore } from "../state/store";
 import { chooseFolder } from "./TitleBar";
+import { useTranslation } from "react-i18next";
 
 /** Helm's logo: two stacked terminal panes, the front one showing a prompt. */
 export function HelmMark({ size = 40 }: { size?: number }) {
@@ -26,6 +27,7 @@ export function HelmMark({ size = 40 }: { size?: number }) {
 }
 
 export function Welcome() {
+  const { t } = useTranslation();
   const recent = useStore((s) => s.recent);
   const pinned = useStore((s) => s.pinned);
   const { openTab } = useStore.getState();
@@ -38,7 +40,7 @@ export function Welcome() {
           <HelmMark size={36} />
           <div>
             <h1 className="text-xl font-semibold text-fg">Helm</h1>
-            <p className="text-muted">A terminal made for Claude Code</p>
+            <p className="text-muted">{t("welcome.tagline")}</p>
           </div>
         </div>
 
@@ -47,19 +49,19 @@ export function Welcome() {
             onClick={() => void chooseFolder("claude")}
             className="flex items-center gap-2.5 rounded-lg bg-accent px-3 py-2.5 font-medium text-on-accent hover:opacity-90"
           >
-            <FolderOpen size={16} /> Open folder with Claude
+            <FolderOpen size={16} /> {t("welcome.openFolder")}
           </button>
           <button
-            onClick={() => openTab(defaultFolder(), "shell")}
+            onClick={() => openTab(defaultFolder(), "claude")}
             className="flex items-center gap-2.5 rounded-lg border border-line px-3 py-2.5 font-medium text-fg hover:bg-hover"
           >
-            <SquareTerminal size={16} /> New PowerShell tab
+            <Sparkles size={16} /> {t("common.newClaudeTab")}
           </button>
         </div>
 
         {list.length > 0 && (
           <>
-            <h2 className="mb-2 text-[11px] font-semibold tracking-wide text-faint uppercase">Continue a project</h2>
+            <h2 className="mb-2 text-[11px] font-semibold tracking-wide text-faint uppercase">{t("welcome.continueProject")}</h2>
             <div className="overflow-hidden rounded-lg border border-line">
               {list.map((p) => (
                 <button
@@ -79,8 +81,7 @@ export function Welcome() {
         )}
 
         <p className="mt-6 text-[12px] leading-relaxed text-faint">
-          Paste screenshots with Ctrl+V · drop files to insert their path · Shift+Enter for a new line · Ctrl+, for
-          settings and all shortcuts
+          {t("welcome.tips")}
         </p>
       </div>
     </div>

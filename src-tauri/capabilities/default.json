@@ -15,7 +15,12 @@
     "core:window:allow-is-maximized",
     "core:window:allow-request-user-attention",
     "core:window:allow-set-focus",
-    "opener:allow-open-url",
+    "core:window:allow-hide",
+    "core:window:allow-show",
+    {
+      "identifier": "opener:allow-open-url",
+      "allow": [{ "url": "https://*" }, { "url": "http://*" }, { "url": "mailto:*" }]
+    },
     "opener:allow-reveal-item-in-dir",
     {
       "identifier": "opener:allow-open-path",
@@ -38,6 +43,9 @@
     "core:webview:allow-set-webview-zoom",
     "autostart:allow-enable",
     "autostart:allow-disable",
-    "autostart:allow-is-enabled"
+    "autostart:allow-is-enabled",
+    "global-shortcut:allow-register",
+    "global-shortcut:allow-unregister",
+    "global-shortcut:allow-is-registered"
   ]
 }

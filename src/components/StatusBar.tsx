@@ -1,3 +1,4 @@
+import { DeviceChip } from "./DeviceChip";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import {
@@ -24,6 +25,8 @@ import { shellLabel, useShells } from "../lib/shells";
 import { activePane, folderName, useStore } from "../state/store";
 import { readBuffer, typeCommand } from "../terminal/terminals";
 import { Menu, type MenuItem } from "./Menu";
+import { useTranslation } from "react-i18next";
+import { locale } from "../i18n";
 
 /** "claude-opus-5-5" → "Opus 5.5" */
 export function modelLabel(model?: string) {
@@ -34,38 +37,41 @@ export function modelLabel(model?: string) {
 }
 
 function formatTokens(n: number) {
-  return n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : n >= 1000 ? `${Math.round(n / 1000)}k` : String(n);
+  const num = (v: number, digits = 0) => v.toLocaleString(locale(), { minimumFractionDigits: digits, maximumFractionDigits: digits });
+  return n >= 1_000_000 ? `${num(n / 1_000_000, 1)}M` : n >= 1000 ? `${num(Math.round(n / 1000))}k` : num(n);
 }
 
-/** Every status bar item, in display order, with the label used in the right-click menu. */
+/** Every status bar item, in display order, with the label (translation key) used in the right-click menu. */
 export const STATUS_ITEMS = [
-  { id: "state", label: "Claude state", side: "left" },
-  { id: "folder", label: "Folder", side: "left" },
-  { id: "git", label: "Git branch, changes, push/pull", side: "left" },
-  { id: "pr", label: "Pull request", side: "left" },
-  { id: "task", label: "Parallel task", side: "left" },
-  { id: "mode", label: "Permission mode", side: "left" },
-  { id: "agents", label: "Other tabs", side: "right" },
-  { id: "cache", label: "Prompt cache timer", side: "right" },
-  { id: "effort", label: "Effort level", side: "right" },
-  { id: "usage", label: "Usage limits", side: "right" },
-  { id: "cost", label: "Cost and lines changed", side: "right" },
-  { id: "context", label: "Context used", side: "right" },
-  { id: "model", label: "Model", side: "right" },
+  { id: "state", label: "statusBar.items.state", side: "left" },
+  { id: "folder", label: "statusBar.items.folder", side: "left" },
+  { id: "device", label: "statusBar.items.device", side: "left" },
+  { id: "git", label: "statusBar.items.git", side: "left" },
+  { id: "pr", label: "statusBar.items.pr", side: "left" },
+  { id: "task", label: "statusBar.items.task", side: "left" },
+  { id: "mode", label: "statusBar.items.mode", side: "left" },
+  { id: "agents", label: "statusBar.items.agents", side: "right" },
+  { id: "cache", label: "statusBar.items.cache", side: "right" },
+  { id: "effort", label: "statusBar.items.effort", side: "right" },
+  { id: "usage", label: "statusBar.items.usage", side: "right" },
+  { id: "cost", label: "statusBar.items.cost", side: "right" },
+  { id: "context", label: "statusBar.items.context", side: "right" },
+  { id: "model", label: "statusBar.items.model", side: "right" },
 ] as const;
 
 type ItemId = (typeof STATUS_ITEMS)[number]["id"];
 
-const STATE_TEXT = { working: "Working", attention: "Needs you", done: "Finished", idle: "Ready" } as const;
+const STATE_TEXT = { working: "statusBar.state.working", attention: "statusBar.state.attention", done: "statusBar.state.done", idle: "statusBar.state.idle" } as const;
 
+/** `label` is a translation key. */
 const MODES: Record<string, { label: string; tone: string; danger?: boolean }> = {
-  default: { label: "Ask first", tone: "text-muted" },
-  manual: { label: "Ask first", tone: "text-muted" },
-  acceptEdits: { label: "Accept edits", tone: "text-working" },
-  plan: { label: "Plan only", tone: "text-done" },
-  auto: { label: "Auto", tone: "text-accent" },
-  dontAsk: { label: "Don't ask", tone: "text-attention" },
-  bypassPermissions: { label: "Bypass", tone: "text-danger", danger: true },
+  default: { label: "statusBar.mode.askFirst", tone: "text-muted" },
+  manual: { label: "statusBar.mode.askFirst", tone: "text-muted" },
+  acceptEdits: { label: "statusBar.mode.acceptEdits", tone: "text-working" },
+  plan: { label: "statusBar.mode.plan", tone: "text-done" },
+  auto: { label: "statusBar.mode.auto", tone: "text-accent" },
+  dontAsk: { label: "statusBar.mode.dontAsk", tone: "text-attention" },
+  bypassPermissions: { label: "statusBar.mode.bypass", tone: "text-danger", danger: true },
 };
 
 /** Claude's footer shows the mode right after a Shift+Tab, before any hook reports it. */
@@ -135,6 +141,7 @@ function Meter({ pct, className = "w-10" }: { pct: number; className?: string })
 }
 
 export function StatusBar() {
+  const { t } = useTranslation();
   useTick(15_000);
   const activeTabId = useStore((s) => s.activeTabId);
   const panes = useStore((s) => s.panes);
@@ -157,10 +164,10 @@ export function StatusBar() {
     let alive = true;
     const load = () => void ipc.gitSummary(cwd).then((g) => alive && setGit(g)).catch(() => {});
     load();
-    const t = setInterval(() => document.hasFocus() && load(), 6000);
+    const timer = setInterval(() => document.hasFocus() && load(), 6000);
     return () => {
       alive = false;
-      clearInterval(t);
+      clearInterval(timer);
     };
   }, [cwd, activity]);
 
@@ -168,12 +175,12 @@ export function StatusBar() {
   useEffect(() => {
     if (!pane || !claude || (!pane.transcriptPath && !pane.sessionId)) return setStats(null);
     let alive = true;
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       void ipc.sessionStats(pane.transcriptPath, pane.sessionId).then((s) => alive && setStats(s)).catch(() => {});
     }, 400);
     return () => {
       alive = false;
-      clearTimeout(t);
+      clearTimeout(timer);
     };
   }, [sessionKey, claude, activity]);
 
@@ -184,10 +191,10 @@ export function StatusBar() {
     s.updateSettings({ hiddenStatusItems: list.includes(id) ? list.filter((x) => x !== id) : [...list, id] });
   };
   const menuItems: MenuItem[] = STATUS_ITEMS.map((it, i) => ({
-    label: it.label,
+    label: t(it.label),
     checked: !hidden.includes(it.id),
     keepOpen: true,
-    heading: i === 0 ? "Show in status bar" : undefined,
+    heading: i === 0 ? t("statusBar.menuHeading") : undefined,
     onSelect: () => toggle(it.id),
   }));
 
@@ -212,7 +219,8 @@ export function StatusBar() {
   const othersWaiting = others.filter((p) => p.status === "attention" || approvals.some((a) => a.paneId === p.id)).length;
   const othersWorking = others.filter((p) => p.status === "working").length;
 
-  const mode = pane.permissionMode ? (MODES[pane.permissionMode] ?? { label: pane.permissionMode, tone: "text-muted" }) : null;
+  const known = pane.permissionMode ? MODES[pane.permissionMode] : undefined;
+  const mode = pane.permissionMode ? (known ? { ...known, label: t(known.label) } : { label: pane.permissionMode, tone: "text-muted" }) : null;
   const cycleMode = () => {
     void ipc.write(pane.id, "\x1b[Z"); // Shift+Tab
     setTimeout(() => {
@@ -240,13 +248,13 @@ export function StatusBar() {
           <Chip
             icon={<Sparkles size={12} />}
             tone={pane.status === "attention" ? "text-attention" : pane.status === "working" ? "text-working" : "text-accent"}
-            title="Claude in this tab"
+            title={t("statusBar.claudeHere")}
           >
-            {STATE_TEXT[pane.status]}
+            {t(STATE_TEXT[pane.status])}
           </Chip>
         ) : pane.kind === "browser" ? (
           <Chip icon={<Globe size={12} />} tone={pane.page?.loading ? "text-working" : undefined}>
-            {pane.page?.loading ? "Loading" : "Browser"}
+            {pane.page?.loading ? t("common.loading") : t("statusBar.browser")}
           </Chip>
         ) : (
           <Chip icon={<SquareTerminal size={12} />}>{shellLabel(pane.shell ?? useStore.getState().settings.shell, shells)}</Chip>
@@ -256,15 +264,25 @@ export function StatusBar() {
           {folderName(cwd ?? "")}
         </Chip>
       )}
+      {show("device") && <DeviceChip />}
       {show("git") && git?.branch && (
         <Chip
           icon={<GitBranch size={12} />}
-          title={`Branch ${git.branch}${git.changed ? ` · ${git.changed} uncommitted ${git.changed === 1 ? "file" : "files"}` : ""}${git.ahead ? ` · ${git.ahead} to push` : ""}${git.behind ? ` · ${git.behind} to pull` : ""}. Click for changes (Ctrl+Shift+G).`}
+          title={t("statusBar.git.title", {
+            details: [
+              t("statusBar.git.branch", { branch: git.branch }),
+              git.changed ? t("statusBar.git.uncommitted", { count: git.changed }) : "",
+              git.ahead ? t("statusBar.git.toPush", { count: git.ahead }) : "",
+              git.behind ? t("statusBar.git.toPull", { count: git.behind }) : "",
+            ]
+              .filter(Boolean)
+              .join(" · "),
+          })}
           onClick={() => useStore.getState().set({ changesOpen: !useStore.getState().changesOpen })}
           hint={
             git.changed || git.ahead || git.behind ? (
               <span className="flex items-center gap-1.5">
-                {!!git.changed && <span className="text-attention">{git.changed} changed</span>}
+                {!!git.changed && <span className="text-attention">{t("statusBar.git.changed", { count: git.changed })}</span>}
                 {!!git.ahead && (
                   <span className="flex items-center">
                     <ArrowUp size={11} />
@@ -288,15 +306,15 @@ export function StatusBar() {
         <Chip
           icon={<GitPullRequest size={12} />}
           tone={reviewTone[live.pr.reviewState ?? ""] ?? "text-muted"}
-          title={live.pr.url ? `Open ${live.pr.kind === "mr" ? "merge request" : "pull request"} #${live.pr.number}` : undefined}
+          title={live.pr.url ? (live.pr.kind === "mr" ? t("statusBar.pr.openMr", { number: live.pr.number }) : t("statusBar.pr.openPr", { number: live.pr.number })) : undefined}
           onClick={live.pr.url ? () => void openUrl(live.pr!.url!) : undefined}
-          hint={live.pr.reviewState?.replace("_", " ")}
+          hint={live.pr.reviewState ? t(`statusBar.pr.review.${live.pr.reviewState}`, { defaultValue: live.pr.reviewState.replace("_", " ") }) : undefined}
         >
-          {live.pr.kind === "mr" ? "MR" : "PR"} #{live.pr.number}
+          {live.pr.kind === "mr" ? t("statusBar.pr.mr", { number: live.pr.number }) : t("statusBar.pr.pr", { number: live.pr.number })}
         </Chip>
       )}
       {show("task") && live?.task && (
-        <Chip icon={<Layers size={12} />} tone="text-accent" title="This tab works in a parallel task (its own branch and folder)" hint="task">
+        <Chip icon={<Layers size={12} />} tone="text-accent" title={t("statusBar.task.title")} hint={t("statusBar.task.hint")}>
           {live.task}
         </Chip>
       )}
@@ -304,7 +322,7 @@ export function StatusBar() {
         <Chip
           icon={mode.danger ? <ShieldAlert size={12} /> : <ShieldCheck size={12} />}
           tone={mode.tone}
-          title="What Claude may do without asking. Click to switch mode (same as Shift+Tab in Claude)."
+          title={t("statusBar.mode.title")}
           onClick={cycleMode}
           hint="Shift+Tab"
         >
@@ -319,45 +337,60 @@ export function StatusBar() {
         <Chip
           icon={<LayoutDashboard size={12} />}
           tone={othersWaiting ? "text-attention" : othersWorking ? "text-working" : "text-muted"}
-          title="Other Claude tabs. Click to open Agents (Ctrl+Shift+A)."
+          title={t("statusBar.agents.title")}
           onClick={() => useStore.getState().openAgents()}
-          hint={othersWaiting ? undefined : `${others.length} other${others.length === 1 ? "" : "s"}`}
+          hint={othersWaiting ? undefined : t("statusBar.agents.others", { count: others.length })}
         >
-          {othersWaiting ? `${othersWaiting} need${othersWaiting === 1 ? "s" : ""} you` : othersWorking ? `${othersWorking} working` : "All idle"}
+          {othersWaiting ? t("statusBar.agents.needYou", { count: othersWaiting }) : othersWorking ? t("statusBar.agents.working", { count: othersWorking }) : t("statusBar.agents.allIdle")}
         </Chip>
       )}
       {show("cache") && claude && cache?.observed && (
         <Chip
           icon={<Database size={12} />}
           tone={cacheSecs === null ? "text-faint" : cacheSecs < 90 ? "text-attention" : "text-done"}
-          title={`Claude reuses this conversation cheaply while the cache is warm${cache.ttl ? ` (lasts ${cache.ttl} after each message)` : ""}. Continuing before it goes cold saves usage.${cache.hitRatio != null ? ` Cache hit rate: ${Math.round(cache.hitRatio * 100)}%.` : ""}`}
-          hint={cacheSecs !== null ? `${formatCountdown(Date.now() / 1000 + Math.max(cacheSecs, 0))} left` : undefined}
+          title={`${cache.ttl ? t("statusBar.cache.titleTtl", { ttl: cache.ttl }) : t("statusBar.cache.title")}${cache.hitRatio != null ? ` ${t("statusBar.cache.hitRate", { pct: Math.round(cache.hitRatio * 100) })}` : ""}`}
+          hint={cacheSecs !== null ? t("statusBar.cache.left", { time: formatCountdown(Date.now() / 1000 + Math.max(cacheSecs, 0)) }) : undefined}
           strong={false}
         >
-          {cacheSecs === null ? "Cache cold" : "Cache warm"}
+          {cacheSecs === null ? t("statusBar.cache.cold") : t("statusBar.cache.warm")}
         </Chip>
       )}
       {show("effort") && claude && live?.effort && (
-        <Chip icon={<Brain size={12} />} title="How hard Claude thinks. Click to change (/effort)." onClick={() => typeCommand(pane.id, "/effort", true)} hint="effort" strong={false}>
+        <Chip icon={<Brain size={12} />} title={t("statusBar.effort.title")} onClick={() => typeCommand(pane.id, "/effort", true)} hint={t("statusBar.effort.hint")} strong={false}>
           {live.effort}
         </Chip>
       )}
       {show("usage") && (usage?.fiveHour || usage?.spend) && (
         <Chip
           icon={<Gauge size={12} />}
-          title={`${usage.fiveHour ? `5-hour limit ${Math.round(usage.fiveHour.pct)}%${usage.fiveHour.resetsAt ? `, resets in ${formatCountdown(usage.fiveHour.resetsAt)}` : ""}` : ""}${usage.sevenDay ? ` · weekly ${Math.round(usage.sevenDay.pct)}%${usage.sevenDay.resetsAt ? `, resets in ${formatCountdown(usage.sevenDay.resetsAt)}` : ""}` : ""}. Click for details.`}
+          title={t("statusBar.usage.title", {
+            details: [
+              usage.fiveHour
+                ? usage.fiveHour.resetsAt
+                  ? t("statusBar.usage.fiveHourResets", { pct: Math.round(usage.fiveHour.pct), time: formatCountdown(usage.fiveHour.resetsAt) })
+                  : t("statusBar.usage.fiveHour", { pct: Math.round(usage.fiveHour.pct) })
+                : "",
+              usage.sevenDay
+                ? usage.sevenDay.resetsAt
+                  ? t("statusBar.usage.weeklyResets", { pct: Math.round(usage.sevenDay.pct), time: formatCountdown(usage.sevenDay.resetsAt) })
+                  : t("statusBar.usage.weekly", { pct: Math.round(usage.sevenDay.pct) })
+                : "",
+            ]
+              .filter(Boolean)
+              .join(" · "),
+          })}
           onClick={() => useStore.getState().openAgents()}
-          hint={usage.sevenDay ? `wk ${Math.round(usage.sevenDay.pct)}%` : undefined}
+          hint={usage.sevenDay ? t("statusBar.usage.week", { pct: Math.round(usage.sevenDay.pct) }) : undefined}
         >
           <span className="flex items-center gap-1.5">
             <Meter pct={(usage.fiveHour ?? usage.spend)!.pct} />
-            {usage.fiveHour ? "5h" : "spend"} {Math.round((usage.fiveHour ?? usage.spend)!.pct)}%
+            {t(usage.fiveHour ? "statusBar.usage.fiveHourShort" : "statusBar.usage.spendShort", { pct: Math.round((usage.fiveHour ?? usage.spend)!.pct) })}
           </span>
         </Chip>
       )}
       {show("cost") && claude && cost != null && (
         <Chip
-          title="Session cost at API prices, and lines Claude added / removed"
+          title={t("statusBar.cost.title")}
           hint={
             added || removed ? (
               <span>
@@ -366,14 +399,14 @@ export function StatusBar() {
             ) : undefined
           }
         >
-          ${cost.toFixed(2)}
+          {cost.toLocaleString(locale(), { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </Chip>
       )}
       {show("context") && claude && pct != null && pct > 0 && (
         <Chip
-          title={stats ? `${formatTokens(stats.contextTokens)} of ${formatTokens(stats.contextWindow)} tokens. Click to see what's using it (/context).` : `${pct}% of the context window used. Click to see what's using it (/context).`}
+          title={stats ? t("statusBar.context.titleTokens", { used: formatTokens(stats.contextTokens), total: formatTokens(stats.contextWindow) }) : t("statusBar.context.titlePct", { pct })}
           onClick={() => typeCommand(pane.id, "/context", true)}
-          hint="context"
+          hint={t("statusBar.context.hint")}
         >
           <span className="flex items-center gap-1.5">
             <Meter pct={pct} className="w-12" />
@@ -382,7 +415,7 @@ export function StatusBar() {
         </Chip>
       )}
       {show("model") && claude && model && (
-        <Chip icon={<Cpu size={12} />} title="Switch model (/model)" onClick={() => typeCommand(pane.id, "/model", true)} hint={[oneM ? "1M" : "", live?.fastMode ? "fast" : ""].filter(Boolean).join(" · ") || undefined}>
+        <Chip icon={<Cpu size={12} />} title={t("statusBar.model.title")} onClick={() => typeCommand(pane.id, "/model", true)} hint={[oneM ? "1M" : "", live?.fastMode ? t("statusBar.model.fast") : ""].filter(Boolean).join(" · ") || undefined}>
           {modelLabel(model.replace(/\[1m\]$/, ""))}
         </Chip>
       )}

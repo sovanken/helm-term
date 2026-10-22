@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "snip",
+  "description": "The full-screen snip overlay: it only reads the frozen screen and sends back the chosen part",
+  "windows": ["snip"],
+  "permissions": ["core:default", "core:window:allow-show", "core:window:allow-set-focus", "core:window:allow-close"]
+}

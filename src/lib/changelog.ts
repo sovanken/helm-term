@@ -1,44 +1,83 @@
 // User-facing release notes shown in Settings → What's new and after an update.
 // Keep CHANGELOG.md in the repo root in sync when adding a release.
 
+import { locale, t } from "../i18n";
+
 export interface Release {
   version: string;
   date: string;
   highlights: { title: string; text: string }[];
 }
 
+/** "October 2026" in the interface language. */
+function monthName(year: number, month: number) {
+  return new Date(year, month - 1, 1).toLocaleDateString(locale(), { month: "long", year: "numeric" });
+}
+
+/** A highlight whose text is looked up in the current language when read. */
+function note(key: string): { title: string; text: string } {
+  return {
+    get title() {
+      return t(`changelog.${key}.title`);
+    },
+    get text() {
+      return t(`changelog.${key}.text`);
+    },
+  };
+}
+
 export const CHANGELOG: Release[] = [
   {
-    version: "1.0.1",
-    date: "October 2026",
+    version: "1.0.2",
+    get date() {
+      return monthName(2026, 10);
+    },
     highlights: [
-      { title: "Details for past conversations", text: "In History, the ⋯ menu now shows any conversation's context, tokens, cost and tools, and can save them as a PDF." },
+      note("v1_0_2.languages"),
+      note("v1_0_2.voice"),
+      note("v1_0_2.screenshots"),
+      note("v1_0_2.tools"),
+      note("v1_0_2.projects"),
+      note("v1_0_2.agents"),
+      note("v1_0_2.settings"),
+      note("v1_0_2.phones"),
+    ],
+  },
+  {
+    version: "1.0.1",
+    get date() {
+      return monthName(2026, 10);
+    },
+    highlights: [
+      note("v1_0_1.pastDetails"),
     ],
   },
   {
     version: "1.0.0",
-    date: "October 2026",
+    get date() {
+      return monthName(2026, 10);
+    },
     highlights: [
-      { title: "Made for Claude Code", text: "Runs the real claude CLI in fast GPU-rendered tabs and split panes, with every language and emoji rendering correctly." },
-      { title: "Approve from anywhere", text: "Background tabs ask for permission in Helm and in a Windows notification with Allow / Deny, plus Always allow for things you trust." },
-      { title: "Usage limits", text: "Live 5-hour and weekly meters with reset countdown, your pace, which tab used the most, and warnings at 80% and 95%." },
-      { title: "Agents tab", text: "Every Claude session grouped into Needs you, Working and Done, with context, cost and what each one is doing (Ctrl+Shift+A)." },
-      { title: "Usage and context at a glance", text: "Every limit with its reset time and your pace, today's and this week's cost and tokens, and per session what fills the context window. Save any of it as a PDF." },
-      { title: "Built-in browser", text: "Open your app beside the terminal, test phone and tablet sizes, and send errors, screenshots or any part of the page to Claude in one click." },
-      { title: "Files open in Helm", text: "Code with highlighting, Markdown, images, PDF, video and audio open as Helm tabs instead of other apps." },
-      { title: "See background agents", text: "The right panel opens when Claude starts a subagent, showing what it's doing and its final answer. Details lists screenshots, files and web pages used." },
-      { title: "Save your usage", text: "Usage history by day and project, a reminder to /compact as context fills, a warning before the cache expires, and big pastes attached as a file." },
-      { title: "Prompt improver", text: "Write a prompt, let Claude make it clearer, then send it (Ctrl+Shift+I)." },
-      { title: "Status on every tab", text: "Working, needs approval or finished, with notifications for tabs you're not looking at." },
-      { title: "History and palette", text: "Search every conversation and continue it in one click. Ctrl+Shift+P for saved prompts, Claude commands, skills and actions." },
-      { title: "Review changes", text: "Side-by-side diffs, comments sent to Claude, and undo for a whole file or just one part." },
-      { title: "Parallel tasks", text: "Run Claude on several tasks at once, each in its own git worktree and branch, then merge or remove them." },
-      { title: "Sessions you don't lose", text: "Tabs reopen the same conversations after a restart, and Ctrl+Alt+Shift+T reopens a closed tab." },
-      { title: "Clean status bar", text: "Permission mode, prompt cache timer, effort, git push/pull, pull request, usage, cost, context and model. Right-click to choose." },
-      { title: "Make it yours", text: "Accent colors, 10 terminal color schemes, Inter and JetBrains Mono built in, resizable panels, Ctrl + mouse wheel zoom and Windows 11 Mica." },
-      { title: "Claude Code settings", text: "Edit permissions, hooks, MCP servers and CLAUDE.md without touching JSON." },
-      { title: "Windows done right", text: "PowerShell 7, Windows PowerShell or Git Bash per tab, Windows hints for Claude, and screenshot paste with Ctrl+V." },
-      { title: "Private by design", text: "Everything stays on your PC. The only network request is the update check, and you can turn it off." },
+      note("v1_0_0.madeForClaudeCode"),
+      note("v1_0_0.approveAnywhere"),
+      note("v1_0_0.usageLimits"),
+      note("v1_0_0.agentsTab"),
+      note("v1_0_0.usageAtAGlance"),
+      note("v1_0_0.builtInBrowser"),
+      note("v1_0_0.filesOpenInHelm"),
+      note("v1_0_0.backgroundWork"),
+      note("v1_0_0.saveUsage"),
+      note("v1_0_0.promptImprover"),
+      note("v1_0_0.tabStatus"),
+      note("v1_0_0.historyAndPalette"),
+      note("v1_0_0.reviewChanges"),
+      note("v1_0_0.parallelTasks"),
+      note("v1_0_0.keepConversations"),
+      note("v1_0_0.statusBar"),
+      note("v1_0_0.makeItYours"),
+      note("v1_0_0.claudeCodeSettings"),
+      note("v1_0_0.windowsDoneRight"),
+      note("v1_0_0.private"),
     ],
   },
 ];

@@ -7,6 +7,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { save } from "@tauri-apps/plugin-dialog";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { showToast, useStore } from "../state/store";
+import { t } from "../i18n";
 
 const frames = (n: number) => new Promise<void>((done) => {
   const step = (left: number) => (left <= 0 ? done() : requestAnimationFrame(() => step(left - 1)));
@@ -22,7 +23,7 @@ export function pdfName(...parts: string[]) {
 export async function exportPdf(defaultName: string, report: ReactNode): Promise<string | null> {
   // Dev/test hook: a preset path skips the save dialog.
   const preset = import.meta.env.DEV ? (window as { __helmPdfPath?: string }).__helmPdfPath : undefined;
-  const path = preset ?? (await save({ title: "Save as PDF", defaultPath: defaultName, filters: [{ name: "PDF", extensions: ["pdf"] }] }));
+  const path = preset ?? (await save({ title: t("pdf.saveAs"), defaultPath: defaultName, filters: [{ name: "PDF", extensions: ["pdf"] }] }));
   if (!path) return null;
 
   const host = document.createElement("div");
@@ -38,10 +39,10 @@ export async function exportPdf(defaultName: string, report: ReactNode): Promise
     await frames(1);
     await invoke("print_pdf", { path });
     const name = path.split(/[\\/]/).pop() ?? path;
-    showToast(`Saved ${name}`, "success", { label: "Open", run: () => useStore.getState().openFile(path) }, { label: "Show in folder", run: () => void revealItemInDir(path) });
+    showToast(t("pdf.saved", { name }), "success", { label: t("common.open"), run: () => useStore.getState().openFile(path) }, { label: t("common.showInExplorer"), run: () => void revealItemInDir(path) });
     return path;
   } catch (e) {
-    showToast(`Couldn't save the PDF: ${String(e)}`, "error");
+    showToast(t("pdf.saveFailed", { error: String(e) }), "error");
     return null;
   } finally {
     document.documentElement.classList.remove("printing");

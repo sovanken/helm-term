@@ -527,6 +527,10 @@ nav[role="tablist"] > [role="tab"]:hover + [role="tab"]::before {
   }
 }
 
+.progress-indeterminate {
+  animation: helm-sweep 1.2s ease-in-out infinite;
+}
+
 /* ---------- PDF reports (lib/pdf.tsx) ---------- */
 #print-root {
   display: none;
@@ -582,4 +586,261 @@ nav[role="tablist"] > [role="tab"]:hover + [role="tab"]::before {
 .print-page td.num,
 .print-page th.num {
   text-align: right;
+}
+
+/* ---------- file tabs (editor syntax colours, GitHub-like) ---------- */
+.cm-editor .tok-keyword, .cm-editor .tok-operatorKeyword, .cm-editor .tok-modifier { color: #cf222e; }
+.cm-editor .tok-string, .cm-editor .tok-string2, .cm-editor .tok-regexp { color: #0a3069; }
+.cm-editor .tok-comment { color: #6e7781; font-style: italic; }
+.cm-editor .tok-number, .cm-editor .tok-bool, .cm-editor .tok-atom, .cm-editor .tok-literal { color: #0550ae; }
+.cm-editor .tok-typeName, .cm-editor .tok-className, .cm-editor .tok-namespace { color: #953800; }
+.cm-editor .tok-definition, .cm-editor .tok-function { color: #8250df; }
+.cm-editor .tok-propertyName, .cm-editor .tok-attributeName { color: #0550ae; }
+.cm-editor .tok-tagName, .cm-editor .tok-macroName { color: #116329; }
+.cm-editor .tok-meta, .cm-editor .tok-processingInstruction { color: #6e7781; }
+.cm-editor .tok-heading { color: #0550ae; font-weight: 600; }
+.cm-editor .tok-emphasis { font-style: italic; }
+.cm-editor .tok-strong { font-weight: 600; }
+.cm-editor .tok-strikethrough { text-decoration: line-through; }
+.cm-editor .tok-link, .cm-editor .tok-url { color: #0969da; text-decoration: underline; }
+.cm-editor .tok-inserted { color: #116329; }
+.cm-editor .tok-deleted, .cm-editor .tok-invalid { color: #82071e; }
+[data-theme="dark"] .cm-editor .tok-keyword, [data-theme="dark"] .cm-editor .tok-operatorKeyword, [data-theme="dark"] .cm-editor .tok-modifier { color: #ff7b72; }
+[data-theme="dark"] .cm-editor .tok-string, [data-theme="dark"] .cm-editor .tok-string2, [data-theme="dark"] .cm-editor .tok-regexp { color: #a5d6ff; }
+[data-theme="dark"] .cm-editor .tok-comment, [data-theme="dark"] .cm-editor .tok-meta, [data-theme="dark"] .cm-editor .tok-processingInstruction { color: #8b949e; }
+[data-theme="dark"] .cm-editor .tok-number, [data-theme="dark"] .cm-editor .tok-bool, [data-theme="dark"] .cm-editor .tok-atom, [data-theme="dark"] .cm-editor .tok-literal,
+[data-theme="dark"] .cm-editor .tok-propertyName, [data-theme="dark"] .cm-editor .tok-attributeName, [data-theme="dark"] .cm-editor .tok-heading { color: #79c0ff; }
+[data-theme="dark"] .cm-editor .tok-typeName, [data-theme="dark"] .cm-editor .tok-className, [data-theme="dark"] .cm-editor .tok-namespace { color: #ffa657; }
+[data-theme="dark"] .cm-editor .tok-definition, [data-theme="dark"] .cm-editor .tok-function { color: #d2a8ff; }
+[data-theme="dark"] .cm-editor .tok-tagName, [data-theme="dark"] .cm-editor .tok-macroName, [data-theme="dark"] .cm-editor .tok-inserted { color: #7ee787; }
+[data-theme="dark"] .cm-editor .tok-link, [data-theme="dark"] .cm-editor .tok-url { color: #58a6ff; }
+[data-theme="dark"] .cm-editor .tok-deleted, [data-theme="dark"] .cm-editor .tok-invalid { color: #ffa198; }
+
+/* Find in a rendered Markdown file tab */
+::highlight(helm-find) {
+  background-color: color-mix(in srgb, var(--attention) 30%, transparent);
+}
+::highlight(helm-find-current) {
+  background-color: color-mix(in srgb, var(--attention) 70%, transparent);
+  color: var(--text);
+}
+.code-view .line.line-target {
+  background: var(--accent-soft);
+  transition: background 0.6s;
+}
+
+/* Loading placeholder: a soft band sweeping across. */
+.shimmer {
+  background: linear-gradient(90deg, var(--hover) 0%, color-mix(in srgb, var(--hover) 40%, var(--raised)) 50%, var(--hover) 100%);
+  background-size: 200% 100%;
+  animation: helm-shimmer 1.3s ease-in-out infinite;
+}
+@keyframes helm-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shimmer {
+    animation: none;
+  }
+}
+
+/* Markdown inside panels (agent answers): same look, smaller. */
+.markdown.compact {
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+.markdown.compact h1,
+.markdown.compact h2 {
+  font-size: 1.12em;
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.markdown.compact h3,
+.markdown.compact h4 {
+  font-size: 1em;
+}
+.markdown.compact h1,
+.markdown.compact h2,
+.markdown.compact h3,
+.markdown.compact h4 {
+  margin: 1.1em 0 0.4em;
+}
+.markdown.compact p,
+.markdown.compact ul,
+.markdown.compact ol,
+.markdown.compact pre,
+.markdown.compact table,
+.markdown.compact blockquote {
+  margin: 0 0 0.7em;
+}
+.markdown.compact > :last-child {
+  margin-bottom: 0;
+}
+.markdown.compact pre {
+  padding: 8px 10px;
+  background: var(--bg);
+}
+.markdown.compact pre code {
+  font-size: 11.5px;
+}
+.markdown.compact th,
+.markdown.compact td {
+  padding: 3px 8px;
+}
+
+/* Fades the bottom of a clipped block. */
+.fade-bottom {
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 40px), transparent 100%);
+}
+.markdown.compact > :first-child {
+  margin-top: 0;
+}
+
+/* Privacy blur in the sidebar: names are blurred until you hover their row. */
+.privacy [data-private] {
+  filter: blur(5px);
+  transition: filter 0.12s;
+}
+.privacy button:hover [data-private],
+.privacy [data-private]:hover {
+  filter: none;
+}
+
+/* Voice input pill: grows out of a dot, with a thin light running round its edge. */
+@property --voice-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+.voice-ring {
+  background:
+    conic-gradient(from var(--voice-angle), transparent 0deg, color-mix(in srgb, var(--accent) 90%, transparent) 50deg, transparent 120deg, transparent 360deg),
+    var(--border);
+  animation: voice-spin 3.2s linear infinite;
+}
+.voice-ring-fast {
+  animation-duration: 1.1s;
+}
+@keyframes voice-spin {
+  to {
+    --voice-angle: 360deg;
+  }
+}
+.voice-open {
+  animation: voice-rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.voice-open .voice-ring {
+  animation:
+    voice-spin 3.2s linear infinite,
+    voice-grow 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.voice-open .voice-ring-fast {
+  animation-duration: 1.1s, 0.55s;
+}
+.voice-open .voice-content {
+  animation: voice-content 0.4s 0.16s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.voice-open .voice-hint {
+  animation: voice-hint 0.45s 0.3s ease-out both;
+}
+.voice-close .voice-ring {
+  animation: voice-shrink 0.32s cubic-bezier(0.55, 0, 0.75, 0.2) both;
+}
+.voice-close .voice-content,
+.voice-close .voice-hint {
+  animation: voice-fade 0.14s ease-in both;
+}
+@keyframes voice-rise {
+  from {
+    transform: translateY(12px);
+  }
+}
+@keyframes voice-grow {
+  from {
+    clip-path: inset(0 calc(50% - 22px) round 999px);
+    opacity: 0.4;
+  }
+  to {
+    clip-path: inset(0 0 round 999px);
+  }
+}
+@keyframes voice-shrink {
+  from {
+    clip-path: inset(0 0 round 999px);
+  }
+  to {
+    clip-path: inset(0 calc(50% - 22px) round 999px);
+    opacity: 0;
+    transform: translateY(8px) scale(0.9);
+  }
+}
+@keyframes voice-content {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+    filter: blur(4px);
+  }
+}
+@keyframes voice-hint {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+@keyframes voice-fade {
+  to {
+    opacity: 0;
+  }
+}
+.voice-btn {
+  transition:
+    transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color 0.15s,
+    color 0.15s;
+}
+.voice-btn:hover {
+  transform: scale(1.08);
+}
+.voice-btn:active {
+  transform: scale(0.92);
+}
+.voice-word {
+  animation: voice-word 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes voice-word {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+    filter: blur(4px);
+  }
+}
+.voice-text {
+  mask-image: linear-gradient(to right, transparent 0, #000 32px);
+}
+.voice-ping {
+  animation: voice-ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+@keyframes voice-ping {
+  75%,
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .voice-ring,
+  .voice-open,
+  .voice-open .voice-ring,
+  .voice-open .voice-content,
+  .voice-open .voice-hint,
+  .voice-close .voice-ring,
+  .voice-word,
+  .voice-ping {
+    animation: none;
+  }
 }

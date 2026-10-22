@@ -29,6 +29,10 @@ import { DEVICES, deviceById, screenSize } from "../lib/devices";
 import { type PageProblem, showToast, useStore } from "../state/store";
 import { Menu, type MenuItem } from "./Menu";
 import { bezelFor, DeviceFrame } from "./DeviceFrame";
+import { useTranslation } from "react-i18next";
+import { locale } from "../i18n";
+
+const GROUP_LABEL: Record<string, string> = { Phones: "browser.groups.phones", Tablets: "browser.groups.tablets", Computers: "browser.groups.computers" };
 
 const OVERLAYS = '[role="menu"],[role="dialog"],[role="alertdialog"],[role="listbox"],dialog[open],[data-overlay]';
 
@@ -58,6 +62,7 @@ function ToolButton({ label, onClick, disabled, active, children }: { label: str
 }
 
 function StartPage({ onOpen }: { onOpen: (url: string) => void }) {
+  const { t } = useTranslation();
   const servers = useStore((s) => s.devServers);
   const [value, setValue] = useState("");
   return (
@@ -66,8 +71,8 @@ function StartPage({ onOpen }: { onOpen: (url: string) => void }) {
         <span className="flex size-11 items-center justify-center rounded-xl bg-accent-soft text-accent">
           <Globe size={20} />
         </span>
-        <h2 className="text-[15px] font-semibold text-fg">Open a page</h2>
-        <p className="max-w-sm text-[12.5px] leading-relaxed text-muted">Test your app here: try phone and tablet sizes, and send errors, screenshots or any part of the page to Claude.</p>
+        <h2 className="text-[15px] font-semibold text-fg">{t("browser.start.title")}</h2>
+        <p className="max-w-sm text-[12.5px] leading-relaxed text-muted">{t("browser.start.body")}</p>
       </div>
       <form
         className="flex w-full max-w-md gap-2"
@@ -80,14 +85,14 @@ function StartPage({ onOpen }: { onOpen: (url: string) => void }) {
           autoFocus
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          placeholder="localhost:3000 or any address"
+          placeholder={t("browser.start.placeholder")}
           className="h-9 min-w-0 flex-1 rounded-lg border border-line bg-raised px-3 text-[13px] text-fg placeholder:text-faint focus:border-accent"
         />
-        <button className="h-9 rounded-lg bg-accent px-3.5 text-[13px] font-medium text-on-accent hover:opacity-90">Open</button>
+        <button className="h-9 rounded-lg bg-accent px-3.5 text-[13px] font-medium text-on-accent hover:opacity-90">{t("common.open")}</button>
       </form>
       {servers.length > 0 && (
         <div className="w-full max-w-md">
-          <div className="mb-1.5 text-[11px] font-semibold tracking-wide text-faint uppercase">Running in your terminals</div>
+          <div className="mb-1.5 text-[11px] font-semibold tracking-wide text-faint uppercase">{t("browser.start.running")}</div>
           <div className="overflow-hidden rounded-lg border border-line bg-raised">
             {servers.map((u) => (
               <button key={u} onClick={() => onOpen(u)} className="flex w-full items-center gap-2 border-b border-line px-3 py-2 text-left text-[13px] last:border-b-0 hover:bg-hover">
@@ -103,17 +108,18 @@ function StartPage({ onOpen }: { onOpen: (url: string) => void }) {
 }
 
 function ProblemsPanel({ problems, onSend, onSendOne, onClear, onClose }: { problems: PageProblem[]; onSend: () => void; onSendOne: (p: PageProblem) => void; onClear: () => void; onClose: () => void }) {
+  const { t } = useTranslation();
   return (
-    <div role="dialog" aria-label="Page problems" className="anim-pop absolute top-11 right-2 z-30 flex max-h-[min(460px,70vh)] w-[min(460px,calc(100%-16px))] flex-col overflow-hidden rounded-xl border border-line bg-raised shadow-lg shadow-black/20">
+    <div role="dialog" aria-label={t("browser.problems.label")} className="anim-pop absolute top-11 right-2 z-30 flex max-h-[min(460px,70vh)] w-[min(460px,calc(100%-16px))] flex-col overflow-hidden rounded-xl border border-line bg-raised shadow-lg shadow-black/20">
       <div className="flex items-center gap-2 border-b border-line px-3 py-2">
-        <span className="text-[13px] font-semibold text-fg">Problems on this page</span>
+        <span className="text-[13px] font-semibold text-fg">{t("browser.problems.title")}</span>
         <span className="text-[12px] text-faint">{problems.length}</span>
-        <button onClick={onClose} aria-label="Close" className="ml-auto flex size-6 items-center justify-center rounded-md text-faint hover:bg-hover hover:text-fg">
+        <button onClick={onClose} aria-label={t("common.close")} className="ml-auto flex size-6 items-center justify-center rounded-md text-faint hover:bg-hover hover:text-fg">
           <X size={13} />
         </button>
       </div>
       {problems.length === 0 ? (
-        <p className="px-3 py-6 text-center text-[12.5px] text-faint">No errors so far. Console errors, crashes and failed requests show up here.</p>
+        <p className="px-3 py-6 text-center text-[12.5px] text-faint">{t("browser.problems.empty")}</p>
       ) : (
         <ul className="scroll-thin min-h-0 flex-1 overflow-y-auto">
           {[...problems].reverse().map((p, i) => (
@@ -122,11 +128,11 @@ function ProblemsPanel({ problems, onSend, onSendOne, onClear, onClose }: { prob
               <div className="min-w-0 flex-1">
                 <div className="line-clamp-3 font-mono text-[11.5px] leading-relaxed break-words text-fg select-text">{p.text}</div>
                 <div className="mt-0.5 truncate text-[11px] text-faint">
-                  {p.source === "network" ? "Request" : p.source === "exception" ? "Uncaught error" : p.source === "console" ? "Console" : "Browser"}
+                  {p.source === "network" ? t("browser.problems.request") : p.source === "exception" ? t("browser.problems.uncaught") : p.source === "console" ? t("browser.problems.console") : t("statusBar.browser")}
                   {p.at && ` · ${p.at}`}
                 </div>
               </div>
-              <button onClick={() => onSendOne(p)} title="Send this one to Claude" className="shrink-0 rounded-md p-1 text-faint opacity-0 group-hover:opacity-100 hover:bg-hover hover:text-fg">
+              <button onClick={() => onSendOne(p)} title={t("browser.problems.sendOne")} className="shrink-0 rounded-md p-1 text-faint opacity-0 group-hover:opacity-100 hover:bg-hover hover:text-fg">
                 <Send size={12} />
               </button>
             </li>
@@ -136,10 +142,10 @@ function ProblemsPanel({ problems, onSend, onSendOne, onClear, onClose }: { prob
       {problems.length > 0 && (
         <div className="flex items-center gap-2 border-t border-line px-3 py-2">
           <button onClick={onClear} className="flex items-center gap-1 rounded-md px-2 py-1 text-[12px] text-muted hover:bg-hover hover:text-fg">
-            <Trash2 size={12} /> Clear
+            <Trash2 size={12} /> {t("browser.problems.clear")}
           </button>
           <button onClick={onSend} className="ml-auto flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-[12px] font-medium text-on-accent hover:opacity-90">
-            <Send size={12} /> Send all to Claude
+            <Send size={12} /> {t("browser.problems.sendAll")}
           </button>
         </div>
       )}
@@ -148,24 +154,25 @@ function ProblemsPanel({ problems, onSend, onSendOne, onClear, onClose }: { prob
 }
 
 function CustomSize({ onApply, onClose }: { onApply: (w: number, h: number) => void; onClose: () => void }) {
+  const { t } = useTranslation();
   const [w, setW] = useState("390");
   const [h, setH] = useState("844");
   const ok = (v: string) => Number(v) >= 200 && Number(v) <= 4000;
   return (
     <form
       role="dialog"
-      aria-label="Custom size"
+      aria-label={t("browser.customSize")}
       onSubmit={(e) => {
         e.preventDefault();
         if (ok(w) && ok(h)) onApply(Number(w), Number(h));
       }}
       className="anim-pop absolute top-11 right-24 z-30 flex items-center gap-2 rounded-xl border border-line bg-raised p-2.5 shadow-lg shadow-black/20"
     >
-      <input autoFocus value={w} onChange={(e) => setW(e.target.value.replace(/\D/g, ""))} aria-label="Width" className="h-8 w-16 rounded-md border border-line bg-bg px-2 text-center text-[12.5px] tabular-nums focus:border-accent" />
+      <input autoFocus value={w} onChange={(e) => setW(e.target.value.replace(/\D/g, ""))} aria-label={t("browser.width")} className="h-8 w-16 rounded-md border border-line bg-bg px-2 text-center text-[12.5px] tabular-nums focus:border-accent" />
       <span className="text-faint">×</span>
-      <input value={h} onChange={(e) => setH(e.target.value.replace(/\D/g, ""))} aria-label="Height" className="h-8 w-16 rounded-md border border-line bg-bg px-2 text-center text-[12.5px] tabular-nums focus:border-accent" />
-      <button disabled={!ok(w) || !ok(h)} className="h-8 rounded-md bg-accent px-3 text-[12.5px] font-medium text-on-accent disabled:opacity-40">Apply</button>
-      <button type="button" onClick={onClose} aria-label="Cancel" className="flex size-7 items-center justify-center rounded-md text-faint hover:bg-hover hover:text-fg">
+      <input value={h} onChange={(e) => setH(e.target.value.replace(/\D/g, ""))} aria-label={t("browser.height")} className="h-8 w-16 rounded-md border border-line bg-bg px-2 text-center text-[12.5px] tabular-nums focus:border-accent" />
+      <button disabled={!ok(w) || !ok(h)} className="h-8 rounded-md bg-accent px-3 text-[12.5px] font-medium text-on-accent disabled:opacity-40">{t("browser.apply")}</button>
+      <button type="button" onClick={onClose} aria-label={t("common.cancel")} className="flex size-7 items-center justify-center rounded-md text-faint hover:bg-hover hover:text-fg">
         <X size={13} />
       </button>
     </form>
@@ -173,6 +180,7 @@ function CustomSize({ onApply, onClose }: { onApply: (w: number, h: number) => v
 }
 
 export function BrowserView({ paneId, visible }: { paneId: string; visible: boolean }) {
+  const { t } = useTranslation();
   const pane = useStore((s) => s.panes[paneId]);
   const { updatePage, updatePane } = useStore.getState();
   const stage = useRef<HTMLDivElement>(null);
@@ -230,7 +238,7 @@ export function BrowserView({ paneId, visible }: { paneId: string; visible: bool
       .open(paneId, url!, { x: r.left * z, y: r.top * z, width: Math.max(1, r.width * z), height: Math.max(1, r.height * z) })
       .then(
         () => setCreated(true),
-        (e) => showToast(`Couldn't open the page: ${String(e)}`, "error"),
+        (e) => showToast(t("browser.openFailed", { error: String(e) }), "error"),
       );
   }, [blank, created, paneId, url]);
 
@@ -300,18 +308,18 @@ export function BrowserView({ paneId, visible }: { paneId: string; visible: bool
   };
 
   const deviceItems: MenuItem[] = [
-    { label: "Fill the panel", icon: <Monitor size={14} />, current: !device, onSelect: () => updatePage(paneId, { device: undefined, rotated: false }) },
+    { label: t("browser.fillPane"), icon: <Monitor size={14} />, current: !device, onSelect: () => updatePage(paneId, { device: undefined, rotated: false }) },
     ...DEVICES.map((d, i) => ({
       label: d.label,
       hint: `${d.width}×${d.height}`,
-      heading: i === 0 || DEVICES[i - 1].group !== d.group ? d.group : undefined,
+      heading: i === 0 || DEVICES[i - 1].group !== d.group ? t(GROUP_LABEL[d.group] ?? d.group) : undefined,
       separatorBefore: i === 0 || DEVICES[i - 1].group !== d.group,
       icon: d.group === "Phones" ? <Smartphone size={14} /> : d.group === "Tablets" ? <Tablet size={14} /> : <Monitor size={14} />,
       current: page.device === d.id,
       onSelect: () => updatePage(paneId, { device: d.id, rotated: false }),
     })),
-    { label: "Custom size…", separatorBefore: true, current: page.device?.startsWith("custom:"), onSelect: () => setMenu("custom") },
-    { label: "Show device frame", checked: showFrame, keepOpen: true, onSelect: () => useStore.getState().updateSettings({ deviceFrame: !showFrame }) },
+    { label: t("browser.customSizeMenu"), separatorBefore: true, current: page.device?.startsWith("custom:"), onSelect: () => setMenu("custom") },
+    { label: t("browser.showFrame"), checked: showFrame, keepOpen: true, onSelect: () => useStore.getState().updateSettings({ deviceFrame: !showFrame }) },
   ];
   const DeviceIcon = !device ? Monitor : device.group === "Phones" ? Smartphone : device.group === "Tablets" ? Tablet : Monitor;
   const secure = url?.startsWith("https://");
@@ -319,13 +327,13 @@ export function BrowserView({ paneId, visible }: { paneId: string; visible: bool
   return (
     <div className="relative flex h-full flex-col bg-surface">
       <div className="flex h-10 shrink-0 items-center gap-0.5 border-b border-line px-1.5">
-        <ToolButton label="Back" disabled={!page.canBack} onClick={() => void browser.go(paneId, "back")}>
+        <ToolButton label={t("common.back")} disabled={!page.canBack} onClick={() => void browser.go(paneId, "back")}>
           <ArrowLeft size={15} />
         </ToolButton>
-        <ToolButton label="Forward" disabled={!page.canForward} onClick={() => void browser.go(paneId, "forward")}>
+        <ToolButton label={t("browser.forward")} disabled={!page.canForward} onClick={() => void browser.go(paneId, "forward")}>
           <ArrowRight size={15} />
         </ToolButton>
-        <ToolButton label={page.loading ? "Stop" : "Reload"} disabled={!created} onClick={() => void browser.go(paneId, page.loading ? "stop" : "reload")}>
+        <ToolButton label={page.loading ? t("browser.stop") : t("browser.reload")} disabled={!created} onClick={() => void browser.go(paneId, page.loading ? "stop" : "reload")}>
           {page.loading ? <X size={15} /> : <RotateCw size={14} />}
         </ToolButton>
         <form
@@ -345,7 +353,7 @@ export function BrowserView({ paneId, visible }: { paneId: string; visible: bool
             }}
             onBlur={() => setEditing(false)}
             onKeyDown={(e) => e.key === "Escape" && (e.currentTarget.blur(), setAddress(displayUrl(url)))}
-            placeholder="Enter an address"
+            placeholder={t("browser.addressPlaceholder")}
             spellCheck={false}
             className="h-7 w-full rounded-md border border-transparent bg-hover/70 pr-2 pl-7 font-mono text-[12px] text-fg placeholder:font-sans placeholder:text-faint focus:border-accent focus:bg-raised"
           />
@@ -355,22 +363,22 @@ export function BrowserView({ paneId, visible }: { paneId: string; visible: bool
         <div className="relative flex shrink-0 items-center">
           <button
             onClick={() => setMenu((m) => (m === "device" ? null : "device"))}
-            title="Test on a phone, tablet or computer screen"
+            title={t("browser.sizeHint")}
             className={`flex h-7 items-center gap-1.5 rounded-md px-2 text-[12px] hover:bg-hover hover:text-fg ${device ? "bg-accent-soft text-accent" : "text-muted"}`}
           >
             <DeviceIcon size={14} />
-            <span className="max-w-28 truncate">{device ? device.label : "Size"}</span>
+            <span className="max-w-28 truncate">{device ? device.label : t("browser.size")}</span>
           </button>
           {menu === "device" && <Menu items={deviceItems} onClose={() => setMenu(null)} align="right" />}
         </div>
         {device && (
-          <ToolButton label="Rotate" onClick={() => updatePage(paneId, { rotated: !page.rotated })} active={page.rotated}>
+          <ToolButton label={t("browser.rotate")} onClick={() => updatePage(paneId, { rotated: !page.rotated })} active={page.rotated}>
             <RotateCwSquare size={15} />
           </ToolButton>
         )}
         <span className="mx-1 h-4 w-px shrink-0 bg-line" />
         <ToolButton
-          label={page.picking ? "Stop picking" : "Pick an element and send it to Claude"}
+          label={page.picking ? t("browser.stopPicking") : t("browser.pick")}
           disabled={!created}
           active={page.picking}
           onClick={() => {
@@ -381,28 +389,28 @@ export function BrowserView({ paneId, visible }: { paneId: string; visible: bool
         >
           <MousePointerClick size={15} />
         </ToolButton>
-        <ToolButton label="Send a screenshot to Claude" disabled={!created} onClick={() => void sendScreenshotToClaude(pane)}>
+        <ToolButton label={t("browser.sendScreenshot")} disabled={!created} onClick={() => void sendScreenshotToClaude(pane)}>
           <Camera size={15} />
         </ToolButton>
         <button
           onClick={() => setMenu((m) => (m === "problems" ? null : "problems"))}
-          title={problems.length ? `${problems.length} problems on this page` : "No problems on this page"}
+          title={problems.length ? t("browser.problemCount", { count: problems.length }) : t("browser.noProblems")}
           className={`flex h-7 shrink-0 items-center gap-1 rounded-md px-1.5 text-[12px] hover:bg-hover ${errors ? "text-danger" : problems.length ? "text-attention" : "text-muted"} ${menu === "problems" ? "bg-hover" : ""}`}
         >
           {problems.length ? <TriangleAlert size={14} /> : <Check size={14} />}
           {problems.length > 0 && <span className="font-medium tabular-nums">{problems.length > 99 ? "99+" : problems.length}</span>}
         </button>
-        <ToolButton label="Developer tools" disabled={!created} onClick={() => void browser.devtools(paneId)}>
+        <ToolButton label={t("titleBar.devTools")} disabled={!created} onClick={() => void browser.devtools(paneId)}>
           <Bug size={15} />
         </ToolButton>
-        <ToolButton label="Open in my browser" disabled={blank} onClick={() => url && void openUrl(url)}>
+        <ToolButton label={t("browser.openExternal")} disabled={blank} onClick={() => url && void openUrl(url)}>
           <ExternalLink size={14} />
         </ToolButton>
       </div>
 
       {page.picking && (
         <div className="flex shrink-0 items-center gap-2 border-b border-line bg-accent-soft px-3 py-1 text-[12px] text-accent">
-          <MousePointerClick size={13} /> Click any part of the page to send it to Claude.
+          <MousePointerClick size={13} /> {t("browser.pickingBanner")}
           <button
             onClick={() => {
               updatePage(paneId, { picking: false });
@@ -410,7 +418,7 @@ export function BrowserView({ paneId, visible }: { paneId: string; visible: bool
             }}
             className="ml-auto rounded px-1.5 font-medium hover:bg-accent/15"
           >
-            Cancel
+            {t("common.cancel")}
           </button>
         </div>
       )}
@@ -421,7 +429,7 @@ export function BrowserView({ paneId, visible }: { paneId: string; visible: bool
         ) : device && size ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-4">
             <div className="text-[11.5px] text-muted tabular-nums">
-              {device.label} · {size.width} × {size.height} · {Math.round(fit * 100)}%
+              {device.label} · {size.width} × {size.height} · {(fit).toLocaleString(locale(), { style: "percent", maximumFractionDigits: 0 })}
             </div>
             {bezel ? (
               <DeviceFrame device={device} rotated={!!page.rotated} scale={fit}>
@@ -437,7 +445,7 @@ export function BrowserView({ paneId, visible }: { paneId: string; visible: bool
           <div ref={frame} data-browser-frame className="absolute inset-0 bg-white" />
         )}
         {hiddenByOverlay && !blank && (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-surface/80 text-[12px] text-faint">The page is paused while this is open</div>
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-surface/80 text-[12px] text-faint">{t("browser.paused")}</div>
         )}
       </div>
 

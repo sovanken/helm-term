@@ -1,0 +1,287 @@
+{
+  "status": {
+    "thinking": "Réflexion…"
+  },
+  "events": {
+    "someTool": "un outil",
+    "waitingForYou": "Claude vous attend",
+    "needsYouTitle": "Claude a besoin de vous · {{where}}",
+    "finishedTitle": "Claude a terminé · {{where}}",
+    "readyForNext": "Prêt pour votre prochain message",
+    "stoppedTitle": "Claude s'est arrêté · {{where}}",
+    "needsApprovalTitle": "Claude attend votre approbation · {{where}}",
+    "whereAndTitle": "{{where}} · {{title}}",
+    "details": "Détails",
+    "usageLimitTitle": "Limite d'utilisation de Claude",
+    "limitWarning": {
+      "fiveHour": "Vous avez utilisé {{pct}} % de votre limite Claude sur 5 heures.",
+      "weekly": "Vous avez utilisé {{pct}} % de votre limite Claude hebdomadaire."
+    },
+    "stop": {
+      "rateLimit": "Limite d'utilisation atteinte",
+      "authenticationFailed": "Claude s'est arrêté, car la connexion a échoué. Exécutez /login pour vous reconnecter.",
+      "billingError": "Claude s'est arrêté en raison d'un problème de facturation sur votre compte.",
+      "invalidRequest": "Claude s'est arrêté, car la requête a été refusée.",
+      "serverError": "Claude s'est arrêté en raison d'une erreur du serveur. Réessayez dans un instant.",
+      "maxOutputTokens": "Claude s'est arrêté, car la réponse a atteint sa longueur maximale.",
+      "overloaded": "Claude s'est arrêté, car le service est surchargé. Réessayez dans un instant.",
+      "other": "Claude s'est arrêté."
+    }
+  },
+  "taskHints": {
+    "subagent": "Sous-agent",
+    "backgroundCommand": "Commande en arrière-plan",
+    "compactHint": "{{project}} : cette conversation utilise {{pct}} % de son contexte. Compacter rend chaque message suivant moins coûteux.",
+    "compactNow": "Compacter maintenant",
+    "cacheExpiring": "{{project}} : le cache expire dans une minute environ. Répondez maintenant pour que cette conversation reste peu coûteuse.",
+    "idleConversation": "{{project}} a une longue conversation inactive. Quand vous changez de sujet, /clear repart de zéro et consomme beaucoup moins."
+  },
+  "store": {
+    "color": {
+      "red": "Rouge",
+      "orange": "Orange",
+      "yellow": "Jaune",
+      "green": "Vert",
+      "teal": "Bleu-vert",
+      "blue": "Bleu",
+      "purple": "Violet",
+      "pink": "Rose"
+    }
+  },
+  "terminal": {
+    "pasteLines_one": "Vous collez {{count}} ligne dans un shell. Chaque ligne s'exécute comme une commande distincte.",
+    "pasteLines_many": "Vous collez {{count}} lignes dans un shell. Chaque ligne s'exécute comme une commande distincte.",
+    "pasteLines_other": "Vous collez {{count}} lignes dans un shell. Chaque ligne s'exécute comme une commande distincte.",
+    "pasteLinesTitle": "Coller plusieurs lignes ?",
+    "bigPaste": "Ce collage fait {{size}} caractères. Le texte collé est renvoyé avec chaque message suivant. L'enregistrer dans un fichier et joindre son chemin permet à Claude de ne le lire qu'en cas de besoin, ce qui économise de l'utilisation.",
+    "bigPasteTitle": "Joindre comme fichier ?",
+    "attachAsFile": "Joindre comme fichier",
+    "pasteText": "Coller le texte",
+    "startFailed": "Helm n'a pas pu démarrer ce terminal : {{error}}"
+  },
+  "format": {
+    "thousand": "{{n}} k",
+    "million": "{{n}} M",
+    "billion": "{{n}} Md",
+    "days": "{{n}} j",
+    "hours": "{{n}} h",
+    "minutes": "{{n}} min",
+    "seconds": "{{n}} s",
+    "pair": "{{a}} {{b}}",
+    "dayAndTime": "{{day}} {{time}}"
+  },
+  "agentText": {
+    "verb": {
+      "command": "exécuter une commande",
+      "file": "modifier un fichier",
+      "read": "lire un fichier",
+      "web": "utiliser le web",
+      "mcp": "utiliser l'outil {{tool}}",
+      "mcpUnknown": "utiliser un outil MCP",
+      "other": "utiliser {{tool}}"
+    },
+    "wants": {
+      "command": "Veut exécuter une commande",
+      "file": "Veut modifier un fichier",
+      "read": "Veut lire un fichier",
+      "web": "Veut utiliser le web",
+      "mcp": "Veut utiliser l'outil {{tool}}",
+      "mcpUnknown": "Veut utiliser un outil MCP",
+      "other": "Veut utiliser {{tool}}"
+    },
+    "claudeWants": {
+      "command": "Claude veut exécuter une commande",
+      "file": "Claude veut modifier un fichier",
+      "read": "Claude veut lire un fichier",
+      "web": "Claude veut utiliser le web",
+      "mcp": "Claude veut utiliser l'outil {{tool}}",
+      "mcpUnknown": "Claude veut utiliser un outil MCP",
+      "other": "Claude veut utiliser {{tool}}"
+    },
+    "rule": {
+      "session": "{{rule}} pour le reste de cette session",
+      "local": "{{rule}} dans ce projet (vous uniquement)",
+      "project": "{{rule}} dans ce projet",
+      "user": "{{rule}} partout",
+      "none": "{{rule}}"
+    },
+    "allTool": {
+      "session": "tout {{tool}} pour le reste de cette session",
+      "local": "tout {{tool}} dans ce projet (vous uniquement)",
+      "project": "tout {{tool}} dans ce projet",
+      "user": "tout {{tool}} partout",
+      "none": "tout {{tool}}"
+    },
+    "acceptEdits": {
+      "session": "accepter les modifications de fichiers pour le reste de cette session",
+      "local": "accepter les modifications de fichiers dans ce projet (vous uniquement)",
+      "project": "accepter les modifications de fichiers dans ce projet",
+      "user": "accepter les modifications de fichiers partout",
+      "none": "accepter les modifications de fichiers"
+    },
+    "switchMode": {
+      "session": "passer en mode {{mode}} pour le reste de cette session",
+      "local": "passer en mode {{mode}} dans ce projet (vous uniquement)",
+      "project": "passer en mode {{mode}} dans ce projet",
+      "user": "passer en mode {{mode}} partout",
+      "none": "passer en mode {{mode}}"
+    },
+    "ruleSeparator": " ; ",
+    "justNow": "à l'instant",
+    "now": "maintenant",
+    "ago": "il y a {{time}}"
+  },
+  "themes": {
+    "accent": {
+      "brass": "Laiton",
+      "blue": "Bleu",
+      "violet": "Violet",
+      "green": "Vert",
+      "rose": "Rose",
+      "teal": "Bleu-vert"
+    }
+  },
+  "changelog": {
+    "v1_0_1": {
+      "pastDetails": {
+        "title": "Détails des conversations passées",
+        "text": "Dans la barre latérale, le menu ⋯ d'une conversation affiche désormais son contexte, ses jetons, son coût et ses outils, et peut les enregistrer en PDF."
+      }
+    },
+    "v1_0_0": {
+      "madeForClaudeCode": {
+        "title": "Conçu pour Claude Code",
+        "text": "Exécute la vraie CLI claude dans des onglets et des volets fractionnés rapides et accélérés par le matériel, avec un affichage correct de toutes les langues et de tous les emoji."
+      },
+      "approveAnywhere": {
+        "title": "Approuvez de n'importe où",
+        "text": "Les onglets en arrière-plan demandent l'autorisation dans Helm et dans une notification Windows avec Autoriser / Refuser, ainsi que Toujours autoriser pour ce en quoi vous avez confiance."
+      },
+      "usageLimits": {
+        "title": "Limites d'utilisation",
+        "text": "Jauges sur 5 heures et hebdomadaires en temps réel avec compte à rebours de réinitialisation, votre rythme, l'onglet qui a le plus consommé et des alertes à 80 % et 95 %."
+      },
+      "agentsTab": {
+        "title": "Onglet Agents",
+        "text": "Toutes les conversations Claude regroupées en À traiter, En cours et Terminées, avec le contexte, le coût et ce que fait chacune (Ctrl+Shift+A)."
+      },
+      "usageAtAGlance": {
+        "title": "Utilisation et contexte en un coup d'œil",
+        "text": "Chaque limite avec son heure de réinitialisation et votre rythme, le coût et les jetons du jour et de la semaine, et pour chaque conversation ce qui remplit la fenêtre de contexte. Enregistrez tout cela en PDF."
+      },
+      "builtInBrowser": {
+        "title": "Navigateur intégré",
+        "text": "Ouvrez votre application à côté du terminal, testez des tailles de téléphone et de tablette, et envoyez des erreurs, des captures d'écran ou n'importe quelle partie de la page à Claude en un clic."
+      },
+      "filesOpenInHelm": {
+        "title": "Les fichiers s'ouvrent dans Helm",
+        "text": "Le code avec coloration syntaxique, le Markdown, les images, les PDF, la vidéo et l'audio s'ouvrent dans des onglets Helm plutôt que dans d'autres applications."
+      },
+      "backgroundWork": {
+        "title": "Suivez le travail en arrière-plan",
+        "text": "Le panneau latéral s'ouvre sur Arrière-plan quand Claude lance un sous-agent, et montre ce qu'il fait et sa réponse finale. Détails liste les captures d'écran, les fichiers et les pages web utilisés."
+      },
+      "saveUsage": {
+        "title": "Économisez votre utilisation",
+        "text": "Historique d'utilisation par jour et par projet, un rappel pour /compact quand le contexte se remplit, une alerte avant l'expiration du cache, et les gros collages joints comme fichier."
+      },
+      "promptImprover": {
+        "title": "Amélioration des prompts",
+        "text": "Rédigez un prompt, laissez Claude le clarifier, puis envoyez-le (Ctrl+Shift+I)."
+      },
+      "tabStatus": {
+        "title": "Un statut sur chaque onglet",
+        "text": "En cours, en attente d'approbation ou terminé, avec des notifications pour les onglets que vous ne regardez pas."
+      },
+      "historyAndPalette": {
+        "title": "Historique et palette",
+        "text": "Recherchez dans toutes les conversations et reprenez-les en un clic. Ctrl+Shift+P pour les prompts enregistrés, les commandes Claude, les skills et les actions."
+      },
+      "reviewChanges": {
+        "title": "Examinez les modifications",
+        "text": "Diffs côte à côte, commentaires envoyés à Claude, et annulation pour un fichier entier ou une seule partie."
+      },
+      "parallelTasks": {
+        "title": "Tâches parallèles",
+        "text": "Lancez Claude sur plusieurs tâches à la fois, chacune dans sa propre copie du projet sur sa propre branche, puis fusionnez-les ou supprimez-les."
+      },
+      "keepConversations": {
+        "title": "Des conversations que vous ne perdez pas",
+        "text": "Les onglets rouvrent les mêmes conversations après un redémarrage, et Ctrl+Alt+Shift+T rouvre un onglet fermé."
+      },
+      "statusBar": {
+        "title": "Une barre d'état épurée",
+        "text": "Mode d'autorisation, minuteur du cache de prompt, effort, push/pull Git, pull request, utilisation, coût, contexte et modèle. Clic droit pour choisir."
+      },
+      "makeItYours": {
+        "title": "Personnalisez-le",
+        "text": "Couleurs d'accentuation, 10 jeux de couleurs de terminal, Inter et JetBrains Mono intégrés, panneaux redimensionnables, zoom avec Ctrl+molette et Mica de Windows 11."
+      },
+      "claudeCodeSettings": {
+        "title": "Paramètres de Claude Code",
+        "text": "Modifiez les autorisations, les hooks, les serveurs MCP et CLAUDE.md sans toucher au JSON."
+      },
+      "windowsDoneRight": {
+        "title": "Pensé pour Windows",
+        "text": "PowerShell 7, Windows PowerShell ou Git Bash par onglet, des indications Windows pour Claude, et le collage de captures d'écran avec Ctrl+V."
+      },
+      "private": {
+        "title": "Confidentiel par conception",
+        "text": "Tout reste sur votre PC. La seule requête réseau est la recherche de mises à jour, et vous pouvez la désactiver."
+      }
+    },
+    "v1_0_2": {
+      "languages": {
+        "title": "Helm dans votre langue",
+        "text": "Choisissez parmi 11 langues, les mêmes que Claude, dans le menu de l’engrenage ou dans Paramètres › Apparence. Par défaut, Helm suit la langue de Windows."
+      },
+      "voice": {
+        "title": "Saisie vocale",
+        "text": "Maintenez Ctrl+Space ou cliquez sur le micro d’un onglet Claude et parlez. La voix devient du texte sur votre PC, rien n’est envoyé, et le texte est saisi dans l’invite pour que vous l’envoyiez."
+      },
+      "tools": {
+        "title": "Outils de développement",
+        "text": "Sélecteur de couleur, outils d’image, règle à l’écran, JSON, encodage et décodage, testeur d’expressions régulières, comparaison de texte, générateurs, convertisseur d’heure, texte de remplissage, ports utilisés, testeur d’API, variables d’environnement et bloc-notes."
+      },
+      "screenshots": {
+        "title": "Captures d’écran",
+        "text": "Capturez une zone, une fenêtre, une forme libre ou tout l’écran, avec un délai ou Ctrl+Alt+S depuis n’importe quelle application. Annotez avec des flèches, des cadres, du texte, des étapes numérotées et du flou, puis copiez, enregistrez ou envoyez à Claude."
+      },
+      "projects": {
+        "title": "Fichiers du projet et nouvelle barre latérale",
+        "text": "Parcourez, recherchez et modifiez les fichiers d’un projet sans quitter Helm. La barre latérale affiche les projets avec leurs conversations, avec recherche, tri, étiquettes de couleur, floutage de confidentialité, et un renommage et une suppression sûrs."
+      },
+      "phones": {
+        "title": "Téléphones de test",
+        "text": "Un téléphone Android connecté apparaît dans la barre d’état : affichez son écran, lisez les journaux de votre application, faites une capture d’écran ou consultez ses détails."
+      },
+      "settings": {
+        "title": "settings.json et menu de l’engrenage",
+        "text": "Modifiez les paramètres de Helm dans un fichier, avec suggestions et vérifications, comme dans VS Code (Ctrl+Shift+,). L’engrenage ouvre maintenant un menu avec les paramètres, le thème, la langue, les mises à jour et l’aide."
+      },
+      "agents": {
+        "title": "Agents et Arrière-plan plus clairs",
+        "text": "La page Agents a des onglets En direct et Utilisation, et une vue complète de chaque conversation. Arrière-plan, dans le volet latéral, montre les sous-agents et les commandes avec des réponses mises en forme, et les commandes terminées ne restent plus bloquées comme en cours."
+      }
+    }
+  },
+  "updater": {
+    "upToDate": "Helm est à jour.",
+    "downloading": "Téléchargement de Helm {{version}}…",
+    "available": "Helm {{version}} est disponible.",
+    "checkFailed": "Impossible de rechercher des mises à jour : {{error}}"
+  },
+  "misc": {
+    "device": {
+      "laptop": "Ordinateur portable",
+      "laptopHd": "Ordinateur portable HD",
+      "desktop": "Ordinateur de bureau",
+      "custom": "Personnalisé"
+    },
+    "deviceGroup": {
+      "phones": "Téléphones",
+      "tablets": "Tablettes",
+      "computers": "Ordinateurs"
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import type { ITheme } from "@xterm/xterm";
+import { t } from "../i18n";
 
 export type ThemeMode = "dark" | "light" | "system";
 
@@ -79,12 +80,12 @@ export const TERMINAL_SCHEMES: { id: string; label: string; dark: boolean; theme
 
 /** Accent colors for dark and light themes. */
 export const ACCENTS: Record<string, { label: string; dark: string; light: string }> = {
-  brass: { label: "Brass", dark: "#e0a458", light: "#b8732e" },
-  blue: { label: "Blue", dark: "#6aa6ff", light: "#2563eb" },
-  violet: { label: "Violet", dark: "#b49cff", light: "#7c3aed" },
-  green: { label: "Green", dark: "#5fd39a", light: "#15803d" },
-  rose: { label: "Rose", dark: "#ff8fab", light: "#e11d48" },
-  teal: { label: "Teal", dark: "#4fd1c5", light: "#0f766e" },
+  brass: { get label() { return t("themes.accent.brass"); }, dark: "#e0a458", light: "#b8732e" },
+  blue: { get label() { return t("themes.accent.blue"); }, dark: "#6aa6ff", light: "#2563eb" },
+  violet: { get label() { return t("themes.accent.violet"); }, dark: "#b49cff", light: "#7c3aed" },
+  green: { get label() { return t("themes.accent.green"); }, dark: "#5fd39a", light: "#15803d" },
+  rose: { get label() { return t("themes.accent.rose"); }, dark: "#ff8fab", light: "#e11d48" },
+  teal: { get label() { return t("themes.accent.teal"); }, dark: "#4fd1c5", light: "#0f766e" },
 };
 
 export function resolveTheme(mode: ThemeMode): "dark" | "light" {

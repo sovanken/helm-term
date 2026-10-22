@@ -1,0 +1,287 @@
+{
+  "status": {
+    "thinking": "Sto pensando…"
+  },
+  "events": {
+    "someTool": "uno strumento",
+    "waitingForYou": "Claude ti sta aspettando",
+    "needsYouTitle": "Claude ha bisogno di te · {{where}}",
+    "finishedTitle": "Claude ha finito · {{where}}",
+    "readyForNext": "Pronto per il prossimo messaggio",
+    "stoppedTitle": "Claude si è fermato · {{where}}",
+    "needsApprovalTitle": "Claude chiede l'approvazione · {{where}}",
+    "whereAndTitle": "{{where}} · {{title}}",
+    "details": "Dettagli",
+    "usageLimitTitle": "Limite di utilizzo di Claude",
+    "limitWarning": {
+      "fiveHour": "Hai usato il {{pct}}% del limite di 5 ore di Claude.",
+      "weekly": "Hai usato il {{pct}}% del limite settimanale di Claude."
+    },
+    "stop": {
+      "rateLimit": "Limite di utilizzo raggiunto",
+      "authenticationFailed": "Claude si è fermato perché l'accesso non è riuscito. Esegui /login per accedere di nuovo.",
+      "billingError": "Claude si è fermato per un problema di fatturazione del tuo account.",
+      "invalidRequest": "Claude si è fermato perché la richiesta è stata rifiutata.",
+      "serverError": "Claude si è fermato per un errore del server. Riprova tra poco.",
+      "maxOutputTokens": "Claude si è fermato perché la risposta ha raggiunto la lunghezza massima.",
+      "overloaded": "Claude si è fermato perché il servizio è occupato. Riprova tra poco.",
+      "other": "Claude si è fermato."
+    }
+  },
+  "taskHints": {
+    "subagent": "Subagente",
+    "backgroundCommand": "Comando in background",
+    "compactHint": "{{project}}: questa conversazione usa il {{pct}}% del suo contesto. Compattarla rende più economico ogni messaggio successivo.",
+    "compactNow": "Compatta ora",
+    "cacheExpiring": "{{project}}: la cache scade tra circa un minuto. Rispondi ora per mantenere economica questa conversazione.",
+    "idleConversation": "{{project}} ha una conversazione grande inattiva. Quando cambi argomento, /clear ricomincia da zero e consuma molto meno."
+  },
+  "store": {
+    "color": {
+      "red": "Rosso",
+      "orange": "Arancione",
+      "yellow": "Giallo",
+      "green": "Verde",
+      "teal": "Verde acqua",
+      "blue": "Blu",
+      "purple": "Viola",
+      "pink": "Rosa"
+    }
+  },
+  "terminal": {
+    "pasteLines_one": "Stai incollando {{count}} riga in una shell. Ogni riga viene eseguita come comando a sé.",
+    "pasteLines_many": "Stai incollando {{count}} righe in una shell. Ogni riga viene eseguita come comando a sé.",
+    "pasteLines_other": "Stai incollando {{count}} righe in una shell. Ogni riga viene eseguita come comando a sé.",
+    "pasteLinesTitle": "Incollare più righe?",
+    "bigPaste": "Questo testo incollato è di {{size}} caratteri. Il testo incollato viene reinviato con ogni messaggio successivo. Salvandolo come file e allegandone il percorso, Claude lo legge solo quando serve e consumi meno.",
+    "bigPasteTitle": "Allegare come file?",
+    "attachAsFile": "Allega come file",
+    "pasteText": "Incolla testo",
+    "startFailed": "Helm non è riuscito ad avviare questo terminale: {{error}}"
+  },
+  "format": {
+    "thousand": "{{n}}k",
+    "million": "{{n}} Mln",
+    "billion": "{{n}} Mld",
+    "days": "{{n}}g",
+    "hours": "{{n}}h",
+    "minutes": "{{n}}m",
+    "seconds": "{{n}}s",
+    "pair": "{{a}} {{b}}",
+    "dayAndTime": "{{day}} {{time}}"
+  },
+  "agentText": {
+    "verb": {
+      "command": "eseguire un comando",
+      "file": "modificare un file",
+      "read": "leggere un file",
+      "web": "usare il web",
+      "mcp": "usare lo strumento {{tool}}",
+      "mcpUnknown": "usare uno strumento MCP",
+      "other": "usare {{tool}}"
+    },
+    "wants": {
+      "command": "Vuole eseguire un comando",
+      "file": "Vuole modificare un file",
+      "read": "Vuole leggere un file",
+      "web": "Vuole usare il web",
+      "mcp": "Vuole usare lo strumento {{tool}}",
+      "mcpUnknown": "Vuole usare uno strumento MCP",
+      "other": "Vuole usare {{tool}}"
+    },
+    "claudeWants": {
+      "command": "Claude vuole eseguire un comando",
+      "file": "Claude vuole modificare un file",
+      "read": "Claude vuole leggere un file",
+      "web": "Claude vuole usare il web",
+      "mcp": "Claude vuole usare lo strumento {{tool}}",
+      "mcpUnknown": "Claude vuole usare uno strumento MCP",
+      "other": "Claude vuole usare {{tool}}"
+    },
+    "rule": {
+      "session": "{{rule}} per il resto di questa sessione",
+      "local": "{{rule}} in questo progetto (solo tu)",
+      "project": "{{rule}} in questo progetto",
+      "user": "{{rule}} ovunque",
+      "none": "{{rule}}"
+    },
+    "allTool": {
+      "session": "tutto {{tool}} per il resto di questa sessione",
+      "local": "tutto {{tool}} in questo progetto (solo tu)",
+      "project": "tutto {{tool}} in questo progetto",
+      "user": "tutto {{tool}} ovunque",
+      "none": "tutto {{tool}}"
+    },
+    "acceptEdits": {
+      "session": "accetta le modifiche ai file per il resto di questa sessione",
+      "local": "accetta le modifiche ai file in questo progetto (solo tu)",
+      "project": "accetta le modifiche ai file in questo progetto",
+      "user": "accetta le modifiche ai file ovunque",
+      "none": "accetta le modifiche ai file"
+    },
+    "switchMode": {
+      "session": "passa alla modalità {{mode}} per il resto di questa sessione",
+      "local": "passa alla modalità {{mode}} in questo progetto (solo tu)",
+      "project": "passa alla modalità {{mode}} in questo progetto",
+      "user": "passa alla modalità {{mode}} ovunque",
+      "none": "passa alla modalità {{mode}}"
+    },
+    "ruleSeparator": "; ",
+    "justNow": "proprio ora",
+    "now": "ora",
+    "ago": "{{time}} fa"
+  },
+  "themes": {
+    "accent": {
+      "brass": "Ottone",
+      "blue": "Blu",
+      "violet": "Viola",
+      "green": "Verde",
+      "rose": "Rosa",
+      "teal": "Verde acqua"
+    }
+  },
+  "changelog": {
+    "v1_0_1": {
+      "pastDetails": {
+        "title": "Dettagli delle conversazioni passate",
+        "text": "Nella barra laterale, il menu ⋯ di una conversazione ora mostra contesto, token, costo e strumenti, e può salvarli come PDF."
+      }
+    },
+    "v1_0_0": {
+      "madeForClaudeCode": {
+        "title": "Fatto per Claude Code",
+        "text": "Esegue la vera CLI claude in schede e riquadri divisi veloci e con accelerazione hardware, con ogni lingua ed emoji visualizzate correttamente."
+      },
+      "approveAnywhere": {
+        "title": "Approva da qualsiasi punto",
+        "text": "Le schede in background chiedono l'autorizzazione in Helm e in una notifica di Windows con Consenti / Nega, più Consenti sempre per ciò di cui ti fidi."
+      },
+      "usageLimits": {
+        "title": "Limiti di utilizzo",
+        "text": "Indicatori in tempo reale di 5 ore e settimanali con conto alla rovescia del ripristino, il tuo ritmo, la scheda che ha consumato di più e avvisi all'80% e al 95%."
+      },
+      "agentsTab": {
+        "title": "Scheda Agenti",
+        "text": "Ogni conversazione di Claude raggruppata in Ha bisogno di te, Al lavoro e Finite, con contesto, costo e cosa sta facendo ciascuna (Ctrl+Shift+A)."
+      },
+      "usageAtAGlance": {
+        "title": "Utilizzo e contesto a colpo d'occhio",
+        "text": "Ogni limite con l'orario di ripristino e il tuo ritmo, costo e token di oggi e della settimana e, per ogni conversazione, cosa riempie la finestra di contesto. Salva tutto come PDF."
+      },
+      "builtInBrowser": {
+        "title": "Browser integrato",
+        "text": "Apri la tua app accanto al terminale, prova dimensioni di telefono e tablet e invia a Claude errori, screenshot o qualsiasi parte della pagina con un clic."
+      },
+      "filesOpenInHelm": {
+        "title": "I file si aprono in Helm",
+        "text": "Codice con evidenziazione, Markdown, immagini, PDF, video e audio si aprono come schede di Helm invece che in altre app."
+      },
+      "backgroundWork": {
+        "title": "Vedi il lavoro in background",
+        "text": "Il pannello laterale si apre su Background quando Claude avvia un subagente, mostrando cosa sta facendo e la sua risposta finale. Dettagli elenca screenshot, file e pagine web usati."
+      },
+      "saveUsage": {
+        "title": "Risparmia utilizzo",
+        "text": "Cronologia dell'utilizzo per giorno e progetto, un promemoria per /compact quando il contesto si riempie, un avviso prima che la cache scada e i testi incollati lunghi allegati come file."
+      },
+      "promptImprover": {
+        "title": "Miglioramento prompt",
+        "text": "Scrivi un prompt, lascia che Claude lo renda più chiaro, poi invialo (Ctrl+Shift+I)."
+      },
+      "tabStatus": {
+        "title": "Stato su ogni scheda",
+        "text": "Al lavoro, in attesa di approvazione o finito, con notifiche per le schede che non stai guardando."
+      },
+      "historyAndPalette": {
+        "title": "Cronologia e palette",
+        "text": "Cerca in ogni conversazione e riprendila con un clic. Ctrl+Shift+P per prompt salvati, comandi di Claude, skill e azioni."
+      },
+      "reviewChanges": {
+        "title": "Rivedi le modifiche",
+        "text": "Differenze affiancate, commenti inviati a Claude e annullamento per un intero file o solo una parte."
+      },
+      "parallelTasks": {
+        "title": "Attività in parallelo",
+        "text": "Esegui Claude su più attività insieme, ciascuna nella propria copia del progetto sul proprio branch, poi uniscile o rimuovile."
+      },
+      "keepConversations": {
+        "title": "Conversazioni che non perdi",
+        "text": "Le schede riaprono le stesse conversazioni dopo un riavvio e Ctrl+Alt+Shift+T riapre una scheda chiusa."
+      },
+      "statusBar": {
+        "title": "Barra di stato pulita",
+        "text": "Modalità autorizzazioni, timer della cache dei prompt, impegno, git push/pull, pull request, utilizzo, costo, contesto e modello. Fai clic con il pulsante destro per scegliere."
+      },
+      "makeItYours": {
+        "title": "Personalizzalo",
+        "text": "Colori di evidenziazione, 10 combinazioni di colori del terminale, Inter e JetBrains Mono integrati, pannelli ridimensionabili, zoom con Ctrl+rotellina del mouse e Mica di Windows 11."
+      },
+      "claudeCodeSettings": {
+        "title": "Impostazioni di Claude Code",
+        "text": "Modifica autorizzazioni, hook, server MCP e CLAUDE.md senza toccare il JSON."
+      },
+      "windowsDoneRight": {
+        "title": "Windows fatto bene",
+        "text": "PowerShell 7, Windows PowerShell o Git Bash per ogni scheda, suggerimenti Windows per Claude e incolla screenshot con Ctrl+V."
+      },
+      "private": {
+        "title": "Privato per progettazione",
+        "text": "Tutto resta sul tuo PC. L'unica richiesta di rete è il controllo degli aggiornamenti, e puoi disattivarlo."
+      }
+    },
+    "v1_0_2": {
+      "languages": {
+        "title": "Helm nella tua lingua",
+        "text": "Scegli tra 11 lingue, le stesse di Claude, dal menu a ingranaggio o da Impostazioni › Aspetto. Per impostazione predefinita Helm segue la lingua di Windows."
+      },
+      "voice": {
+        "title": "Dettatura vocale",
+        "text": "Tieni premuto Ctrl+Space o fai clic sul microfono in una scheda Claude e parla. La voce diventa testo sul tuo PC, non viene inviato nulla, e il testo viene scritto nel prompt pronto da inviare."
+      },
+      "tools": {
+        "title": "Strumenti per sviluppatori",
+        "text": "Selettore colore, strumenti per immagini, righello sullo schermo, JSON, codifica e decodifica, tester regex, confronto testo, generatori, convertitore di orari, testo segnaposto, porte in uso, tester API, variabili d’ambiente e blocco note."
+      },
+      "screenshots": {
+        "title": "Screenshot",
+        "text": "Cattura un’area, una finestra, una forma libera o tutto lo schermo, con un ritardo o con Ctrl+Alt+S da qualsiasi app. Aggiungi frecce, riquadri, testo, passaggi numerati e sfocatura, poi copia, salva o invia a Claude."
+      },
+      "projects": {
+        "title": "File del progetto e nuova barra laterale",
+        "text": "Sfoglia, cerca e modifica i file di un progetto senza uscire da Helm. La barra laterale mostra i progetti con le loro conversazioni, con ricerca, ordinamento, etichette colorate, sfocatura per la privacy e rinomina ed eliminazione sicure."
+      },
+      "phones": {
+        "title": "Telefoni per i test",
+        "text": "Un telefono Android collegato compare nella barra di stato: duplica lo schermo, leggi i log della tua app, fai uno screenshot o vedi i dettagli."
+      },
+      "settings": {
+        "title": "settings.json e menu a ingranaggio",
+        "text": "Modifica le impostazioni di Helm come file, con suggerimenti e controlli, come in VS Code (Ctrl+Shift+,). L’ingranaggio ora apre un menu con impostazioni, tema, lingua, aggiornamenti e guida."
+      },
+      "agents": {
+        "title": "Agenti e Background più chiari",
+        "text": "La pagina Agenti ha le schede In tempo reale e Utilizzo e una vista completa di ogni conversazione. Background, nel pannello laterale, mostra subagenti e comandi con risposte formattate, e i comandi finiti non restano più bloccati come in esecuzione."
+      }
+    }
+  },
+  "updater": {
+    "upToDate": "Helm è aggiornato.",
+    "downloading": "Download di Helm {{version}}…",
+    "available": "È disponibile Helm {{version}}.",
+    "checkFailed": "Impossibile verificare la disponibilità di aggiornamenti: {{error}}"
+  },
+  "misc": {
+    "device": {
+      "laptop": "Portatile",
+      "laptopHd": "Portatile HD",
+      "desktop": "Desktop",
+      "custom": "Personalizzato"
+    },
+    "deviceGroup": {
+      "phones": "Telefoni",
+      "tablets": "Tablet",
+      "computers": "Computer"
+    }
+  }
+}

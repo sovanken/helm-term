@@ -1,3 +1,7 @@
+import { openSettingsJson } from "../lib/settingsJson";
+import { focusSidebarSearch } from "./HistoryList";
+import { TOOLS } from "../tools/registry";
+import { startSnip } from "../snip/snip";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import {
   PanelRight,
@@ -20,19 +24,26 @@ import {
   Rows2,
   Search,
   Settings,
+  FileJson,
   Slash,
   Sparkles,
   SquareTerminal,
   Sun,
   Wand2,
+  FilePlus,
+  Scissors,
+  Timer,
+  Images,
+  FolderTree,
 } from "lucide-react";
 import { fuzzyScore, timeAgo } from "../lib/fuzzy";
 import { ipc, type SlashCommand } from "../lib/ipc";
 import { activePane, defaultFolder, folderName, useStore } from "../state/store";
 import { focusTerminal, insertText, typeCommand } from "../terminal/terminals";
-import { chooseFolder } from "./TitleBar";
+import { chooseFolder, chooseProject } from "./TitleBar";
 import { exportActiveConversation } from "../lib/actions";
 import { checkForUpdate } from "../lib/updater";
+import { useTranslation } from "react-i18next";
 
 interface Item {
   id: string;
@@ -46,35 +57,43 @@ interface Item {
   run: () => void;
 }
 
-/** Built-in Claude Code commands. `args` ones are typed without pressing Enter. */
+/** Built-in Claude Code commands. `args` ones are typed without pressing Enter. `description` is a translation key. */
 const BUILTIN: { name: string; description: string; args?: boolean }[] = [
-  { name: "clear", description: "Start a fresh conversation" },
-  { name: "compact", description: "Summarize the conversation to free up context" },
-  { name: "context", description: "See what is using the context window" },
-  { name: "model", description: "Switch the model" },
-  { name: "resume", description: "Pick a past conversation" },
-  { name: "rewind", description: "Go back to an earlier point in the conversation" },
-  { name: "init", description: "Create a CLAUDE.md guide for this project" },
-  { name: "memory", description: "Edit Claude's memory files" },
-  { name: "review", description: "Review a pull request", args: true },
-  { name: "security-review", description: "Check pending changes for security issues" },
-  { name: "add-dir", description: "Give Claude access to another folder", args: true },
-  { name: "permissions", description: "Manage what Claude may do without asking" },
-  { name: "mcp", description: "Manage MCP servers" },
-  { name: "agents", description: "Manage subagents" },
-  { name: "hooks", description: "Manage hooks" },
-  { name: "plugin", description: "Manage plugins" },
-  { name: "config", description: "Open Claude Code settings" },
-  { name: "usage", description: "Show plan usage limits" },
-  { name: "status", description: "Show account and system status" },
-  { name: "export", description: "Export this conversation" },
-  { name: "doctor", description: "Check the Claude Code installation" },
-  { name: "help", description: "Show Claude Code help" },
+  { name: "clear", description: "palette.builtin.clear" },
+  { name: "compact", description: "palette.builtin.compact" },
+  { name: "context", description: "palette.builtin.context" },
+  { name: "model", description: "palette.builtin.model" },
+  { name: "resume", description: "palette.builtin.resume" },
+  { name: "rewind", description: "palette.builtin.rewind" },
+  { name: "init", description: "palette.builtin.init" },
+  { name: "memory", description: "palette.builtin.memory" },
+  { name: "review", description: "palette.builtin.review", args: true },
+  { name: "security-review", description: "palette.builtin.securityReview" },
+  { name: "add-dir", description: "palette.builtin.addDir", args: true },
+  { name: "permissions", description: "palette.builtin.permissions" },
+  { name: "mcp", description: "palette.builtin.mcp" },
+  { name: "agents", description: "palette.builtin.agents" },
+  { name: "hooks", description: "palette.builtin.hooks" },
+  { name: "plugin", description: "palette.builtin.plugin" },
+  { name: "config", description: "palette.builtin.config" },
+  { name: "usage", description: "palette.builtin.usage" },
+  { name: "status", description: "palette.builtin.status" },
+  { name: "export", description: "palette.builtin.export" },
+  { name: "doctor", description: "palette.builtin.doctor" },
+  { name: "help", description: "palette.builtin.help" },
 ];
 
-const GROUP_ORDER = ["Saved prompts", "Claude commands", "Actions", "Projects", "Recent conversations"];
+const GROUP_ORDER = ["prompts", "commands", "actions", "projects", "conversations"];
+const GROUP_LABEL: Record<string, string> = {
+  prompts: "palette.groups.prompts",
+  commands: "palette.groups.commands",
+  actions: "palette.groups.actions",
+  projects: "palette.groups.projects",
+  conversations: "palette.groups.conversations",
+};
 
 export function CommandPalette() {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [index, setIndex] = useState(0);
   const [custom, setCustom] = useState<SlashCommand[]>([]);
@@ -100,7 +119,7 @@ export function CommandPalette() {
     for (const p of s.prompts) {
       out.push({
         id: `prompt-${p.id}`,
-        group: "Saved prompts",
+        group: "prompts",
         label: p.title,
         detail: p.text,
         icon: <MessageSquareText size={15} />,
@@ -112,10 +131,10 @@ export function CommandPalette() {
       for (const c of custom) {
         out.push({
           id: `custom-${c.name}`,
-          group: "Claude commands",
+          group: "commands",
           label: `/${c.name}`,
           detail: c.description,
-          hint: c.kind === "skill" ? "skill" : c.scope === "project" ? "project" : "yours",
+          hint: c.kind === "skill" ? t("palette.hint.skill") : c.scope === "project" ? t("palette.hint.project") : t("palette.hint.yours"),
           icon: c.kind === "skill" ? <Wand2 size={15} /> : <Slash size={15} />,
           run: () => typeCommand(pane.id, `/${c.name}${c.takesArgs ? " " : ""}`, !c.takesArgs),
         });
@@ -124,9 +143,9 @@ export function CommandPalette() {
         if (custom.some((x) => x.name === c.name)) continue;
         out.push({
           id: `builtin-${c.name}`,
-          group: "Claude commands",
+          group: "commands",
           label: `/${c.name}`,
-          detail: c.description,
+          detail: t(c.description),
           icon: <Slash size={15} />,
           run: () => typeCommand(pane.id, `/${c.name}${c.args ? " " : ""}`, !c.args),
         });
@@ -134,46 +153,55 @@ export function CommandPalette() {
     }
 
     const action = (id: string, label: string, icon: ReactNode, run: () => void, hint?: string, keywords?: string) =>
-      out.push({ id, group: "Actions", label, icon, run, hint, keywords });
-    if (pane && !claude) action("start-claude", "Start Claude here", <Sparkles size={15} />, () => typeCommand(pane.id, "claude", true));
-    action("new-claude", "New Claude tab", <Sparkles size={15} />, () => s.openTab(cwd, "claude"), "Ctrl+Shift+T");
-    action("new-shell", "New PowerShell tab", <SquareTerminal size={15} />, () => s.openTab(cwd, "shell"), "Ctrl+Shift+N");
-    action("open-folder", "Open folder with Claude…", <FolderOpen size={15} />, () => void chooseFolder("claude"));
-    action("agents", "Agents: sessions, approvals and usage", <LayoutDashboard size={15} />, () => s.openAgents(), "Ctrl+Shift+A", "dashboard limits quota approve");
+      out.push({ id, group: "actions", label, icon, run, hint, keywords });
+    if (pane && !claude) action("start-claude", t("palette.action.startClaude"), <Sparkles size={15} />, () => typeCommand(pane.id, "claude", true));
+    action("new-claude", t("common.newClaudeTab"), <Sparkles size={15} />, () => s.openTab(cwd, "claude"), "Ctrl+Shift+T");
+    action("new-shell", t("common.newTerminalTab"), <SquareTerminal size={15} />, () => s.openTab(cwd, "shell"), "Ctrl+Shift+N");
+    action("open-folder", t("welcome.openFolder"), <FolderOpen size={15} />, () => void chooseFolder("claude"));
+    action("agents", t("shortcuts.agents"), <LayoutDashboard size={15} />, () => s.openAgents(), "Ctrl+Shift+A", "dashboard limits quota approve");
     if (s.closedTabs.length)
-      action("reopen", `Reopen closed tab (${s.closedTabs[0].title || folderName(s.closedTabs[0].cwd)})`, <RotateCcw size={15} />, () => s.reopenClosedTab(), "Ctrl+Alt+Shift+T", "restore undo close");
-    action("composer", "Write and improve a prompt…", <Wand2 size={15} />, () => s.set({ composerOpen: true }), "Ctrl+Shift+I", "compose better prompt rewrite clearer");
-    action("bg-agents", "Show background agents", <Bot size={15} />, () => s.set({ changesOpen: true, inspectorTab: "agents" }), undefined, "subagents background tasks");
-    action("details", "Show conversation details", <Info size={15} />, () => s.set({ changesOpen: true, inspectorTab: "details" }), undefined, "attachments screenshots files read changed");
-    action("browser", "New browser tab", <Globe size={15} />, () => s.openBrowser("about:blank"), undefined, "web page localhost preview test phone responsive");
-    if (pane) action("browser-beside", "Open a browser beside this tab", <Globe size={15} />, () => s.openBrowser("about:blank", { beside: true }), undefined, "web page localhost preview split");
+      action("reopen", t("palette.action.reopen", { name: s.closedTabs[0].title || folderName(s.closedTabs[0].cwd) }), <RotateCcw size={15} />, () => s.reopenClosedTab(), "Ctrl+Alt+Shift+T", "restore undo close");
+    action("composer", t("palette.action.composer"), <Wand2 size={15} />, () => s.set({ composerOpen: true }), "Ctrl+Shift+I", "compose better prompt rewrite clearer");
+    action("bg-agents", t("palette.action.backgroundWork"), <Bot size={15} />, () => s.set({ changesOpen: true, inspectorTab: "agents" }), undefined, "subagents background tasks");
+    action("details", t("palette.action.details"), <Info size={15} />, () => s.set({ changesOpen: true, inspectorTab: "details" }), undefined, "attachments screenshots files read changed");
+    action("new-md", t("titleBar.newMarkdown"), <FilePlus size={15} />, () => s.set({ newFile: { ext: "md", dir: cwd } }), undefined, "create note document md write");
+    action("new-txt", t("titleBar.newText"), <FilePlus size={15} />, () => s.set({ newFile: { ext: "txt", dir: cwd } }), undefined, "create note txt write");
+    action("open-project", t("palette.action.openProjectHere", { name: folderName(cwd) }), <FolderTree size={15} />, () => s.openWorkspace(cwd), undefined, "explorer tree files browse workspace");
+    action("open-project-pick", t("titleBar.openProject"), <FolderTree size={15} />, () => void chooseProject(), undefined, "explorer tree files browse workspace folder");
+    action("snip", t("titleBar.snip"), <Scissors size={15} />, () => startSnip(0), useStore.getState().settings.snipShortcut || undefined, "snipping tool capture screen area window");
+    action("snip-delay", t("titleBar.snipIn", { count: 5 }), <Timer size={15} />, () => startSnip(5), undefined, "snipping tool capture delay");
+    action("snips", t("titleBar.screenshots"), <Images size={15} />, () => s.openSnips(), undefined, "snips history annotate");
+    for (const tool of TOOLS) action(`tool-${tool.id}`, t("palette.action.tool", { tool: tool.label }), tool.icon(15), () => s.openTool(tool.id), undefined, `developer tools ${tool.keywords}`);
+    action("browser", t("titleBar.newBrowserTab"), <Globe size={15} />, () => s.openBrowser("about:blank"), undefined, "web page localhost preview test phone responsive");
+    if (pane) action("browser-beside", t("titleBar.browserBeside"), <Globe size={15} />, () => s.openBrowser("about:blank", { beside: true }), undefined, "web page localhost preview split");
     for (const url of s.devServers.slice(0, 3))
-      action(`dev-${url}`, `Open ${url.replace(/^https?:\/\//, "").replace(/\/$/, "")} beside this tab`, <Globe size={15} />, () => s.openBrowser(url, { beside: true }), undefined, "dev server localhost preview");
-    action("new-task", "New parallel task…", <Layers size={15} />, () => s.set({ newTaskOpen: true }), undefined, "worktree branch parallel");
+      action(`dev-${url}`, t("palette.action.devServer", { address: url.replace(/^https?:\/\//, "").replace(/\/$/, "") }), <Globe size={15} />, () => s.openBrowser(url, { beside: true }), undefined, "dev server localhost preview");
+    action("new-task", t("palette.action.newTask"), <Layers size={15} />, () => s.set({ newTaskOpen: true }), undefined, "worktree branch parallel");
     if (pane) {
-      action("split-right", "Split right", <Columns2 size={15} />, () => s.splitActive("row", "shell"), "Alt+Shift+=");
-      action("split-down", "Split down", <Rows2 size={15} />, () => s.splitActive("column", "shell"), "Alt+Shift+-");
-      action("find", "Find in output", <Search size={15} />, () => s.set({ searchOpen: true }), "Ctrl+Shift+F");
+      action("split-right", t("shortcuts.splitRight"), <Columns2 size={15} />, () => s.splitActive("row", "shell"), "Alt+Shift+=");
+      action("split-down", t("shortcuts.splitDown"), <Rows2 size={15} />, () => s.splitActive("column", "shell"), "Alt+Shift+-");
+      action("find", t("shortcuts.find"), <Search size={15} />, () => s.set({ searchOpen: true }), "Ctrl+Shift+F");
     }
-    action("changes", "Show changes", <PanelRight size={15} />, () => s.set({ changesOpen: true }), "Ctrl+Shift+G", "git diff undo revert");
-    action("history", "Conversation history", <History size={15} />, () => s.set({ sidebarOpen: true, sidebarView: "history" }), "Ctrl+Shift+H", "sessions resume");
-    action("sidebar", "Show or hide sidebar", <PanelLeft size={15} />, () => s.set({ sidebarOpen: !s.sidebarOpen }), "Ctrl+Shift+B");
-    if (claude && pane) action("export", "Export this conversation to Markdown…", <FileDown size={15} />, exportActiveConversation, undefined, "save markdown share");
-    action("claude-settings", "Claude Code settings…", <SlidersHorizontal size={15} />, () => s.openSettings("permissions"), undefined, "permissions hooks mcp claude.md memory");
-    action("updates", "Check for updates", <Download size={15} />, () => void checkForUpdate(true), undefined, "version upgrade");
-    action("prompts", "Manage saved prompts…", <BookmarkPlus size={15} />, () => s.set({ promptsOpen: true }), undefined, "snippets library add edit");
+    action("changes", t("palette.action.changes"), <PanelRight size={15} />, () => s.set({ changesOpen: true }), "Ctrl+Shift+G", "git diff undo revert");
+    action("history", t("shortcuts.search"), <History size={15} />, focusSidebarSearch, "Ctrl+Shift+H", "history sessions resume chats");
+    action("sidebar", t("shortcuts.toggleSidebar"), <PanelLeft size={15} />, () => s.set({ sidebarOpen: !s.sidebarOpen }), "Ctrl+Shift+B");
+    if (claude && pane) action("export", t("palette.action.export"), <FileDown size={15} />, exportActiveConversation, undefined, "save markdown share");
+    action("claude-settings", t("titleBar.manage.claudeSettings"), <SlidersHorizontal size={15} />, () => s.openSettings("permissions"), undefined, "permissions hooks mcp claude.md memory");
+    action("updates", t("titleBar.manage.checkUpdates"), <Download size={15} />, () => void checkForUpdate(true), undefined, "version upgrade");
+    action("prompts", t("palette.action.prompts"), <BookmarkPlus size={15} />, () => s.set({ promptsOpen: true }), undefined, "snippets library add edit");
     const dark = document.documentElement.dataset.theme === "dark";
-    action("theme", dark ? "Switch to light theme" : "Switch to dark theme", dark ? <Sun size={15} /> : <Moon size={15} />, () =>
+    action("theme", dark ? t("palette.action.lightTheme") : t("palette.action.darkTheme"), dark ? <Sun size={15} /> : <Moon size={15} />, () =>
       s.updateSettings({ theme: dark ? "light" : "dark" }),
     );
-    action("settings", "Settings", <Settings size={15} />, () => s.openSettings(), "Ctrl+,", "preferences shortcuts font");
+    action("settings", t("titleBar.settings"), <Settings size={15} />, () => s.openSettings(), "Ctrl+,", "preferences shortcuts font");
+    action("settings-json", t("shortcuts.openSettingsJson"), <FileJson size={15} />, () => void openSettingsJson(), "Ctrl+Shift+,", "preferences json edit file custom");
 
     const projects = [...s.pinned, ...s.recent.map((r) => r.path).filter((p) => !s.pinned.includes(p))];
     for (const path of projects) {
       out.push({
         id: `project-${path}`,
-        group: "Projects",
-        label: `Open ${folderName(path)} with Claude`,
+        group: "projects",
+        label: t("palette.openProject", { name: folderName(path) }),
         detail: path,
         icon: <Sparkles size={15} />,
         run: () => s.openTab(path, "claude"),
@@ -183,7 +211,7 @@ export function CommandPalette() {
     for (const session of s.sessions.slice(0, 200)) {
       out.push({
         id: `session-${session.id}`,
-        group: "Recent conversations",
+        group: "conversations",
         label: session.title,
         detail: `${folderName(session.cwd)} · ${timeAgo(session.lastUsed)}`,
         icon: <History size={15} />,
@@ -192,17 +220,17 @@ export function CommandPalette() {
       });
     }
     return out;
-  }, [custom]);
+  }, [custom, t]);
 
   const results = useMemo(() => {
     if (!query.trim()) {
-      const limits: Record<string, number> = { "Saved prompts": 6, "Claude commands": 8, Actions: 20, Projects: 4, "Recent conversations": 5 };
+      const limits: Record<string, number> = { prompts: 6, commands: 8, actions: 20, projects: 4, conversations: 5 };
       return GROUP_ORDER.flatMap((g) => items.filter((i) => i.group === g).slice(0, limits[g]));
     }
     // Typing "/" searches Claude commands only.
     const commandsOnly = query.startsWith("/");
     return items
-      .filter((i) => !commandsOnly || i.group === "Claude commands")
+      .filter((i) => !commandsOnly || i.group === "commands")
       .map((i) => ({
         i,
         score: Math.max(
@@ -230,7 +258,7 @@ export function CommandPalette() {
 
   return (
     <div data-overlay className="anim-fade fixed inset-0 z-40 flex justify-center bg-black/30 pt-[12vh]" onPointerDown={(e) => e.target === e.currentTarget && close()}>
-      <div role="dialog" aria-label="Command palette" className="anim-pop flex h-fit max-h-[70vh] w-[620px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-xl border border-line bg-raised shadow-2xl shadow-black/30">
+      <div role="dialog" aria-label={t("palette.label")} className="anim-pop flex h-fit max-h-[70vh] w-[620px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-xl border border-line bg-raised shadow-2xl shadow-black/30">
         <div className="flex items-center gap-2.5 border-b border-line px-4">
           <Search size={16} className="text-faint" />
           <input
@@ -243,7 +271,7 @@ export function CommandPalette() {
               if (e.key === "Enter") { e.preventDefault(); choose(results[index]); }
               if (e.key === "Escape") { e.preventDefault(); close(); }
             }}
-            placeholder={claude ? "Search prompts, Claude commands, actions… ( / for commands)" : "Search actions, projects, conversations…"}
+            placeholder={claude ? t("palette.placeholderClaude") : t("palette.placeholder")}
             className="flex-1 bg-transparent py-3.5 text-[14px] text-fg outline-none placeholder:text-faint"
           />
         </div>
@@ -252,7 +280,7 @@ export function CommandPalette() {
             const showGroup = i === 0 || results[i - 1].group !== item.group;
             return (
               <div key={item.id}>
-                {showGroup && <div className="px-2.5 pt-2 pb-1 text-[11px] font-semibold tracking-wide text-faint uppercase">{item.group}</div>}
+                {showGroup && <div className="px-2.5 pt-2 pb-1 text-[11px] font-semibold tracking-wide text-faint uppercase">{t(GROUP_LABEL[item.group])}</div>}
                 <button
                   data-index={i}
                   onPointerMove={() => setIndex(i)}
@@ -269,13 +297,13 @@ export function CommandPalette() {
               </div>
             );
           })}
-          {results.length === 0 && <p className="px-3 py-6 text-center text-faint">Nothing matches “{query}”.</p>}
+          {results.length === 0 && <p className="px-3 py-6 text-center text-faint">{t("palette.noMatch", { query })}</p>}
         </div>
         <div className="flex gap-4 border-t border-line px-4 py-2 text-[11px] text-faint">
-          <span>↑↓ to move</span>
-          <span>Enter to run</span>
-          <span>Esc to close</span>
-          <span className="ml-auto">Prompts are inserted, not sent — press Enter in the terminal to send</span>
+          <span>{t("palette.footer.move")}</span>
+          <span>{t("palette.footer.run")}</span>
+          <span>{t("palette.footer.close")}</span>
+          <span className="ml-auto">{t("palette.footer.inserted")}</span>
         </div>
       </div>
     </div>

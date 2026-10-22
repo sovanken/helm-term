@@ -3,16 +3,19 @@ import { Globe, Sparkles, SquareTerminal, X } from "lucide-react";
 import { computeRects, type DividerRect, paneIds, type Rect } from "../lib/layout";
 import { cleanTitle, folderName, type Tab, useStore } from "../state/store";
 import { SearchBar } from "./SearchBar";
+import { VoiceButton } from "./Voice";
 import { StatusDot } from "./StatusDot";
 import { beginLiveResize, endLiveResize } from "../terminal/terminals";
 import { TerminalView } from "./TerminalView";
 import { BrowserView } from "./BrowserView";
 import { displayUrl, pageName } from "../lib/browser";
+import { useTranslation } from "react-i18next";
 
 const pct = (n: number) => `${n * 100}%`;
 const HEADER = 28;
 
 function PaneHeader({ paneId, active }: { paneId: string; active: boolean }) {
+  const { t } = useTranslation();
   const pane = useStore((s) => s.panes[paneId]);
   if (!pane) return null;
   const claude = pane.claudeActive || pane.kind === "claude";
@@ -34,8 +37,8 @@ function PaneHeader({ paneId, active }: { paneId: string; active: boolean }) {
         <span className="truncate text-attention">{pane.attentionMessage}</span>
       )}
       <button
-        aria-label="Close pane"
-        title="Close pane (Ctrl+Shift+W)"
+        aria-label={t("app.closePane")}
+        title={t("app.closePaneHint")}
         onClick={() => useStore.getState().closePane(paneId)}
         className="ml-auto flex size-5 shrink-0 items-center justify-center rounded text-muted hover:bg-hover hover:text-fg"
       >
@@ -115,6 +118,7 @@ export function TabView({ tab, visible }: { tab: Tab; visible: boolean }) {
                 <>
                   <TerminalView paneId={paneId} active={active} visible={visible} />
                   {visible && active && searchOpen && <SearchBar paneId={paneId} />}
+                  {visible && active && <VoiceButton paneId={paneId} />}
                 </>
               )}
             </div>

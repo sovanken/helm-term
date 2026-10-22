@@ -3,7 +3,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { disable as disableAutostart, enable as enableAutostart, isEnabled as autostartEnabled } from "@tauri-apps/plugin-autostart";
 import { ask, open as openDialog, save as saveDialog } from "@tauri-apps/plugin-dialog";
 import { openPath, openUrl } from "@tauri-apps/plugin-opener";
-import { Bell, Bot, Download, FolderOpen, Info, Keyboard, Palette, RotateCcw, Search, Settings2, ShieldCheck, Sparkles, SquareTerminal, Upload, Wrench, X } from "lucide-react";
+import { Bell, Bot, FileJson, Download, FolderOpen, Info, Keyboard, Palette, RotateCcw, Search, Settings2, ShieldCheck, Sparkles, SquareTerminal, Upload, Wrench, X } from "lucide-react";
 import { CHANGELOG } from "../lib/changelog";
 import { ipc } from "../lib/ipc";
 import { useShells } from "../lib/shells";
@@ -26,19 +26,24 @@ import { DEFAULT_SETTINGS, type Settings, type SettingsSection, showToast, useSt
 import { windowsBuildNumber } from "../terminal/terminals";
 import { CLAUDE_SECTIONS, ClaudeSection, type ClaudeSectionId } from "./ClaudeSettings";
 import { HelmMark } from "./Welcome";
+import { openSettingsJson } from "../lib/settingsJson";
+import { LANGUAGES, locale, resolveLanguage } from "../i18n";
+import { Trans, useTranslation } from "react-i18next";
+import { InstallProgress, LevelBars, useVoiceInstall } from "./Voice";
+import { isMicTesting, startMicTest, stopVoice, useVoice } from "../lib/voice";
 
-/** Nav entries with extra words the search box matches on. */
+/** Nav entries with extra words the search box matches on. `label` is a translation key. */
 const HELM_SECTIONS: { id: SettingsSection; label: string; icon: ReactNode; keywords: string }[] = [
-  { id: "general", label: "General", icon: <Settings2 size={15} />, keywords: "startup start windows login folder shell powershell bash restore reopen tabs confirm close" },
-  { id: "appearance", label: "Appearance", icon: <Palette size={15} />, keywords: "theme dark light accent color colour font size zoom scale scheme cursor line height mica transparency" },
-  { id: "terminal", label: "Terminal", icon: <SquareTerminal size={15} />, keywords: "scrollback history copy select right click paste bell sound gpu webgl rendering" },
-  { id: "notifications", label: "Notifications", icon: <Bell size={15} />, keywords: "notify alert toast sound finished approval usage limit" },
-  { id: "claude-in-helm", label: "Claude in Helm", icon: <Bot size={15} />, keywords: "approvals permission usage limits status line windows hints" },
-  { id: "shortcuts", label: "Keyboard shortcuts", icon: <Keyboard size={15} />, keywords: "keys hotkeys keybindings" },
-  { id: "privacy", label: "Privacy", icon: <ShieldCheck size={15} />, keywords: "data telemetry tracking analytics network clear delete screenshots" },
-  { id: "advanced", label: "Advanced", icon: <Wrench size={15} />, keywords: "arguments args environment variables data folder export import backup reset" },
-  { id: "whats-new", label: "What's new", icon: <Sparkles size={15} />, keywords: "changelog release notes new features version" },
-  { id: "about", label: "About & updates", icon: <Info size={15} />, keywords: "version update github license" },
+  { id: "general", label: "settings.nav.general", icon: <Settings2 size={15} />, keywords: "startup start windows login folder shell powershell bash restore reopen tabs confirm close voice microphone mic speech dictation talk" },
+  { id: "appearance", label: "settings.nav.appearance", icon: <Palette size={15} />, keywords: "theme dark light accent color colour font size zoom scale scheme cursor line height mica transparency" },
+  { id: "terminal", label: "settings.nav.terminal", icon: <SquareTerminal size={15} />, keywords: "scrollback history copy select right click paste bell sound gpu webgl rendering" },
+  { id: "notifications", label: "settings.nav.notifications", icon: <Bell size={15} />, keywords: "notify alert toast sound finished approval usage limit" },
+  { id: "claude-in-helm", label: "settings.nav.claudeInHelm", icon: <Bot size={15} />, keywords: "approvals permission usage limits status line windows hints" },
+  { id: "shortcuts", label: "settings.nav.shortcuts", icon: <Keyboard size={15} />, keywords: "keys hotkeys keybindings" },
+  { id: "privacy", label: "settings.nav.privacy", icon: <ShieldCheck size={15} />, keywords: "data telemetry tracking analytics network clear delete screenshots" },
+  { id: "advanced", label: "settings.nav.advanced", icon: <Wrench size={15} />, keywords: "arguments args environment variables data folder export import backup reset" },
+  { id: "whats-new", label: "settings.nav.whatsNew", icon: <Sparkles size={15} />, keywords: "changelog release notes new features version" },
+  { id: "about", label: "settings.nav.about", icon: <Info size={15} />, keywords: "version update github license" },
 ];
 
 const CLAUDE_KEYWORDS: Record<string, string> = {
@@ -50,14 +55,64 @@ const CLAUDE_KEYWORDS: Record<string, string> = {
 
 // ---------- building blocks ----------
 
-function Row({ label, hint, children, disabled }: { label: string; hint?: ReactNode; children: ReactNode; disabled?: boolean }) {
+function Row({ label, hint, children, disabled, k }: { label: string; hint?: ReactNode; children: ReactNode; disabled?: boolean; k?: keyof Settings }) {
+  const value = useStore((s) => (k ? s.settings[k] : undefined));
+  const modified = !!k && JSON.stringify(value) !== JSON.stringify(DEFAULT_SETTINGS[k]);
+  const { t } = useTranslation();
   return (
-    <div className={`flex items-center gap-6 border-b border-line py-3.5 last:border-b-0 ${disabled ? "opacity-50" : ""}`}>
+    <div className={`group/row relative flex items-center gap-6 border-b border-line py-3.5 last:border-b-0 ${disabled ? "opacity-50" : ""}`}>
+      {modified && <span className="absolute top-1/2 -left-2.5 h-5 w-0.5 -translate-y-1/2 rounded-full bg-accent" title={t("settings.row.changed")} />}
       <div className="min-w-0 flex-1">
-        <div className="text-[13px] text-fg">{label}</div>
+        <div className="flex items-center gap-1.5 text-[13px] text-fg">
+          {label}
+          {modified && (
+            <button
+              aria-label={t("settings.row.resetLabel", { label })}
+              title={t("settings.row.resetTitle", { value: JSON.stringify(DEFAULT_SETTINGS[k!]) })}
+              onClick={() => useStore.getState().updateSettings({ [k!]: DEFAULT_SETTINGS[k!] } as Partial<Settings>)}
+              className="flex size-5 items-center justify-center rounded text-faint opacity-0 group-hover/row:opacity-100 hover:bg-hover hover:text-fg focus-visible:opacity-100"
+            >
+              <RotateCcw size={11} />
+            </button>
+          )}
+        </div>
         {hint && <div className="mt-0.5 text-[12px] leading-relaxed text-faint">{hint}</div>}
       </div>
       <div className="shrink-0">{children}</div>
+    </div>
+  );
+}
+
+/** Records a key combo like "Ctrl+Alt+S" (needs at least one of Ctrl / Alt plus a key). */
+function ShortcutBox({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [recording, setRecording] = useState(false);
+  const { t } = useTranslation();
+  return (
+    <div className="flex items-center gap-1.5">
+      <button
+        onClick={() => setRecording(true)}
+        onBlur={() => setRecording(false)}
+        onKeyDown={(e) => {
+          if (!recording) return;
+          e.preventDefault();
+          e.stopPropagation();
+          if (e.key === "Escape") return setRecording(false);
+          if (["Control", "Alt", "Shift", "Meta"].includes(e.key)) return;
+          if (!e.ctrlKey && !e.altKey) return;
+          const key = e.code.startsWith("Key") ? e.code.slice(3) : e.code.startsWith("Digit") ? e.code.slice(5) : /^F\d+$/.test(e.code) ? e.code : null;
+          if (!key) return;
+          onChange([e.ctrlKey && "Ctrl", e.altKey && "Alt", e.shiftKey && "Shift", key].filter(Boolean).join("+"));
+          setRecording(false);
+        }}
+        className={`h-8 min-w-36 rounded-md border px-2.5 text-[12.5px] ${recording ? "border-accent text-accent" : "border-line text-fg hover:bg-hover"}`}
+      >
+        {recording ? t("settings.shortcutBox.recording") : value || t("common.off")}
+      </button>
+      {value && (
+        <button onClick={() => onChange("")} className="rounded-md px-2 py-1 text-[12px] text-muted hover:bg-hover hover:text-fg">
+          {t("settings.shortcutBox.turnOff")}
+        </button>
+      )}
     </div>
   );
 }
@@ -177,14 +232,15 @@ function General() {
   const [autostart, setAutostart] = useState<boolean | null>(null);
   useEffect(() => void autostartEnabled().then(setAutostart).catch(() => setAutostart(false)), []);
   const custom = s.startFolder !== "home" && s.startFolder !== "last";
+  const { t } = useTranslation();
 
   return (
     <>
-      <Heading title="General" hint="How Helm starts and opens new tabs." />
-      <Card title="Startup">
-        <Row label="Start Helm when you sign in to Windows" hint="Opens Helm in the background when your PC starts.">
+      <Heading title={t("settings.nav.general")} hint={t("settings.general.hint")} />
+      <Card title={t("settings.general.startup")}>
+        <Row label={t("settings.general.autostart.label")} hint={t("settings.general.autostart.hint")}>
           <Toggle
-            label="Start with Windows"
+            label={t("settings.general.autostart.toggle")}
             checked={!!autostart}
             disabled={autostart === null}
             onChange={async (v) => {
@@ -193,17 +249,17 @@ function General() {
                 else await disableAutostart();
                 setAutostart(await autostartEnabled());
               } catch (e) {
-                showToast(`Couldn't change that: ${String(e)}`, "error");
+                showToast(t("settings.general.autostart.failed", { error: String(e) }), "error");
               }
             }}
           />
         </Row>
-        <Row label="Reopen tabs on start" hint="Claude tabs continue the same conversation.">
-          <Toggle label="Reopen tabs" checked={s.restoreTabs} onChange={(v) => update({ restoreTabs: v })} />
+        <Row k="restoreTabs" label={t("settings.general.restoreTabs.label")} hint={t("settings.general.restoreTabs.hint")}>
+          <Toggle label={t("settings.general.restoreTabs.toggle")} checked={s.restoreTabs} onChange={(v) => update({ restoreTabs: v })} />
         </Row>
       </Card>
-      <Card title="New tabs">
-        <Row label="Shell" hint="You can also pick a shell per tab from the + menu.">
+      <Card title={t("settings.general.newTabs")}>
+        <Row k="shell" label={t("settings.general.shell.label")} hint={t("settings.general.shell.hint")}>
           <Select value={s.shell} onChange={(v) => update({ shell: v })}>
             {shells.map((sh) => (
               <option key={sh.id} value={sh.id}>
@@ -212,26 +268,126 @@ function General() {
             ))}
           </Select>
         </Row>
-        <Row label="Starting folder" hint={custom ? s.startFolder : "Used when no tab is open. New tabs otherwise open in the current tab's folder."}>
+        <Row k="startFolder" label={t("settings.general.startFolder.label")} hint={custom ? s.startFolder : t("settings.general.startFolder.hint")}>
           <div className="flex items-center gap-2">
             <Select value={custom ? "custom" : s.startFolder} onChange={async (v) => {
               if (v !== "custom") return update({ startFolder: v });
-              const dir = await openDialog({ directory: true, title: "Choose the starting folder" });
+              const dir = await openDialog({ directory: true, title: t("settings.general.startFolder.dialogTitle") });
               if (typeof dir === "string") update({ startFolder: dir });
             }} className="w-44">
-              <option value="home">Home folder</option>
-              <option value="last">Last used folder</option>
-              <option value="custom">Choose a folder…</option>
+              <option value="home">{t("settings.general.startFolder.home")}</option>
+              <option value="last">{t("settings.general.startFolder.last")}</option>
+              <option value="custom">{t("settings.general.startFolder.custom")}</option>
             </Select>
           </div>
         </Row>
       </Card>
-      <Card title="Closing">
-        <Row label="Ask before closing while Claude is working" hint="Applies to closing a tab, a pane or the window.">
-          <Toggle label="Confirm close" checked={s.confirmClose} onChange={(v) => update({ confirmClose: v })} />
+      <Card title={t("settings.general.closing")}>
+        <Row k="confirmClose" label={t("settings.general.confirmClose.label")} hint={t("settings.general.confirmClose.hint")}>
+          <Toggle label={t("settings.general.confirmClose.toggle")} checked={s.confirmClose} onChange={(v) => update({ confirmClose: v })} />
+        </Row>
+      </Card>
+      <VoiceCard />
+      <Card title={t("settings.general.screenshots")}>
+        <Row k="snipShortcut" label={t("settings.general.snipShortcut.label")} hint={t("settings.general.snipShortcut.hint")}>
+          <ShortcutBox value={s.snipShortcut} onChange={(v) => update({ snipShortcut: v })} />
+        </Row>
+        <Row k="snipAutoCopy" label={t("settings.general.snipAutoCopy.label")} hint={t("settings.general.snipAutoCopy.hint")}>
+          <Toggle label={t("settings.general.snipAutoCopy.toggle")} checked={s.snipAutoCopy} onChange={(v) => update({ snipAutoCopy: v })} />
         </Row>
       </Card>
     </>
+  );
+}
+
+const HOLD_KEYS = ["Ctrl+Space", "Ctrl+Shift+Space", "Alt+Shift+Space", "F8", "F9", "F10"];
+
+function VoiceCard() {
+  const [s, update] = useSettings();
+  const { status, progress, start, refresh } = useVoiceInstall();
+  const [mics, setMics] = useState<string[]>([]);
+  const phase = useVoice((v) => v.phase);
+  const level = useVoice((v) => v.level);
+  const testing = phase !== "idle" && isMicTesting();
+  useEffect(() => void ipc.voiceMics().then(setMics), []);
+  // Leaving Settings ends a mic test.
+  useEffect(() => () => void (isMicTesting() && stopVoice(false)), []);
+  const busy = !!status?.installing || progress?.stage === "downloading" || progress?.stage === "unpacking";
+  const { t } = useTranslation();
+
+  return (
+    <Card title={t("settings.voice.title")}>
+      <Row
+        label={t("settings.voice.speech.label")}
+        hint={
+          status?.installed
+            ? t("settings.voice.speech.hintInstalled", { size: status.sizeMb })
+            : t("settings.voice.speech.hintDownload", { size: status?.downloadMb ?? 460 })
+        }
+      >
+        {status?.installed ? (
+          <button
+            onClick={async () => {
+              if (await ask(t("settings.voice.removeConfirm.message"), { title: t("settings.voice.removeConfirm.title"), kind: "warning", okLabel: t("common.delete"), cancelLabel: t("common.cancel") })) {
+                await ipc.voiceRemove().catch((e) => showToast(String(e), "error"));
+                refresh();
+              }
+            }}
+            className="rounded-md border border-line px-3 py-1.5 text-[12.5px] hover:bg-hover"
+          >
+            {t("common.remove")}
+          </button>
+        ) : busy ? (
+          <button onClick={() => void ipc.voiceCancelInstall()} className="rounded-md border border-line px-3 py-1.5 text-[12.5px] hover:bg-hover">
+            {t("common.cancel")}
+          </button>
+        ) : (
+          <button onClick={start} disabled={!status} className="rounded-md bg-accent px-3 py-1.5 text-[12.5px] font-medium text-on-accent hover:opacity-90 disabled:opacity-40">
+            {t("settings.voice.download")}
+          </button>
+        )}
+      </Row>
+      {busy && progress && (
+        <div className="border-b border-line pb-3.5">
+          <InstallProgress progress={progress} />
+        </div>
+      )}
+      {progress?.stage === "error" && <p className="border-b border-line py-2 text-[12px] text-danger">{progress.error}</p>}
+      <Row k="voiceMic" label={t("settings.voice.mic.label")} hint={t("settings.voice.mic.hint")}>
+        <div className="flex items-center gap-2">
+          {testing && <LevelBars level={level} bars={7} className="text-accent" />}
+          <Select value={s.voiceMic} onChange={(v) => update({ voiceMic: v })} className="w-56">
+            <option value="">{t("settings.voice.mic.windowsDefault")}</option>
+            {mics.map((m) => (
+              <option key={m} value={m}>
+                {m}
+              </option>
+            ))}
+            {s.voiceMic && !mics.includes(s.voiceMic) && <option value={s.voiceMic}>{t("settings.voice.mic.notConnected", { name: s.voiceMic })}</option>}
+          </Select>
+          <button
+            onClick={() => (testing ? stopVoice(false) : void startMicTest(s.voiceMic))}
+            disabled={phase !== "idle" && !testing}
+            className="rounded-md border border-line px-3 py-1.5 text-[12.5px] hover:bg-hover disabled:opacity-40"
+          >
+            {testing ? t("settings.voice.mic.stop") : t("settings.voice.mic.test")}
+          </button>
+        </div>
+      </Row>
+      <Row k="voiceHoldKey" label={t("settings.voice.holdKey.label")} hint={t("settings.voice.holdKey.hint")}>
+        <Select value={s.voiceHoldKey} onChange={(v) => update({ voiceHoldKey: v })} className="w-44">
+          <option value="">{t("common.off")}</option>
+          {HOLD_KEYS.map((k) => (
+            <option key={k} value={k}>
+              {k}
+            </option>
+          ))}
+        </Select>
+      </Row>
+      <Row k="voiceButton" label={t("settings.voice.button.label")} hint={t("settings.voice.button.hint")}>
+        <Toggle label={t("settings.voice.button.toggle")} checked={s.voiceButton} onChange={(v) => update({ voiceButton: v })} />
+      </Row>
+    </Card>
   );
 }
 
@@ -265,19 +421,31 @@ function TerminalPreview({ s }: { s: Settings }) {
 
 function Appearance() {
   const [s, update] = useSettings();
+  const autoLanguage = LANGUAGES.find((l) => l.code === resolveLanguage("auto"))?.name;
   const mode = resolveTheme(s.theme);
   const micaSupported = windowsBuildNumber() >= 22000;
   const customFont = !TERMINAL_FONT_CHOICES.includes(s.fontFamily);
   const [fontDraft, setFontDraft] = useState(customFont ? s.fontFamily : "");
+  const { t } = useTranslation();
 
   return (
     <>
-      <Heading title="Appearance" hint="Make Helm and your terminals look the way you like. Changes show right away." />
-      <Card title="App">
-        <Row label="Theme" hint="System follows your Windows setting.">
-          <Segmented<ThemeMode> value={s.theme} onChange={(v) => update({ theme: v })} options={[{ id: "dark", label: "Dark" }, { id: "light", label: "Light" }, { id: "system", label: "System" }]} />
+      <Heading title={t("settings.nav.appearance")} hint={t("settings.appearance.hint")} />
+      <Card title={t("settings.appearance.app")}>
+        <Row k="language" label={t("settings.appearance.language.label")} hint={t("settings.appearance.language.hint")}>
+          <Select value={s.language} onChange={(v) => update({ language: v })} className="w-56">
+            <option value="auto">{autoLanguage ? t("settings.appearance.language.autoNamed", { language: autoLanguage }) : t("settings.appearance.language.auto")}</option>
+            {LANGUAGES.map((l) => (
+              <option key={l.code} value={l.code}>
+                {l.name}
+              </option>
+            ))}
+          </Select>
         </Row>
-        <Row label="Accent color" hint="Used for buttons, highlights, the cursor and selection.">
+        <Row k="theme" label={t("settings.appearance.theme.label")} hint={t("settings.appearance.theme.hint")}>
+          <Segmented<ThemeMode> value={s.theme} onChange={(v) => update({ theme: v })} options={[{ id: "dark", label: t("settings.appearance.theme.dark") }, { id: "light", label: t("settings.appearance.theme.light") }, { id: "system", label: t("settings.appearance.theme.system") }]} />
+        </Row>
+        <Row k="accent" label={t("settings.appearance.accent.label")} hint={t("settings.appearance.accent.hint")}>
           <div className="flex gap-2">
             {Object.entries(ACCENTS).map(([id, a]) => (
               <button
@@ -291,7 +459,7 @@ function Appearance() {
             ))}
           </div>
         </Row>
-        <Row label="Interface font">
+        <Row k="uiFont" label={t("settings.appearance.uiFont.label")}>
           <Select value={s.uiFont} onChange={(v) => update({ uiFont: v as Settings["uiFont"] })} className="w-48">
             {Object.entries(UI_FONTS).map(([id, f]) => (
               <option key={id} value={id} style={{ fontFamily: uiFontStack(id) }}>
@@ -300,17 +468,17 @@ function Appearance() {
             ))}
           </Select>
         </Row>
-        <Row label="Interface size" hint="Ctrl + mouse wheel outside a terminal also changes this.">
+        <Row k="uiScale" label={t("settings.appearance.uiScale.label")} hint={t("settings.appearance.uiScale.hint")}>
           <Slider value={s.uiScale} min={0.8} max={1.5} step={0.05} onChange={(v) => update({ uiScale: Math.round(v * 100) / 100 })} format={(v) => `${Math.round(v * 100)}%`} />
         </Row>
-        <Row label="See-through window (Mica)" hint={micaSupported ? "Lets your desktop color tint the sidebar and title bar, like Windows 11 apps." : "Needs Windows 11."} disabled={!micaSupported}>
-          <Toggle label="Mica" checked={s.mica && micaSupported} disabled={!micaSupported} onChange={(v) => update({ mica: v })} />
+        <Row k="mica" label={t("settings.appearance.mica.label")} hint={micaSupported ? t("settings.appearance.mica.hint") : t("settings.appearance.mica.unsupported")} disabled={!micaSupported}>
+          <Toggle label={t("settings.appearance.mica.toggle")} checked={s.mica && micaSupported} disabled={!micaSupported} onChange={(v) => update({ mica: v })} />
         </Row>
       </Card>
 
-      <h2 className="mb-2 text-[11px] font-semibold tracking-wide text-faint uppercase">Terminal colors</h2>
+      <h2 className="mb-2 text-[11px] font-semibold tracking-wide text-faint uppercase">{t("settings.appearance.terminalColors")}</h2>
       <div className="mb-5 grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-2">
-        {[{ id: "helm", label: "Helm (matches theme)", theme: terminalTheme("helm", mode, s.accent) }, ...TERMINAL_SCHEMES].map((sc) => (
+        {[{ id: "helm", label: t("settings.appearance.helmScheme"), theme: terminalTheme("helm", mode, s.accent) }, ...TERMINAL_SCHEMES].map((sc) => (
           <button
             key={sc.id}
             onClick={() => update({ terminalScheme: sc.id })}
@@ -331,8 +499,8 @@ function Appearance() {
 
       <TerminalPreview s={s} />
 
-      <Card title="Terminal text">
-        <Row label="Font" hint="JetBrains Mono and Geist Mono come with Helm. Every language and emoji still renders.">
+      <Card title={t("settings.appearance.terminalText")}>
+        <Row k="fontFamily" label={t("settings.appearance.font.label")} hint={t("settings.appearance.font.hint")}>
           <div className="flex items-center gap-2">
             <Select
               value={customFont ? "custom" : s.fontFamily}
@@ -341,11 +509,10 @@ function Appearance() {
             >
               {TERMINAL_FONT_CHOICES.map((f) => (
                 <option key={f} value={f}>
-                  {f}
-                  {f === DEFAULT_FONT ? " (default)" : ""}
+                  {f === DEFAULT_FONT ? t("settings.appearance.font.defaultOption", { name: f }) : f}
                 </option>
               ))}
-              <option value="custom">Other installed font…</option>
+              <option value="custom">{t("settings.appearance.font.other")}</option>
             </Select>
             {customFont && (
               <input
@@ -353,23 +520,23 @@ function Appearance() {
                 onChange={(e) => setFontDraft(e.target.value)}
                 onBlur={() => update({ fontFamily: fontDraft.trim() || DEFAULT_FONT })}
                 onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
-                placeholder="Font name"
+                placeholder={t("settings.appearance.font.placeholder")}
                 className="w-40 rounded-lg border border-line bg-bg px-2.5 py-1.5 outline-none focus:border-accent"
               />
             )}
           </div>
         </Row>
-        <Row label="Text size" hint="Ctrl + mouse wheel over a terminal, or Ctrl+= / Ctrl+-.">
+        <Row k="fontSize" label={t("settings.appearance.fontSize.label")} hint={t("settings.appearance.fontSize.hint")}>
           <Stepper value={s.fontSize} min={8} max={32} onChange={(v) => update({ fontSize: v })} />
         </Row>
-        <Row label="Line height">
+        <Row k="lineHeight" label={t("settings.appearance.lineHeight.label")}>
           <Slider value={s.lineHeight} min={1} max={1.6} step={0.05} onChange={(v) => update({ lineHeight: Math.round(v * 100) / 100 })} format={(v) => v.toFixed(2)} />
         </Row>
-        <Row label="Cursor">
+        <Row k="cursorStyle" label={t("settings.appearance.cursor.label")}>
           <div className="flex items-center gap-4">
-            <Segmented value={s.cursorStyle} onChange={(v) => update({ cursorStyle: v })} options={[{ id: "bar", label: "Bar" }, { id: "block", label: "Block" }, { id: "underline", label: "Underline" }]} />
+            <Segmented value={s.cursorStyle} onChange={(v) => update({ cursorStyle: v })} options={[{ id: "bar", label: t("settings.appearance.cursor.bar") }, { id: "block", label: t("settings.appearance.cursor.block") }, { id: "underline", label: t("settings.appearance.cursor.underline") }]} />
             <label className="flex items-center gap-2 text-[12px] text-muted">
-              <Toggle label="Blink" checked={s.cursorBlink} onChange={(v) => update({ cursorBlink: v })} /> Blink
+              <Toggle label={t("settings.appearance.cursor.blink")} checked={s.cursorBlink} onChange={(v) => update({ cursorBlink: v })} /> {t("settings.appearance.cursor.blink")}
             </label>
           </div>
         </Row>
@@ -380,35 +547,36 @@ function Appearance() {
 
 function Terminal() {
   const [s, update] = useSettings();
+  const { t } = useTranslation();
   return (
     <>
-      <Heading title="Terminal" hint="How the terminal behaves. Applies to every tab right away." />
-      <Card title="Text and clipboard">
-        <Row label="Scrollback" hint="How many lines each tab keeps so you can scroll back.">
+      <Heading title={t("settings.nav.terminal")} hint={t("settings.terminal.hint")} />
+      <Card title={t("settings.terminal.textAndClipboard")}>
+        <Row k="scrollback" label={t("settings.terminal.scrollback.label")} hint={t("settings.terminal.scrollback.hint")}>
           <Select value={String(s.scrollback)} onChange={(v) => update({ scrollback: Number(v) })} className="w-36">
             {[1000, 5000, 10000, 50000, 100000].map((n) => (
               <option key={n} value={n}>
-                {n.toLocaleString()} lines
+                {t("settings.terminal.scrollback.lines", { count: n, lines: n.toLocaleString(locale()) })}
               </option>
             ))}
           </Select>
         </Row>
-        <Row label="Copy when you select text" hint="Selected text goes to the clipboard without pressing Ctrl+C.">
-          <Toggle label="Copy on select" checked={s.copyOnSelect} onChange={(v) => update({ copyOnSelect: v })} />
+        <Row k="copyOnSelect" label={t("settings.terminal.copyOnSelect.label")} hint={t("settings.terminal.copyOnSelect.hint")}>
+          <Toggle label={t("settings.terminal.copyOnSelect.toggle")} checked={s.copyOnSelect} onChange={(v) => update({ copyOnSelect: v })} />
         </Row>
-        <Row label="Right-click">
-          <Segmented value={s.rightClick} onChange={(v) => update({ rightClick: v })} options={[{ id: "smart", label: "Copy or paste" }, { id: "paste", label: "Always paste" }]} />
+        <Row k="rightClick" label={t("settings.terminal.rightClick.label")}>
+          <Segmented value={s.rightClick} onChange={(v) => update({ rightClick: v })} options={[{ id: "smart", label: t("settings.terminal.rightClick.smart") }, { id: "paste", label: t("settings.terminal.rightClick.paste") }]} />
         </Row>
-        <Row label="Warn before pasting several lines into a shell" hint="Each line would run as a command. Claude's prompt is never affected.">
-          <Toggle label="Paste warning" checked={s.pasteWarning} onChange={(v) => update({ pasteWarning: v })} />
+        <Row k="pasteWarning" label={t("settings.terminal.pasteWarning.label")} hint={t("settings.terminal.pasteWarning.hint")}>
+          <Toggle label={t("settings.terminal.pasteWarning.toggle")} checked={s.pasteWarning} onChange={(v) => update({ pasteWarning: v })} />
         </Row>
       </Card>
-      <Card title="Bell and rendering">
-        <Row label="Bell" hint="When a program rings the terminal bell.">
-          <Segmented value={s.bell} onChange={(v) => update({ bell: v })} options={[{ id: "none", label: "Off" }, { id: "flash", label: "Flash" }, { id: "sound", label: "Sound" }]} />
+      <Card title={t("settings.terminal.bellAndRendering")}>
+        <Row k="bell" label={t("settings.terminal.bell.label")} hint={t("settings.terminal.bell.hint")}>
+          <Segmented value={s.bell} onChange={(v) => update({ bell: v })} options={[{ id: "none", label: t("common.off") }, { id: "flash", label: t("settings.terminal.bell.flash") }, { id: "sound", label: t("settings.terminal.bell.sound") }]} />
         </Row>
-        <Row label="GPU rendering" hint="Faster and smoother. Turn off only if text looks wrong on your PC.">
-          <Toggle label="GPU rendering" checked={s.gpu} onChange={(v) => update({ gpu: v })} />
+        <Row k="gpu" label={t("settings.terminal.gpu.label")} hint={t("settings.terminal.gpu.hint")}>
+          <Toggle label={t("settings.terminal.gpu.label")} checked={s.gpu} onChange={(v) => update({ gpu: v })} />
         </Row>
       </Card>
     </>
@@ -417,28 +585,29 @@ function Terminal() {
 
 function Notifications() {
   const [s, update] = useSettings();
+  const { t } = useTranslation();
   return (
     <>
-      <Heading title="Notifications" hint="Windows notifications for tabs you're not looking at." />
+      <Heading title={t("settings.nav.notifications")} hint={t("settings.notifications.hint")} />
       <Card>
-        <Row label="Show notifications">
-          <Toggle label="Notifications" checked={s.notifications} onChange={(v) => update({ notifications: v })} />
+        <Row k="notifications" label={t("settings.notifications.show.label")}>
+          <Toggle label={t("settings.nav.notifications")} checked={s.notifications} onChange={(v) => update({ notifications: v })} />
         </Row>
-        <Row label="When Claude finishes" disabled={!s.notifications}>
-          <Toggle label="Finished" checked={s.notifyFinished} disabled={!s.notifications} onChange={(v) => update({ notifyFinished: v })} />
+        <Row k="notifyFinished" label={t("settings.notifications.finished.label")} disabled={!s.notifications}>
+          <Toggle label={t("settings.notifications.finished.toggle")} checked={s.notifyFinished} disabled={!s.notifications} onChange={(v) => update({ notifyFinished: v })} />
         </Row>
-        <Row label="When Claude needs approval" hint="With Allow / Deny buttons when approvals are answered in Helm." disabled={!s.notifications}>
-          <Toggle label="Approval" checked={s.notifyApproval} disabled={!s.notifications} onChange={(v) => update({ notifyApproval: v })} />
+        <Row k="notifyApproval" label={t("settings.notifications.approval.label")} hint={t("settings.notifications.approval.hint")} disabled={!s.notifications}>
+          <Toggle label={t("settings.notifications.approval.toggle")} checked={s.notifyApproval} disabled={!s.notifications} onChange={(v) => update({ notifyApproval: v })} />
         </Row>
-        <Row label="Usage limit warnings" hint="At 80% and 95% of your 5-hour or weekly limit." disabled={!s.notifications}>
-          <Toggle label="Usage" checked={s.notifyUsage} disabled={!s.notifications} onChange={(v) => update({ notifyUsage: v })} />
+        <Row k="notifyUsage" label={t("settings.notifications.usage.label")} hint={t("settings.notifications.usage.hint")} disabled={!s.notifications}>
+          <Toggle label={t("settings.notifications.usage.toggle")} checked={s.notifyUsage} disabled={!s.notifications} onChange={(v) => update({ notifyUsage: v })} />
         </Row>
-        <Row label="Play a sound" disabled={!s.notifications}>
-          <Toggle label="Sound" checked={s.notifySound} disabled={!s.notifications} onChange={(v) => update({ notifySound: v })} />
+        <Row k="notifySound" label={t("settings.notifications.sound.label")} disabled={!s.notifications}>
+          <Toggle label={t("settings.notifications.sound.toggle")} checked={s.notifySound} disabled={!s.notifications} onChange={(v) => update({ notifySound: v })} />
         </Row>
       </Card>
-      <Button onClick={() => void ipc.showToast("Helm notifications work", "This is how Helm tells you about tabs you're not looking at.", !s.notifySound)}>
-        <Bell size={14} /> Send a test notification
+      <Button onClick={() => void ipc.showToast(t("settings.notifications.test.title"), t("settings.notifications.test.body"), !s.notifySound)}>
+        <Bell size={14} /> {t("settings.notifications.test.button")}
       </Button>
     </>
   );
@@ -446,30 +615,31 @@ function Notifications() {
 
 function ClaudeInHelm() {
   const [s, update] = useSettings();
+  const { t } = useTranslation();
   return (
     <>
-      <Heading title="Claude in Helm" hint="How Helm works with the Claude sessions it starts. Changes apply to new Claude sessions." />
+      <Heading title={t("settings.nav.claudeInHelm")} hint={t("settings.claudeInHelm.hint")} />
       <Card>
-        <Row label="Answer approvals in Helm" hint="When a tab you're not looking at needs permission, ask in Helm and in a Windows notification with Allow / Deny. The tab you're looking at always asks in its terminal.">
-          <Toggle label="Approvals in Helm" checked={s.approvals} onChange={(v) => update({ approvals: v })} />
+        <Row k="approvals" label={t("settings.claudeInHelm.approvals.label")} hint={t("settings.claudeInHelm.approvals.hint")}>
+          <Toggle label={t("settings.claudeInHelm.approvals.toggle")} checked={s.approvals} onChange={(v) => update({ approvals: v })} />
         </Row>
-        <Row label="Track usage limits" hint="Show your 5-hour and weekly limits, pace and warnings. Uses Claude's status line, so it's skipped if you set up your own status line.">
-          <Toggle label="Usage limits" checked={s.usageCockpit} onChange={(v) => update({ usageCockpit: v })} />
+        <Row k="usageCockpit" label={t("settings.claudeInHelm.usageCockpit.label")} hint={t("settings.claudeInHelm.usageCockpit.hint")}>
+          <Toggle label={t("settings.claudeInHelm.usageCockpit.toggle")} checked={s.usageCockpit} onChange={(v) => update({ usageCockpit: v })} />
         </Row>
-        <Row label="Open background agents automatically" hint="When Claude starts a subagent or background command, open the right panel on Agents (only if it's closed).">
-          <Toggle label="Auto-open agents" checked={s.autoOpenAgents} onChange={(v) => update({ autoOpenAgents: v })} />
+        <Row k="autoOpenAgents" label={t("settings.claudeInHelm.autoOpenAgents.label")} hint={t("settings.claudeInHelm.autoOpenAgents.hint")}>
+          <Toggle label={t("settings.claudeInHelm.autoOpenAgents.label")} checked={s.autoOpenAgents} onChange={(v) => update({ autoOpenAgents: v })} />
         </Row>
-        <Row label="Usage-saving hints" hint="A heads-up before a conversation's cache goes cold, a one-click /compact when context fills up, attach-as-file for huge pastes, and a nudge for big idle conversations.">
-          <Toggle label="Usage hints" checked={s.usageTips} onChange={(v) => update({ usageTips: v })} />
+        <Row k="usageTips" label={t("settings.claudeInHelm.usageTips.label")} hint={t("settings.claudeInHelm.usageTips.hint")}>
+          <Toggle label={t("settings.claudeInHelm.usageTips.label")} checked={s.usageTips} onChange={(v) => update({ usageTips: v })} />
         </Row>
-        <Row label="Open web links in" hint="Links in the terminal and in Details, and dev servers you open. Helm's browser can test phone sizes and send errors, screenshots and page elements to Claude.">
-          <Segmented<Settings["openLinksIn"]> value={s.openLinksIn} onChange={(v) => update({ openLinksIn: v })} options={[{ id: "helm", label: "Helm" }, { id: "browser", label: "My browser" }]} />
+        <Row k="openLinksIn" label={t("settings.claudeInHelm.openLinksIn.label")} hint={t("settings.claudeInHelm.openLinksIn.hint")}>
+          <Segmented<Settings["openLinksIn"]> value={s.openLinksIn} onChange={(v) => update({ openLinksIn: v })} options={[{ id: "helm", label: "Helm" }, { id: "browser", label: t("settings.claudeInHelm.openLinksIn.browser") }]} />
         </Row>
-        <Row label="Offer to open dev servers" hint="When a terminal prints a local address such as localhost:5173, show a button to open it.">
-          <Toggle label="Dev server prompt" checked={s.devServerPrompt} onChange={(v) => update({ devServerPrompt: v })} />
+        <Row k="devServerPrompt" label={t("settings.claudeInHelm.devServerPrompt.label")} hint={t("settings.claudeInHelm.devServerPrompt.hint")}>
+          <Toggle label={t("settings.claudeInHelm.devServerPrompt.label")} checked={s.devServerPrompt} onChange={(v) => update({ devServerPrompt: v })} />
         </Row>
-        <Row label="Windows hints for Claude" hint="Tell Claude it's on Windows and which shell syntax to use, so it stops mixing PowerShell and Bash commands.">
-          <Toggle label="Windows hints" checked={s.windowsHints} onChange={(v) => update({ windowsHints: v })} />
+        <Row k="windowsHints" label={t("settings.claudeInHelm.windowsHints.label")} hint={t("settings.claudeInHelm.windowsHints.hint")}>
+          <Toggle label={t("settings.claudeInHelm.windowsHints.toggle")} checked={s.windowsHints} onChange={(v) => update({ windowsHints: v })} />
         </Row>
       </Card>
     </>
@@ -479,12 +649,13 @@ function ClaudeInHelm() {
 function Shortcuts() {
   const [filter, setFilter] = useState("");
   const list = SHORTCUTS.filter((s) => `${s.label} ${s.keys}`.toLowerCase().includes(filter.toLowerCase()));
+  const { t } = useTranslation();
   return (
     <>
-      <Heading title="Keyboard shortcuts" hint="Helm uses Ctrl+Shift and Alt+Shift so Claude Code keeps all of its own keys." />
+      <Heading title={t("settings.nav.shortcuts")} hint={t("settings.shortcuts.hint")} />
       <div className="mb-3 flex items-center gap-2 rounded-lg border border-line bg-raised px-3 focus-within:border-accent">
         <Search size={14} className="text-faint" />
-        <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Find a shortcut" className="flex-1 bg-transparent py-2 outline-none placeholder:text-faint" />
+        <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder={t("settings.shortcuts.filter")} className="flex-1 bg-transparent py-2 outline-none placeholder:text-faint" />
       </div>
       <div className="overflow-hidden rounded-xl border border-line bg-raised">
         {list.map((s) => (
@@ -499,7 +670,7 @@ function Shortcuts() {
             </span>
           </div>
         ))}
-        {list.length === 0 && <p className="p-4 text-center text-faint">No shortcut matches.</p>}
+        {list.length === 0 && <p className="p-4 text-center text-faint">{t("settings.shortcuts.empty")}</p>}
       </div>
     </>
   );
@@ -509,45 +680,46 @@ function Advanced() {
   const [s, update] = useSettings();
   const [args, setArgs] = useState(s.extraClaudeArgs);
   const [env, setEnv] = useState(s.extraEnv);
+  const { t } = useTranslation();
 
   const exportSettings = async () => {
-    const path = await saveDialog({ title: "Export Helm settings", defaultPath: "helm-settings.json", filters: [{ name: "JSON", extensions: ["json"] }] });
+    const path = await saveDialog({ title: t("settings.advanced.export.dialogTitle"), defaultPath: "helm-settings.json", filters: [{ name: "JSON", extensions: ["json"] }] });
     if (!path) return;
     const st = useStore.getState();
     const data = { app: "helm", version: 1, settings: st.settings, prompts: st.prompts, pinned: st.pinned };
-    await ipc.writeTextFile(path, JSON.stringify(data, null, 2)).then(() => showToast("Settings exported", "success"), (e) => showToast(String(e), "error"));
+    await ipc.writeTextFile(path, JSON.stringify(data, null, 2)).then(() => showToast(t("settings.advanced.export.done"), "success"), (e) => showToast(String(e), "error"));
   };
   const importSettings = async () => {
-    const path = await openDialog({ title: "Import Helm settings", filters: [{ name: "JSON", extensions: ["json"] }] });
+    const path = await openDialog({ title: t("settings.advanced.import.dialogTitle"), filters: [{ name: "JSON", extensions: ["json"] }] });
     if (typeof path !== "string") return;
     try {
       const data = JSON.parse(await ipc.readTextFile(path));
-      if (data?.app !== "helm" || typeof data.settings !== "object") throw new Error("This isn't a Helm settings file");
+      if (data?.app !== "helm" || typeof data.settings !== "object") throw new Error(t("settings.advanced.import.notHelmFile"));
       const st = useStore.getState();
       st.set({
         settings: { ...DEFAULT_SETTINGS, ...data.settings },
         ...(Array.isArray(data.prompts) ? { prompts: data.prompts } : {}),
         ...(Array.isArray(data.pinned) ? { pinned: data.pinned } : {}),
       });
-      showToast("Settings imported", "success");
+      showToast(t("settings.advanced.import.done"), "success");
     } catch (e) {
       showToast(String(e), "error");
     }
   };
   const reset = async () => {
-    const ok = await ask("Reset every Helm setting to its default? Your tabs, saved prompts and pinned projects stay.", { title: "Reset settings", kind: "warning", okLabel: "Reset", cancelLabel: "Cancel" });
+    const ok = await ask(t("settings.advanced.resetConfirm.message"), { title: t("settings.advanced.resetConfirm.title"), kind: "warning", okLabel: t("common.reset"), cancelLabel: t("common.cancel") });
     if (!ok) return;
     useStore.getState().set({ settings: { ...DEFAULT_SETTINGS } });
-    showToast("Settings reset to defaults", "success");
+    showToast(t("settings.advanced.resetConfirm.done"), "success");
   };
 
   return (
     <>
-      <Heading title="Advanced" hint="For power users. Applies to tabs you open from now on." />
-      <Card title="Claude">
+      <Heading title={t("settings.nav.advanced")} hint={t("settings.advanced.hint")} />
+      <Card title={t("settings.advanced.claude")}>
         <div className="py-3.5">
-          <div className="text-[13px] text-fg">Extra options when Helm starts Claude</div>
-          <div className="mt-0.5 mb-2 text-[12px] text-faint">Added after Helm's own options, exactly as typed, e.g. <code className="text-muted">--model sonnet</code> or <code className="text-muted">--add-dir ../shared</code>.</div>
+          <div className="text-[13px] text-fg">{t("settings.advanced.extraArgs.label")}</div>
+          <div className="mt-0.5 mb-2 text-[12px] text-faint"><Trans i18nKey="settings.advanced.extraArgs.hint" components={{ 1: <code className="text-muted" /> }} /></div>
           <input
             value={args}
             onChange={(e) => setArgs(e.target.value)}
@@ -557,10 +729,10 @@ function Advanced() {
           />
         </div>
       </Card>
-      <Card title="Environment">
+      <Card title={t("settings.advanced.environment")}>
         <div className="py-3.5">
-          <div className="text-[13px] text-fg">Environment variables for new tabs</div>
-          <div className="mt-0.5 mb-2 text-[12px] text-faint">One per line: <code className="text-muted">NAME=value</code>. Available to the shell and Claude.</div>
+          <div className="text-[13px] text-fg">{t("settings.advanced.env.label")}</div>
+          <div className="mt-0.5 mb-2 text-[12px] text-faint"><Trans i18nKey="settings.advanced.env.hint" components={{ 1: <code className="text-muted" /> }} /></div>
           <textarea
             value={env}
             onChange={(e) => setEnv(e.target.value)}
@@ -571,25 +743,25 @@ function Advanced() {
           />
         </div>
       </Card>
-      <Card title="Data">
-        <Row label="Settings backup" hint="Settings, saved prompts and pinned projects in one file.">
+      <Card title={t("settings.advanced.data")}>
+        <Row label={t("settings.advanced.backup.label")} hint={t("settings.advanced.backup.hint")}>
           <div className="flex gap-2">
             <Button onClick={() => void exportSettings()}>
-              <Download size={14} /> Export
+              <Download size={14} /> {t("settings.advanced.backup.export")}
             </Button>
             <Button onClick={() => void importSettings()}>
-              <Upload size={14} /> Import
+              <Upload size={14} /> {t("settings.advanced.backup.import")}
             </Button>
           </div>
         </Row>
-        <Row label="Helm's data folder" hint="Settings, hook files and pasted screenshots.">
+        <Row label={t("settings.dataFolder")} hint={t("settings.advanced.dataFolderHint")}>
           <Button onClick={() => void ipc.dataDirPath().then((p) => openPath(p))}>
-            <FolderOpen size={14} /> Open
+            <FolderOpen size={14} /> {t("common.open")}
           </Button>
         </Row>
-        <Row label="Reset settings" hint="Back to defaults. Tabs, prompts and pinned projects are kept.">
+        <Row label={t("settings.advanced.reset.label")} hint={t("settings.advanced.reset.hint")}>
           <Button tone="danger" onClick={() => void reset()}>
-            <RotateCcw size={14} /> Reset
+            <RotateCcw size={14} /> {t("common.reset")}
           </Button>
         </Row>
       </Card>
@@ -600,9 +772,10 @@ function Advanced() {
 function WhatsNew() {
   const [version, setVersion] = useState("");
   useEffect(() => void getVersion().then(setVersion), []);
+  const { t } = useTranslation();
   return (
     <>
-      <Heading title="What's new" hint="Recent changes in Helm." />
+      <Heading title={t("settings.nav.whatsNew")} hint={t("settings.whatsNew.hint")} />
       <div className="relative space-y-8 border-l border-line pl-6">
         {CHANGELOG.map((r) => (
           <section key={r.version} className="relative">
@@ -610,7 +783,7 @@ function WhatsNew() {
             <div className="mb-3 flex items-baseline gap-2">
               <h2 className="text-[15px] font-semibold text-fg">Helm {r.version}</h2>
               <span className="text-[12px] text-faint">{r.date}</span>
-              {r.version === version && <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-medium text-accent">Installed</span>}
+              {r.version === version && <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-medium text-accent">{t("settings.whatsNew.installed")}</span>}
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
               {r.highlights.map((h) => (
@@ -637,17 +810,13 @@ function Privacy() {
   const closed = useStore((st) => st.closedTabs.length);
   const refresh = () => void ipc.screenshotsInfo().then(setShots).catch(() => setShots([0, 0]));
   useEffect(refresh, []);
+  const { t } = useTranslation();
 
-  const facts: [string, string][] = [
-    ["Everything stays on this PC", "Your tabs, settings, saved prompts and terminal output never leave your computer. Helm has no account and no analytics or tracking."],
-    ["One network request: updates", "Helm only goes online to check GitHub for a new version. You can turn that off below."],
-    ["Claude's conversations", "Helm reads the conversation files Claude Code already keeps on your PC to show history, usage and cost. It never uploads them. Claude Code itself talks to Anthropic under Anthropic's own privacy policy."],
-    ["Local status connection", "Claude tabs report their status to Helm over a private connection that only works on this PC and needs a secret key that changes every time Helm starts."],
-  ];
+  const facts: [string, string][] = (["local", "network", "conversations", "status"] as const).map((id) => [t(`settings.privacy.facts.${id}.title`), t(`settings.privacy.facts.${id}.text`)]);
 
   return (
     <>
-      <Heading title="Privacy" hint="What Helm stores, where, and what you can clear." />
+      <Heading title={t("settings.nav.privacy")} hint={t("settings.privacy.hint")} />
       <div className="mb-6 grid gap-2 sm:grid-cols-2">
         {facts.map(([title, text]) => (
           <div key={title} className="rounded-xl border border-line bg-raised p-3.5">
@@ -656,39 +825,39 @@ function Privacy() {
           </div>
         ))}
       </div>
-      <Card title="Network">
-        <Row label="Check for updates" hint="The only time Helm connects to the internet (github.com).">
-          <Toggle label="Check for updates" checked={s.autoUpdate} onChange={(v) => update({ autoUpdate: v })} />
+      <Card title={t("settings.privacy.network")}>
+        <Row k="autoUpdate" label={t("settings.autoUpdate")} hint={t("settings.privacy.autoUpdateHint")}>
+          <Toggle label={t("settings.autoUpdate")} checked={s.autoUpdate} onChange={(v) => update({ autoUpdate: v })} />
         </Row>
       </Card>
-      <Card title="Your data">
-        <Row label="Pasted screenshots" hint={shots ? `${shots[1]} ${shots[1] === 1 ? "image" : "images"} · ${formatBytes(shots[0])}. Deleted automatically after a week.` : "…"}>
+      <Card title={t("settings.privacy.yourData")}>
+        <Row label={t("settings.privacy.screenshots.label")} hint={shots ? t("settings.privacy.screenshots.hint", { count: shots[1], size: formatBytes(shots[0]) }) : "…"}>
           <Button
             onClick={async () => {
               const n = await ipc.clearScreenshots();
-              showToast(`Deleted ${n} pasted ${n === 1 ? "screenshot" : "screenshots"}`, "success");
+              showToast(t("settings.privacy.screenshots.deleted", { count: n }), "success");
               refresh();
             }}
           >
-            Delete now
+            {t("settings.privacy.screenshots.deleteNow")}
           </Button>
         </Row>
-        <Row label="Recently closed tabs" hint={`${closed} remembered so Ctrl+Alt+Shift+T can reopen them.`}>
-          <Button onClick={() => { useStore.getState().set({ closedTabs: [] }); showToast("Forgot recently closed tabs", "success"); }}>Forget</Button>
+        <Row label={t("settings.privacy.closedTabs.label")} hint={t("settings.privacy.closedTabs.hint", { count: closed })}>
+          <Button onClick={() => { useStore.getState().set({ closedTabs: [] }); showToast(t("settings.privacy.closedTabs.cleared"), "success"); }}>{t("settings.privacy.clear")}</Button>
         </Row>
-        <Row label="Recent folder" hint="The last folder used, for the “Last used folder” starting option.">
-          <Button onClick={() => { update({ lastFolder: undefined }); showToast("Forgot the last used folder", "success"); }}>Forget</Button>
+        <Row label={t("settings.privacy.recentFolder.label")} hint={t("settings.privacy.recentFolder.hint")}>
+          <Button onClick={() => { update({ lastFolder: undefined }); showToast(t("settings.privacy.recentFolder.cleared"), "success"); }}>{t("settings.privacy.clear")}</Button>
         </Row>
-        <Row label="Helm's data folder" hint="Where all of the above lives.">
+        <Row label={t("settings.dataFolder")} hint={t("settings.privacy.dataFolderHint")}>
           <Button onClick={() => void ipc.dataDirPath().then((p) => openPath(p))}>
-            <FolderOpen size={14} /> Open
+            <FolderOpen size={14} /> {t("common.open")}
           </Button>
         </Row>
       </Card>
       <p className="text-[12px] text-faint">
-        Helm is open source, so you can check all of this in the code at github.com/sovanken/helm-term.{" "}
+        {t("settings.privacy.openSource")}{" "}
         <button className="text-accent hover:underline" onClick={() => void openUrl("https://www.anthropic.com/legal/privacy")}>
-          Anthropic's privacy policy
+          {t("settings.privacy.anthropicPolicy")}
         </button>
       </p>
     </>
@@ -700,38 +869,39 @@ function About() {
   const [version, setVersion] = useState("");
   const updateInfo = useStore((st) => st.update);
   useEffect(() => void getVersion().then(setVersion), []);
+  const { t } = useTranslation();
   return (
     <>
       <div className="mb-6 flex items-center gap-4 text-accent">
         <HelmMark size={48} />
         <div>
           <h1 className="text-[20px] font-semibold tracking-tight text-fg">Helm {version}</h1>
-          <p className="text-muted">A terminal made for Claude Code · free and open source (MIT)</p>
+          <p className="text-muted">{t("settings.about.tagline")}</p>
         </div>
       </div>
-      <Card title="Updates">
-        <Row label="Check for updates automatically" hint="Helm looks for a new version when it starts and every few hours.">
-          <Toggle label="Automatic updates" checked={s.autoUpdate} onChange={(v) => update({ autoUpdate: v })} />
+      <Card title={t("settings.about.updates")}>
+        <Row k="autoUpdate" label={t("settings.autoUpdate")} hint={t("settings.about.autoUpdateHint")}>
+          <Toggle label={t("settings.autoUpdate")} checked={s.autoUpdate} onChange={(v) => update({ autoUpdate: v })} />
         </Row>
-        <Row label={updateInfo ? `Version ${updateInfo.version} is ready` : "You're on the latest version"} hint={updateInfo ? "Installs and restarts Helm." : undefined}>
+        <Row label={updateInfo ? t("settings.about.updateReady", { version: updateInfo.version }) : t("settings.about.upToDate")} hint={updateInfo ? t("settings.about.updateHint") : undefined}>
           {updateInfo ? (
             <Button tone="primary" onClick={() => void updateInfo.install()}>
-              Update and restart
+              {t("settings.about.updateAndRestart")}
             </Button>
           ) : (
-            <Button onClick={() => void checkForUpdate(true)}>Check now</Button>
+            <Button onClick={() => void checkForUpdate(true)}>{t("settings.about.checkNow")}</Button>
           )}
         </Row>
       </Card>
-      <Card title="Project">
-        <Row label="Source code and issues" hint="github.com/sovanken/helm-term">
-          <Button onClick={() => void openUrl("https://github.com/sovanken/helm-term")}>Open GitHub</Button>
+      <Card title={t("settings.about.project")}>
+        <Row label={t("settings.about.source")} hint="github.com/sovanken/helm-term">
+          <Button onClick={() => void openUrl("https://github.com/sovanken/helm-term")}>{t("settings.about.openGitHub")}</Button>
         </Row>
-        <Row label="Open-source notices" hint="Helm is built with Tauri, React, xterm.js, Inter, Geist and JetBrains Mono (OFL), and other open-source projects.">
-          <Button onClick={() => void openUrl("https://github.com/sovanken/helm-term#license")}>View</Button>
+        <Row label={t("settings.about.notices.label")} hint={t("settings.about.notices.hint")}>
+          <Button onClick={() => void openUrl("https://github.com/sovanken/helm-term#license")}>{t("settings.about.notices.view")}</Button>
         </Row>
       </Card>
-      <p className="mt-2 text-[12px] text-faint">Helm is an independent community project and is not affiliated with Anthropic.</p>
+      <p className="mt-2 text-[12px] text-faint">{t("settings.about.independent")}</p>
     </>
   );
 }
@@ -742,10 +912,11 @@ export function SettingsPage() {
   const section = useStore((s) => s.settingsSection);
   const set = useStore.getState().set;
   const [query, setQuery] = useState("");
+  const { t, i18n } = useTranslation();
 
   const q = query.trim().toLowerCase();
-  const helm = useMemo(() => HELM_SECTIONS.filter((s) => !q || `${s.label} ${s.keywords}`.toLowerCase().includes(q)), [q]);
-  const claude = useMemo(() => CLAUDE_SECTIONS.filter((s) => !q || `${s.label} ${s.hint} ${CLAUDE_KEYWORDS[s.id] ?? ""}`.toLowerCase().includes(q)), [q]);
+  const helm = useMemo(() => HELM_SECTIONS.filter((s) => !q || `${t(s.label)} ${s.keywords}`.toLowerCase().includes(q)), [q, i18n.language]);
+  const claude = useMemo(() => CLAUDE_SECTIONS.filter((s) => !q || `${t(s.label)} ${t(s.hint)} ${CLAUDE_KEYWORDS[s.id] ?? ""}`.toLowerCase().includes(q)), [q, i18n.language]);
   // Jump to the first match while searching.
   useEffect(() => {
     if (!q) return;
@@ -774,20 +945,28 @@ export function SettingsPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Escape" && setQuery("")}
-            placeholder="Search settings"
+            placeholder={t("settings.page.search")}
             className="min-w-0 flex-1 bg-transparent py-1.5 text-[13px] outline-none placeholder:text-faint"
           />
           {query && (
-            <button aria-label="Clear search" onClick={() => setQuery("")} className="text-faint hover:text-fg">
+            <button aria-label={t("settings.page.clearSearch")} onClick={() => setQuery("")} className="text-faint hover:text-fg">
               <X size={12} />
             </button>
           )}
         </div>
         {helm.length > 0 && <div className="px-2.5 pt-2 pb-1 text-[11px] font-semibold tracking-wide text-faint uppercase">Helm</div>}
-        {helm.map((s) => navItem(s.id, s.label, s.icon))}
+        {helm.map((s) => navItem(s.id, t(s.label), s.icon))}
         {claude.length > 0 && <div className="px-2.5 pt-4 pb-1 text-[11px] font-semibold tracking-wide text-faint uppercase">Claude Code</div>}
-        {claude.map((s) => navItem(s.id, s.label, s.icon))}
-        {helm.length === 0 && claude.length === 0 && <p className="px-2.5 py-3 text-[12px] text-faint">No settings match “{query}”.</p>}
+        {claude.map((s) => navItem(s.id, t(s.label), s.icon))}
+        {helm.length === 0 && claude.length === 0 && <p className="px-2.5 py-3 text-[12px] text-faint">{t("settings.page.noMatch", { query })}</p>}
+        <button
+          onClick={() => void openSettingsJson()}
+          title={t("settings.page.openJsonTitle")}
+          className="mt-auto flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-[13px] text-muted hover:bg-hover hover:text-fg"
+        >
+          <FileJson size={15} />
+          {t("settings.page.openJson")}
+        </button>
       </nav>
       <div className="scroll-thin min-w-0 flex-1 overflow-y-auto">
         <div key={section} className="anim-fade mx-auto flex min-h-full max-w-3xl flex-col px-10 py-8">

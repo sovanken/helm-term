@@ -1,11 +1,15 @@
-// The Agents tab of the right panel, laid out like a CI run page: each Claude tab is a run,
-// each subagent or background command a job, and each tool call it makes a step.
+// The Agents tab of the right panel: the subagents and background commands each Claude tab has
+// started, grouped by tab. Each one is a card with what it's doing right now, its activity and
+// its answer (rendered as Markdown).
 
 import { type ReactNode, useEffect, useMemo, useState } from "react";
-import { ArrowUpRight, Bot, Check, ChevronRight, Copy, Eraser, SquareTerminal } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { ArrowUpRight, Bot, Check, ChevronDown, Copy, Eraser, FileOutput, FilePen, FileText, Globe, Search, SquareTerminal, Wrench, X } from "lucide-react";
 
 import { paneIds } from "../lib/layout";
+import { MarkdownBlock } from "../lib/markdown";
 import { activePane, type BgTask, cleanTitle, folderName, type Pane, useStore } from "../state/store";
+import { t } from "../i18n";
 
 function useTick(ms: number) {
   const [, set] = useState(0);
@@ -17,12 +21,21 @@ function useTick(ms: number) {
 
 function duration(ms: number) {
   const secs = Math.max(0, Math.round(ms / 1000));
-  if (secs < 60) return `${secs}s`;
-  if (secs < 3600) return `${Math.floor(secs / 60)}m ${secs % 60}s`;
-  return `${Math.floor(secs / 3600)}h ${Math.floor((secs % 3600) / 60)}m`;
+  if (secs < 60) return t("background.duration.seconds", { s: secs });
+  if (secs < 3600) return t("background.duration.minutesSeconds", { m: Math.floor(secs / 60), s: secs % 60 });
+  return t("background.duration.hoursMinutes", { h: Math.floor(secs / 3600), m: Math.floor((secs % 3600) / 60) });
 }
 
-const taskEnd = (t: BgTask) => t.endedAt ?? Date.now();
+/** "+1:05" from the start of the task. */
+function offset(ms: number) {
+  const secs = Math.max(0, Math.round(ms / 1000));
+  const h = Math.floor(secs / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  const s = String(secs % 60).padStart(2, "0");
+  return h ? `+${h}:${String(m).padStart(2, "0")}:${s}` : `+${m}:${s}`;
+}
+
+const taskEnd = (task: BgTask) => task.endedAt ?? Date.now();
 
 export function Empty({ icon, title, text }: { icon: ReactNode; title: string; text: string }) {
   return (
@@ -34,172 +47,218 @@ export function Empty({ icon, title, text }: { icon: ReactNode; title: string; t
   );
 }
 
-/** Running: a spinning ring. Done: a filled check. */
-function StatusIcon({ running, size = 16 }: { running: boolean; size?: number }) {
-  if (running) {
-    return (
-      <span
-        aria-label="Running"
-        style={{ width: size, height: size }}
-        className="status-working inline-block shrink-0 rounded-full border-2 border-attention border-t-transparent"
-      />
-    );
-  }
+type State = "running" | "done" | "failed" | "stopped";
+
+function stateOf(task: BgTask): State {
+  if (task.status === "running") return "running";
+  if (task.outcome === "failed") return "failed";
+  if (task.outcome === "killed") return "stopped";
+  return "done";
+}
+
+/** Translation keys. */
+const STATE_LABEL: Record<State, string> = { running: "background.state.running", done: "background.state.done", failed: "background.state.failed", stopped: "background.state.stopped" };
+const STATE_TEXT: Record<State, string> = { running: "text-working", done: "text-done", failed: "text-danger", stopped: "text-muted" };
+const STATE_TILE: Record<State, string> = {
+  running: "bg-working/12 text-working",
+  done: "bg-done/12 text-done",
+  failed: "bg-danger/12 text-danger",
+  stopped: "bg-hover text-muted",
+};
+
+/** The kind of work in a tile, with a small status mark in its corner. */
+function Tile({ task, state }: { task: BgTask; state: State }) {
   return (
-    <span aria-label="Finished" style={{ width: size, height: size }} className="flex shrink-0 items-center justify-center rounded-full bg-done text-white">
-      <Check size={size * 0.62} strokeWidth={3} />
+    <span className={`relative flex size-8 shrink-0 items-center justify-center rounded-lg ${STATE_TILE[state]}`}>
+      {task.kind === "agent" ? <Bot size={16} /> : <SquareTerminal size={16} />}
+      <span className="absolute -right-1 -bottom-1 flex size-3.5 items-center justify-center rounded-full bg-raised">
+        {state === "running" ? (
+          <span className="status-working size-2.5 rounded-full border-[1.5px] border-working border-t-transparent" />
+        ) : state === "done" ? (
+          <Check size={10} strokeWidth={3} className="text-done" />
+        ) : (
+          <X size={10} strokeWidth={3} className={STATE_TEXT[state]} />
+        )}
+      </span>
     </span>
   );
 }
 
-interface Step {
-  key: string;
-  name: ReactNode;
-  running: boolean;
-  ms?: number;
-  log?: string;
+/** Icon for a tool call line such as "Grep: TODO". */
+function toolIcon(what: string) {
+  const tool = what.split(":")[0];
+  if (/^(Read|NotebookRead)$/.test(tool)) return <FileText size={12} />;
+  if (/^(Edit|Write|MultiEdit|NotebookEdit)$/.test(tool)) return <FilePen size={12} />;
+  if (/^(Grep|Glob|ToolSearch)$/.test(tool)) return <Search size={12} />;
+  if (/^(Bash|PowerShell)$/.test(tool)) return <SquareTerminal size={12} />;
+  if (/^Web/.test(tool)) return <Globe size={12} />;
+  if (/^(Agent|Task)$/.test(tool)) return <Bot size={12} />;
+  return <Wrench size={12} />;
 }
 
-function stepsOf(task: BgTask): Step[] {
-  const running = task.status === "running";
-  const recent = task.recent ?? [];
-  const hidden = (task.steps ?? 0) - recent.length;
-  const steps: Step[] = [
-    {
-      key: "start",
-      name: task.kind === "agent" ? `Start ${task.type ?? "subagent"}` : "Start command",
-      running: false,
-      // Unknown once the first steps have scrolled out of the kept history.
-      ms: hidden > 0 ? undefined : (recent[0]?.at ?? (running ? task.startedAt : taskEnd(task))) - task.startedAt,
-    },
-  ];
-  if (hidden > 0) steps.push({ key: "hidden", name: <span className="text-faint">{hidden} earlier {hidden === 1 ? "step" : "steps"}</span>, running: false });
-  recent.forEach((r, i) => {
-    const last = i === recent.length - 1;
-    steps.push({ key: `s${i}`, name: r.what, running: running && last, ms: (last ? taskEnd(task) : recent[i + 1].at) - r.at });
-  });
-  if (running && recent.length === 0 && task.kind === "command") steps.push({ key: "cmd", name: task.label, running: true, ms: Date.now() - task.startedAt });
-  if (!running) steps.push({ key: "answer", name: task.kind === "agent" ? "Answer" : "Finished", running: false, log: task.summary });
-  return steps;
-}
-
-/** A step's output, shown like a CI log: numbered, monospaced lines. */
-function LogBox({ text }: { text: string }) {
+function CopyButton({ text, label }: { text: string; label?: string }) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
-  const lines = text.replace(/\n+$/, "").split("\n");
   return (
-    <div className="group relative mx-2 mb-2 rounded-md border border-line bg-bg">
-      <button
-        aria-label="Copy"
-        title={copied ? "Copied" : "Copy"}
-        onClick={() => {
-          void navigator.clipboard.writeText(text);
-          setCopied(true);
-          setTimeout(() => setCopied(false), 1200);
-        }}
-        className="absolute top-1.5 right-1.5 flex size-6 items-center justify-center rounded-md bg-raised text-faint opacity-0 group-hover:opacity-100 hover:text-fg"
-      >
-        {copied ? <Check size={12} className="text-done" /> : <Copy size={12} />}
-      </button>
-      <div className="scroll-thin max-h-72 overflow-y-auto py-1.5 font-mono text-[11.5px] leading-[1.65] select-text">
-        {lines.map((l, i) => (
-          <div key={i} className="flex hover:bg-hover">
-            <span className="w-9 shrink-0 pr-2.5 text-right text-faint select-none">{i + 1}</span>
-            <span className="min-w-0 flex-1 pr-3 break-words whitespace-pre-wrap text-fg">{l || " "}</span>
-          </div>
-        ))}
+    <button
+      onClick={() => {
+        void navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1200);
+      }}
+      className="flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] text-faint hover:bg-hover hover:text-fg"
+    >
+      {copied ? <Check size={11} className="text-done" /> : <Copy size={11} />}
+      {copied ? t("common.copied") : (label ?? t("common.copy"))}
+    </button>
+  );
+}
+
+/** The answer, rendered. Long answers are clipped until "Show all". */
+function Answer({ task }: { task: BgTask }) {
+  const { t } = useTranslation();
+  const [full, setFull] = useState(false);
+  const text = task.summary!.trim();
+  const long = text.length > 600 || text.split("\n").length > 12;
+  return (
+    <div className="rounded-lg border border-line bg-surface">
+      <div className="flex items-center gap-1 border-b border-line py-1 pr-1 pl-2.5">
+        <span className="flex-1 text-[11px] font-medium text-muted">{task.kind === "agent" ? t("background.answer") : t("background.result")}</span>
+        {task.outputFile && (
+          <button
+            onClick={() => useStore.getState().openFile(task.outputFile!)}
+            title={task.outputFile}
+            className="flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] text-faint hover:bg-hover hover:text-fg"
+          >
+            <FileOutput size={11} /> {t("background.fullOutput")}
+          </button>
+        )}
+        <CopyButton text={text} />
       </div>
-    </div>
-  );
-}
-
-function StepRow({ step }: { step: Step }) {
-  const [open, setOpen] = useState(step.key === "answer");
-  const expandable = !!step.log;
-  return (
-    <div>
-      <button
-        onClick={() => expandable && setOpen((o) => !o)}
-        className={`flex h-7 w-full items-center gap-2 rounded-md px-1.5 text-left text-[12px] ${expandable ? "hover:bg-hover" : "cursor-default"}`}
-      >
-        <ChevronRight size={12} className={`shrink-0 text-faint transition-transform duration-150 ${expandable ? "" : "invisible"} ${open ? "rotate-90" : ""}`} />
-        {step.key === "hidden" ? <span className="size-3.5 shrink-0" /> : <StatusIcon running={step.running} size={14} />}
-        <span className={`min-w-0 flex-1 truncate ${step.key.startsWith("s") || step.key === "cmd" ? "font-mono text-[11.5px]" : ""} ${step.running ? "text-fg" : "text-muted"}`} title={typeof step.name === "string" ? step.name : undefined}>
-          {step.name}
-        </span>
-        {step.ms !== undefined && <span className="shrink-0 text-[11px] text-faint tabular-nums">{duration(step.ms)}</span>}
-      </button>
-      {open && step.log && <LogBox text={step.log} />}
-    </div>
-  );
-}
-
-function JobRow({ task }: { task: BgTask }) {
-  const running = task.status === "running";
-  const [open, setOpen] = useState(running);
-  // Open a job while it runs; leave it as the user set it afterwards.
-  useEffect(() => {
-    if (running) setOpen(true);
-  }, [running]);
-  const steps = open ? stepsOf(task) : [];
-  return (
-    <div className={open ? "bg-surface/50" : ""}>
-      <button onClick={() => setOpen((o) => !o)} className="flex w-full items-start gap-2 px-2.5 py-2 text-left hover:bg-hover">
-        <ChevronRight size={13} className={`mt-[3px] shrink-0 text-faint transition-transform duration-150 ${open ? "rotate-90" : ""}`} />
-        <span className="mt-px">
-          <StatusIcon running={running} />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="line-clamp-2 text-[13px] leading-snug font-medium text-fg">{task.label}</span>
-          <span className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[11px] text-faint">
-            {task.kind === "agent" ? <Bot size={11} /> : <SquareTerminal size={11} />}
-            {task.kind === "agent" ? (task.type ?? "Subagent") : "Command"}
-            {task.background && <span>· background</span>}
-            {!!task.steps && <span>· {task.steps} {task.steps === 1 ? "step" : "steps"}</span>}
-          </span>
-        </span>
-        <span className={`shrink-0 pt-px text-[11.5px] tabular-nums ${running ? "text-fg" : "text-faint"}`}>{duration(taskEnd(task) - task.startedAt)}</span>
-      </button>
-      {open && (
-        <div className="anim-fade pr-1 pb-1.5 pl-5">
-          {steps.map((s) => (
-            <StepRow key={s.key} step={s} />
-          ))}
-        </div>
+      <div className={`scroll-thin px-3 py-2 ${full ? "max-h-[28rem] overflow-y-auto" : long ? "fade-bottom max-h-40 overflow-hidden" : ""}`}>
+        <MarkdownBlock text={text} />
+      </div>
+      {long && (
+        <button onClick={() => setFull((f) => !f)} className="w-full border-t border-line py-1 text-[11px] font-medium text-muted hover:bg-hover hover:text-fg">
+          {full ? t("common.showLess") : t("common.showAll")}
+        </button>
       )}
     </div>
   );
 }
 
-function RunCard({ pane, tasks, current }: { pane: Pane; tasks: BgTask[]; current: boolean }) {
-  const runningCount = tasks.filter((t) => t.status === "running").length;
-  const start = Math.min(...tasks.map((t) => t.startedAt));
-  const end = Math.max(...tasks.map(taskEnd));
+/** Tool calls the agent made, newest last, as a thin timeline. */
+function Activity({ task }: { task: BgTask }) {
+  const { t } = useTranslation();
+  const recent = task.recent ?? [];
+  const hidden = (task.steps ?? 0) - recent.length;
+  const running = task.status === "running";
+  return (
+    <ol className="relative ml-[7px] border-l border-line pl-3">
+      {hidden > 0 && <li className="py-0.5 text-[11px] text-faint">{t("background.earlierSteps", { count: hidden })}</li>}
+      {recent.map((r, i) => {
+        const live = running && i === recent.length - 1;
+        return (
+          <li key={i} className="relative flex items-center gap-1.5 py-[3px] text-[11.5px]">
+            <span className={`absolute top-1/2 -left-[16.5px] size-[7px] -translate-y-1/2 rounded-full border border-bg ${live ? "bg-working" : "bg-line"}`} />
+            <span className={live ? "text-working" : "text-faint"}>{toolIcon(r.what)}</span>
+            <span className={`min-w-0 flex-1 truncate font-mono ${live ? "text-fg" : "text-muted"}`} title={r.what}>
+              {r.what}
+            </span>
+            <span className="shrink-0 text-[10.5px] text-faint tabular-nums">{offset(r.at - task.startedAt)}</span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+function TaskCard({ task }: { task: BgTask }) {
+  const { t } = useTranslation();
+  const state = stateOf(task);
+  const running = state === "running";
+  const hasAnswer = !!task.summary?.trim();
+  // The answer is what people come for: shown. Activity stays folded until asked for.
+  const [open, setOpen] = useState(true);
+  const [showActivity, setShowActivity] = useState(false);
+  const meta = [task.kind === "agent" ? (task.type ?? t("background.subagent")) : t("background.command"), task.background && t("background.inBackground"), task.steps ? t("background.steps", { count: task.steps }) : null].filter(Boolean);
+  return (
+    <article className={`rounded-xl border bg-raised ${running ? "border-working/35" : "border-line"}`}>
+      <button onClick={() => setOpen((o) => !o)} className="flex w-full items-start gap-2.5 px-3 pt-2.5 pb-2 text-left">
+        <Tile task={task} state={state} />
+        <span className="min-w-0 flex-1">
+          <span className="line-clamp-2 text-[13px] leading-snug font-medium text-fg">{task.label}</span>
+          <span className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[11px] text-faint">
+            <span className={`font-medium ${STATE_TEXT[state]}`}>{t(STATE_LABEL[state])}</span>
+            {meta.map((m) => (
+              <span key={String(m)}>· {m}</span>
+            ))}
+          </span>
+        </span>
+        <span className="flex shrink-0 items-center gap-1 pt-0.5">
+          <span className={`text-[11.5px] tabular-nums ${running ? "text-fg" : "text-faint"}`}>{duration(taskEnd(task) - task.startedAt)}</span>
+          <ChevronDown size={13} className={`text-faint transition-transform duration-150 ${open ? "" : "-rotate-90"}`} />
+        </span>
+      </button>
+
+      {open && (
+        <div className="anim-fade flex flex-col gap-2 px-3 pb-3">
+          {running && (
+            <div className="flex items-center gap-2 rounded-lg bg-working/8 px-2.5 py-1.5 text-[11.5px]">
+              <span className="status-attention size-1.5 shrink-0 rounded-full bg-working" />
+              <span className="min-w-0 flex-1 truncate font-mono text-fg" title={task.doing}>
+                {task.doing ?? (task.kind === "command" ? t("background.running") : t("background.gettingStarted"))}
+              </span>
+            </div>
+          )}
+          {hasAnswer && <Answer task={task} />}
+          {!running && !hasAnswer && <p className="text-[11.5px] text-faint">{task.kind === "agent" ? t("background.finishedNoAnswer") : t("background.finishedCommand")}</p>}
+          {!!task.recent?.length && (
+            <div>
+              <button onClick={() => setShowActivity((s) => !s)} className="flex items-center gap-1 rounded-md py-0.5 text-[11px] font-medium text-muted hover:text-fg">
+                <ChevronDown size={12} className={`transition-transform duration-150 ${showActivity ? "" : "-rotate-90"}`} />
+                {t("background.activity")}
+                <span className="font-normal text-faint">{task.steps ?? task.recent.length}</span>
+              </button>
+              {showActivity && (
+                <div className="anim-fade mt-1">
+                  <Activity task={task} />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </article>
+  );
+}
+
+function TabGroup({ pane, tasks, current }: { pane: Pane; tasks: BgTask[]; current: boolean }) {
+  const { t } = useTranslation();
+  const running = tasks.filter((task) => task.status === "running").length;
   const title = cleanTitle(pane.title);
   const goTo = () => {
     const s = useStore.getState();
-    const tab = s.tabs.find((t) => paneIds(t.root).includes(pane.id));
-    if (tab) s.setActiveTab(tab.id);
+    const tab = s.tabs.find((tb) => paneIds(tb.root).includes(pane.id));
+    if (tab) {
+      s.setActiveTab(tab.id);
+      s.focusPane(pane.id);
+    }
   };
   return (
-    <section className="mb-3 overflow-hidden rounded-xl border border-line bg-raised">
-      <header className="flex items-center gap-2.5 border-b border-line px-3 py-2.5">
-        <StatusIcon running={runningCount > 0} size={18} />
-        <div className="min-w-0 flex-1">
-          <button onClick={goTo} title="Go to this tab" className="group flex max-w-full items-center gap-1 text-left">
-            <span className="truncate text-[13px] font-semibold text-fg group-hover:underline">{folderName(pane.cwd)}</span>
-            <ArrowUpRight size={12} className="shrink-0 text-faint opacity-0 group-hover:opacity-100" />
-          </button>
-          <div className="truncate text-[11px] text-faint">
-            {runningCount > 0 ? `${runningCount} running` : "All finished"} · {tasks.length} {tasks.length === 1 ? "job" : "jobs"} · {duration(end - start)}
-            {title && ` · ${title}`}
-          </div>
-        </div>
-        {current && <span className="shrink-0 rounded-full border border-line px-1.5 text-[10px] text-faint">this tab</span>}
+    <section className="mb-4">
+      <header className="mb-1.5 flex items-center gap-1.5 px-1">
+        <span className={`size-1.5 shrink-0 rounded-full ${running ? "bg-working" : "bg-done"}`} />
+        <button onClick={goTo} title={t("background.goToTab")} className="group flex min-w-0 items-baseline gap-1.5 text-left">
+          <span className="shrink-0 text-[12px] font-semibold text-fg group-hover:underline">{folderName(pane.cwd)}</span>
+          {title && <span className="min-w-0 truncate text-[11.5px] text-faint">{title}</span>}
+          <ArrowUpRight size={11} className="shrink-0 self-center text-faint opacity-0 group-hover:opacity-100" />
+        </button>
+        <span className="ml-auto shrink-0 pl-2 text-[11px] text-faint">{current ? t("background.thisTab") : running ? t("background.workingCount", { count: running }) : ""}</span>
       </header>
-      <div className="divide-y divide-line">
-        {tasks.map((t) => (
-          <JobRow key={t.id} task={t} />
+      <div className="flex flex-col gap-2">
+        {tasks.map((task) => (
+          <TaskCard key={task.id} task={task} />
         ))}
       </div>
     </section>
@@ -209,6 +268,7 @@ function RunCard({ pane, tasks, current }: { pane: Pane; tasks: BgTask[]; curren
 type TaskFilter = "all" | "running" | "done";
 
 export function AgentsTab() {
+  const { t } = useTranslation();
   useTick(1000);
   const panes = useStore((s) => s.panes);
   const activeTabId = useStore((s) => s.activeTabId);
@@ -216,41 +276,42 @@ export function AgentsTab() {
   const [filter, setFilter] = useState<TaskFilter>("all");
   const withTasks = Object.values(panes).filter((p) => p.bgTasks?.length);
   const all = withTasks.flatMap((p) => p.bgTasks ?? []);
-  const runningCount = all.filter((t) => t.status === "running").length;
+  const runningCount = all.filter((task) => task.status === "running").length;
   const doneCount = all.length - runningCount;
 
   if (withTasks.length === 0) {
     return (
       <Empty
         icon={<Bot size={20} />}
-        title="No background agents yet"
-        text="When Claude starts a subagent or a background command, it shows up here with each step it takes, how long it ran, and its answer."
+        title={t("background.empty.title")}
+        text={t("background.empty.text")}
       />
     );
   }
 
   const clearFinished = () => {
     const s = useStore.getState();
-    for (const p of withTasks) s.updatePane(p.id, { bgTasks: (p.bgTasks ?? []).filter((t) => t.status === "running") });
+    for (const p of withTasks) s.updatePane(p.id, { bgTasks: (p.bgTasks ?? []).filter((task) => task.status === "running") });
   };
   const ordered = [...withTasks].sort((a, b) => (a.id === current?.id ? -1 : b.id === current?.id ? 1 : 0));
   const filters: { id: TaskFilter; label: string; count: number }[] = [
-    { id: "all", label: "All", count: all.length },
-    { id: "running", label: "Running", count: runningCount },
-    { id: "done", label: "Finished", count: doneCount },
+    { id: "all", label: t("background.filter.all"), count: all.length },
+    { id: "running", label: t("background.state.running"), count: runningCount },
+    { id: "done", label: t("background.state.done"), count: doneCount },
   ];
-  const shown = (t: BgTask) => filter === "all" || (filter === "running" ? t.status === "running" : t.status === "done");
+  const shown = (task: BgTask) => filter === "all" || (filter === "running" ? task.status === "running" : task.status === "done");
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex items-center gap-2 px-2.5 pt-0.5 pb-2">
-        <div className="flex gap-0.5">
+      <div className="flex items-center gap-2 px-2.5 pt-0.5 pb-2.5">
+        <div className="flex gap-1">
           {filters.map((f) => (
             <button
               key={f.id}
               onClick={() => setFilter(f.id)}
-              className={`flex items-center gap-1 rounded-md px-2 py-0.5 text-[11.5px] font-medium ${filter === f.id ? "bg-hover text-fg" : "text-faint hover:text-muted"}`}
+              className={`flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11.5px] font-medium ${filter === f.id ? "border-line bg-raised text-fg" : "border-transparent text-faint hover:text-muted"}`}
             >
+              {f.id === "running" && f.count > 0 && <span className="size-1.5 rounded-full bg-working" />}
               {f.label}
               <span className="tabular-nums opacity-70">{f.count}</span>
             </button>
@@ -259,24 +320,24 @@ export function AgentsTab() {
         {doneCount > 0 && (
           <button
             onClick={clearFinished}
-            title="Remove finished jobs"
+            title={t("background.clearFinishedTitle")}
             className="ml-auto flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-[11.5px] whitespace-nowrap text-faint hover:bg-hover hover:text-muted"
           >
-            <Eraser size={12} /> Clear
+            <Eraser size={12} /> {t("background.clearFinished")}
           </button>
         )}
       </div>
       <div className="scroll-thin flex-1 overflow-y-auto px-2.5 pb-3">
         {ordered.map((p) => {
-          // Running jobs first, then newest first.
+          // Working first, then newest first.
           const tasks = [...(p.bgTasks ?? [])]
             .reverse()
             .filter(shown)
             .sort((a, b) => (a.status === b.status ? 0 : a.status === "running" ? -1 : 1));
-          return tasks.length ? <RunCard key={p.id} pane={p} tasks={tasks} current={p.id === current?.id} /> : null;
+          return tasks.length ? <TabGroup key={p.id} pane={p} tasks={tasks} current={p.id === current?.id} /> : null;
         })}
         {filter !== "all" && !all.some(shown) && (
-          <p className="px-2 py-6 text-center text-[12px] text-faint">{filter === "running" ? "Nothing running right now." : "Nothing finished yet."}</p>
+          <p className="px-2 py-6 text-center text-[12px] text-faint">{filter === "running" ? t("background.nothingWorking") : t("background.nothingFinished")}</p>
         )}
       </div>
     </div>

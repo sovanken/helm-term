@@ -1,0 +1,500 @@
+{
+  "tools": {
+    "groups": {
+      "design": "Diseño",
+      "data": "Datos",
+      "generators": "Generadores",
+      "system": "Sistema"
+    },
+    "list": {
+      "color": {
+        "label": "Selector de colores",
+        "blurb": "Elegir, convertir y comprobar el contraste"
+      },
+      "image": {
+        "label": "Herramientas de imagen",
+        "blurb": "Cambiar tamaño, comprimir, convertir"
+      },
+      "ruler": {
+        "label": "Regla de pantalla",
+        "blurb": "Mide cualquier cosa en la pantalla"
+      },
+      "json": {
+        "label": "Herramientas JSON",
+        "blurb": "Formatear, comprobar, YAML, TypeScript"
+      },
+      "encode": {
+        "label": "Codificar / descodificar",
+        "blurb": "Base64, URL, HTML, JWT"
+      },
+      "regex": {
+        "label": "Probador de regex",
+        "blurb": "Coincidencias y grupos en vivo"
+      },
+      "diff": {
+        "label": "Comparar texto",
+        "blurb": "Ver qué ha cambiado"
+      },
+      "generate": {
+        "label": "UUID / contraseña / hash",
+        "blurb": "Identificadores, contraseñas, sumas de comprobación"
+      },
+      "time": {
+        "label": "Conversor de tiempo",
+        "blurb": "Tiempo Unix y fechas"
+      },
+      "placeholder": {
+        "label": "Texto de relleno",
+        "blurb": "Lorem ipsum y datos de prueba"
+      },
+      "ports": {
+        "label": "Puertos en uso",
+        "blurb": "¿Qué hay en el puerto 3000?"
+      },
+      "http": {
+        "label": "Probador de solicitudes de API",
+        "blurb": "Envía solicitudes, ve las respuestas"
+      },
+      "env": {
+        "label": "Variables de entorno",
+        "blurb": "PATH y otras variables"
+      },
+      "scratchpad": {
+        "label": "Bloc de notas",
+        "blurb": "Notas guardadas por proyecto"
+      }
+    },
+    "page": {
+      "navLabel": "Herramientas de desarrollo",
+      "opening": "Abriendo…"
+    },
+    "ui": {
+      "copyValue": "Copiar {{label}}"
+    },
+    "shared": {
+      "swap": "Intercambiar",
+      "clear": "Borrar",
+      "new": "Nuevo",
+      "howMany": "Cuántos",
+      "nothingMatches": "No hay coincidencias.",
+      "saveAs": "Guardar como…",
+      "savedFile": "{{name}} guardado"
+    },
+    "color": {
+      "color": "Color",
+      "choose": "Elegir un color…",
+      "pickTitle": "Tomar un color de cualquier parte de la pantalla",
+      "pick": "Tomar de la pantalla",
+      "invalid": "Helm no reconoce eso como un color.",
+      "contrast": "Contraste del texto",
+      "textColor": "Color del texto",
+      "text": "Texto",
+      "swapLabel": "Intercambiar texto y fondo",
+      "background": "Fondo",
+      "sampleHeading": "Texto de título grande",
+      "sampleBody": "El texto normal se ve así con tus colores.",
+      "passBody": "Texto normal",
+      "passLarge": "Texto grande",
+      "passBest": "Óptimo (AAA)",
+      "contrastHint": "El texto normal necesita 4.5:1 para leerse con facilidad; el texto grande o en negrita necesita 3:1.",
+      "recent": "Colores recientes",
+      "recentEmpty": "Aquí se guardan los colores que eliges o escribes."
+    },
+    "diff": {
+      "before": "Antes",
+      "beforePlaceholder": "Pega el texto original",
+      "after": "Después",
+      "afterPlaceholder": "Pega el texto modificado",
+      "swapLabel": "Intercambiar los dos textos",
+      "differences": "Diferencias",
+      "noDifferences": "No hay diferencias",
+      "changedLines_one": "{{count}} línea cambiada",
+      "changedLines_many": "{{count}} líneas cambiadas",
+      "changedLines_other": "{{count}} líneas cambiadas",
+      "ignoreSpaces": "Omitir espacios",
+      "ignoreCase": "Omitir mayúsculas y minúsculas",
+      "empty": "Pega dos versiones arriba para compararlas línea por línea."
+    },
+    "encode": {
+      "dateWithRelative": "{{date}} ({{relative}})",
+      "jwtParts": "Un JWT tiene tres partes separadas por puntos.",
+      "jwtUnreadable": "No parece un JWT (las partes no son JSON legible).",
+      "pasteToken": "Pega un token para leerlo.",
+      "summary": "Resumen",
+      "expired": "Vencido",
+      "notExpired": "No vencido",
+      "algorithm": "Algoritmo",
+      "subject": "Asunto",
+      "issuer": "Emisor",
+      "issued": "Emitido",
+      "expires": "Vence",
+      "payload": "Carga útil",
+      "header": "Encabezado",
+      "jwtNote": "Helm solo lee el token. No comprueba la firma, así que no te fíes de su contenido por esto.",
+      "invalidBase64": "No es un texto Base64 válido.",
+      "cantDecode": "No se puede descodificar.",
+      "encode": "Codificar",
+      "decode": "Descodificar",
+      "urlSafe": "Seguro para URL",
+      "token": "Token",
+      "encodedText": "Texto codificado",
+      "text": "Texto",
+      "encodedPlaceholder": "Pega el texto codificado",
+      "textPlaceholder": "Escribe o pega texto",
+      "swapTitle": "Usar el resultado como entrada y cambiar de dirección",
+      "decoded": "Descodificado",
+      "encoded": "Codificado"
+    },
+    "env": {
+      "hidden": "Oculto (parece un secreto). Haz clic para mostrarlo.",
+      "user": "Usuario ({{n}})",
+      "system": "Sistema ({{n}})",
+      "searchPlaceholder": "Nombre o valor",
+      "note": "Solo lectura, tal como están guardadas en Windows. Los programas que ya están abiertos (incluido Helm) conservan los valores con los que se iniciaron, así que reinícialos después de cambiar una variable."
+    },
+    "generate": {
+      "copyAll": "Copiar todo",
+      "v4": "Aleatorio (v4)",
+      "v7": "Ordenado por tiempo (v7)",
+      "uppercase": "Mayúsculas",
+      "dashes": "Guiones",
+      "v7Hint": "Los identificadores v7 empiezan por la hora, así que se ordenan según se crearon (útil para claves de bases de datos).",
+      "veryStrong": "Muy segura",
+      "strong": "Segura",
+      "ok": "Aceptable",
+      "weak": "Débil",
+      "password": "Contraseña",
+      "newPassword": "Nueva contraseña",
+      "lengthValue": "Longitud: {{length}}",
+      "length": "Longitud",
+      "noLookAlikes": "Sin caracteres parecidos (I l 1 O 0)",
+      "randomness_one": "<0>{{strength}}</0> · unos {{count}} bit de aleatoriedad",
+      "randomness_many": "<0>{{strength}}</0> · unos {{count}} bits de aleatoriedad",
+      "randomness_other": "<0>{{strength}}</0> · unos {{count}} bits de aleatoriedad",
+      "hashTextInstead": "Calcular el hash de un texto",
+      "chooseFileTitle": "Elegir un archivo para calcular su hash",
+      "chooseFile": "Elegir archivo…",
+      "hash": "Hash (suma de comprobación)",
+      "hashPlaceholder": "Escribe un texto para calcular su hash o elige un archivo",
+      "readingFile": "Leyendo el archivo…",
+      "hashHint": "Para comprobar una descarga, compara su SHA-256 con el que indica el sitio web. MD5 y SHA-1 sirven para eso, pero no para contraseñas ni seguridad."
+    },
+    "http": {
+      "binaryBody_one": "({{size}} byte de datos binarios)",
+      "binaryBody_many": "({{size}} bytes de datos binarios)",
+      "binaryBody_other": "({{size}} bytes de datos binarios)",
+      "newRequest": "Nueva solicitud",
+      "saved": "Guardadas",
+      "savedEmpty": "Aquí aparecen las solicitudes que guardes.",
+      "deleteRequest": "Eliminar {{name}}",
+      "method": "Método",
+      "address": "Dirección",
+      "send": "Enviar",
+      "saveTitle": "Guardar esta solicitud",
+      "copyCurl": "Copiar como curl",
+      "headersCount": "Encabezados ({{n}})",
+      "headers": "Encabezados",
+      "body": "Cuerpo",
+      "headerName": "Nombre",
+      "headerValue": "Valor",
+      "removeHeader": "Quitar encabezado",
+      "addHeader": "Agregar encabezado",
+      "addAuth": "Agregar encabezado de autorización",
+      "noBody": "Las solicitudes GET y HEAD no envían cuerpo.",
+      "noContentType": "No hay encabezado Content-Type.",
+      "addJson": "Agregar \"application/json\"",
+      "response": "Respuesta",
+      "truncated": "(Solo se muestran los primeros 10 MB).",
+      "empty": "Envía una solicitud para ver la respuesta. Las solicitudes salen del propio Helm, así que las reglas CORS de un navegador no estorban."
+    },
+    "image": {
+      "notImage": "Ese archivo no es una imagen que Helm pueda leer.",
+      "chooseTitle": "Elegir una imagen",
+      "imagesFilter": "Imágenes",
+      "tooLarge": "Esa imagen es demasiado grande (más de 15 MB).",
+      "pastedName": "imagen pegada",
+      "saveTitle": "Guardar imagen",
+      "copied": "Imagen copiada",
+      "copyFailed": "No se pudo copiar la imagen: {{error}}",
+      "empty": "Elige una imagen o pega una con Ctrl+V.",
+      "chooseButton": "Elegir imagen…",
+      "change": "Cambiar…",
+      "original": "Original",
+      "size": "Tamaño",
+      "width": "Ancho",
+      "height": "Alto",
+      "unlock": "Desbloquear proporciones",
+      "lock": "Mantener proporciones",
+      "locked": "Proporciones fijas",
+      "unlocked": "Proporciones libres",
+      "format": "Formato",
+      "qualityValue": "Calidad {{quality}}",
+      "quality": "Calidad",
+      "hintPng": "PNG conserva cada píxel exactamente (archivos más grandes).",
+      "hintJpg": "JPG es ideal para fotos; no admite transparencia.",
+      "hintWebp": "WebP es el más pequeño y funciona en todos los navegadores actuales.",
+      "result": "Resultado",
+      "smaller_one": "({{count}} % más pequeña)",
+      "smaller_many": "({{count}} % más pequeña)",
+      "smaller_other": "({{count}} % más pequeña)",
+      "larger_one": "({{count}} % más grande)",
+      "larger_many": "({{count}} % más grande)",
+      "larger_other": "({{count}} % más grande)",
+      "copyImage": "Copiar imagen",
+      "copyDataUri": "Copiar URI de datos",
+      "dataUriLarge": "El URI de datos ocupa {{size}}; es mucho para ponerlo en el código."
+    },
+    "json": {
+      "errorAt": "Línea {{line}}, columna {{col}}: {{message}}",
+      "inputPlaceholder": "Pega el JSON aquí",
+      "valid_one": "JSON válido · {{n}} carácter",
+      "valid_many": "JSON válido · {{n}} caracteres",
+      "valid_other": "JSON válido · {{n}} caracteres",
+      "rootName": "Nombre del tipo principal",
+      "spaces_one": "{{count}} espacio",
+      "spaces_many": "{{count}} espacios",
+      "spaces_other": "{{count}} espacios",
+      "tabs": "Tabulaciones",
+      "formatted": "Con formato",
+      "minified": "Minificado",
+      "outputPlaceholder": "El resultado aparece aquí",
+      "errors": {
+        "endsEarly": "el texto termina antes de tiempo",
+        "unexpected": "{{char}} inesperado",
+        "badUnicodeEscape": "secuencia de escape \\u no válida",
+        "badEscape": "secuencia de escape no válida después de \\",
+        "controlChar": "los saltos de línea y las tabulaciones deben escaparse dentro de las cadenas",
+        "unclosedString": "una cadena no está cerrada (falta \")",
+        "extraCommaObject": "coma de más antes de }",
+        "expectedKey": "se esperaba una clave \"entre comillas\" y se encontró {{found}}",
+        "expectedColon": "se esperaba : después de la clave",
+        "expectedCommaObject": "se esperaba , o } ({{problem}})",
+        "extraCommaArray": "coma de más antes de ]",
+        "expectedCommaArray": "se esperaba , o ] ({{problem}})",
+        "singleQuotes": "usa comillas dobles, no simples",
+        "trailing": "hay más contenido después del final del JSON"
+      }
+    },
+    "placeholder": {
+      "testData": "Datos de prueba",
+      "paragraphs": "Párrafos",
+      "sentences": "Frases",
+      "words": "Palabras",
+      "rows": "Filas",
+      "rowsAs": "<0></0><1>filas como</1><2></2>",
+      "text": "Texto",
+      "data": "Datos (inventados, los correos usan example.com)"
+    },
+    "ports": {
+      "stopConfirm": "¿Detener {{name}} (proceso {{pid}})? Está usando el puerto {{port}}. Se perderá todo lo que no esté guardado en él.",
+      "stopConfirmTitle": "¿Detener {{name}}?",
+      "stop": "Detener",
+      "stopped": "{{name}} detenido. El puerto {{port}} está libre.",
+      "searchPlaceholder": "Puerto, programa o id. de proceso",
+      "showSystem": "Mostrar puertos del sistema Windows",
+      "port": "Puerto",
+      "program": "Programa",
+      "pid": "Id. de proceso",
+      "listeningOn": "Escuchando en",
+      "allNetworks": "todas las redes",
+      "thisPcOnly": "solo esta PC",
+      "openTitle": "Abrir en una pestaña del navegador de Helm",
+      "stopTitle": "Detener este programa",
+      "empty": "No hay programas escuchando en ningún puerto.",
+      "hint": "Se actualiza cada pocos segundos. Los programas con un escudo pertenecen a Windows, así que Helm no los detendrá."
+    },
+    "regex": {
+      "flags": {
+        "allMatches": "Todas las coincidencias",
+        "ignoreCase": "Omitir mayúsculas y minúsculas",
+        "perLine": "^ $ por línea",
+        "dotAll": ". incluye saltos de línea",
+        "unicode": "Unicode"
+      },
+      "escapes": {
+        "digit": "un dígito (0–9)",
+        "notDigit": "cualquier cosa menos un dígito",
+        "word": "una letra, un dígito o _",
+        "notWord": "cualquier cosa menos una letra, un dígito o _",
+        "space": "un espacio, una tabulación o un salto de línea",
+        "notSpace": "cualquier cosa menos espacios en blanco",
+        "boundary": "un límite de palabra",
+        "notBoundary": "no es un límite de palabra",
+        "newline": "un salto de línea",
+        "tab": "una tabulación",
+        "carriageReturn": "un retorno de carro"
+      },
+      "zeroOrMore": "cero o más veces",
+      "zeroOrMoreLazy": "cero o más veces (las mínimas posibles)",
+      "oneOrMore": "una o más veces",
+      "oneOrMoreLazy": "una o más veces (las mínimas posibles)",
+      "optional": "opcional",
+      "exactly_one": "exactamente {{count}} vez",
+      "exactly_many": "exactamente {{count}} veces",
+      "exactly_other": "exactamente {{count}} veces",
+      "range": "de {{min}} a {{max}} veces",
+      "rangeLazy": "de {{min}} a {{max}} veces (las mínimas posibles)",
+      "atLeast": "{{min}} o más veces",
+      "atLeastLazy": "{{min}} o más veces (las mínimas posibles)",
+      "backref": "el mismo texto que el grupo {{n}}",
+      "char": "el carácter \"{{char}}\"",
+      "notOneOf": "cualquier carácter excepto {{chars}}",
+      "oneOf": "uno de {{chars}}",
+      "groupNotCaptured": "inicia un grupo (sin capturar)",
+      "followedBy": "seguido de…",
+      "notFollowedBy": "no seguido de…",
+      "precededBy": "precedido de…",
+      "notPrecededBy": "no precedido de…",
+      "namedGroup": "inicia el grupo \"{{name}}\"",
+      "group": "inicia un grupo capturado",
+      "groupEnd": "fin del grupo",
+      "start": "inicio del texto (o de la línea)",
+      "end": "final del texto (o de la línea)",
+      "any": "cualquier carácter",
+      "or": "o",
+      "literal": "el texto \"{{text}}\"",
+      "pattern": "Patrón",
+      "testText": "Texto de prueba",
+      "matches_one": "{{count}} coincidencia",
+      "matches_many": "{{count}} coincidencias",
+      "matches_other": "{{count}} coincidencias",
+      "match": "Coincidencia",
+      "position": "Posición",
+      "groups": "Grupos",
+      "meaning": "Qué significa el patrón"
+    },
+    "ruler": {
+      "intro": "Helm se oculta un momento y captura tu pantalla. Después arrastra sobre la captura para medir o haz clic en un píxel para obtener su color.",
+      "capture": "Capturar pantalla",
+      "captureAlt": "Captura de pantalla",
+      "newCapture": "Nueva captura",
+      "zoomOut": "Alejar",
+      "zoomIn": "Acercar",
+      "fitTitle": "Ajustar / tamaño real",
+      "measured": "Medido",
+      "screenPixels": "píxeles de pantalla · diagonal {{diagonal}}",
+      "cssPixels": "{{w}} × {{h}} píxeles CSS con un escalado del {{scaling}} %",
+      "dragHint": "Arrastra sobre la captura.",
+      "underPointer": "Bajo el puntero",
+      "lastPoint": "Último punto",
+      "copyLastColor": "Copiar el color del último punto",
+      "footer": "La captura abarca todas las pantallas y solo se queda en esta pestaña."
+    },
+    "scratchpad": {
+      "saveFailed": "No se pudieron guardar estas notas.",
+      "savedAuto": "Se guarda automáticamente. Se conserva en Helm, no en el proyecto.",
+      "notesFor": "Notas para",
+      "project": "Proyecto",
+      "general": "General (cualquier proyecto)"
+    },
+    "time": {
+      "now": "Ahora",
+      "inputLabel": "Tiempo Unix o fecha",
+      "typeHint": "Escribe una marca de tiempo o una fecha.",
+      "readAsMicroseconds": "Leído como microsegundos.",
+      "readAsMilliseconds": "Leído como milisegundos.",
+      "readAsSeconds": "Leído como segundos.",
+      "readAsDate": "Leído como fecha.",
+      "unreadable": "Helm no puede interpretar eso como una hora.",
+      "yourTime": "Tu hora",
+      "day": "Día",
+      "dayValue": "{{weekday}}, semana {{week}}",
+      "timeZones": "Zonas horarias",
+      "yourZone": "{{zone}} (tú)",
+      "removeZone": "Quitar {{zone}}",
+      "addZonePlaceholder": "Agregar una zona horaria (p. ej., Asia/Phnom_Penh)",
+      "add": "Agregar",
+      "rightNow": "Ahora mismo"
+    }
+  },
+  "snip": {
+    "withKey": "{{label}} ({{key}})",
+    "toast": {
+      "startFailed": "No se pudo iniciar la captura de pantalla: {{error}}",
+      "countdown_one": "Captura en {{count}}…",
+      "countdown_many": "Captura en {{count}}…",
+      "countdown_other": "Captura en {{count}}…",
+      "shortcutTaken": "Otra aplicación ya usa el método abreviado de captura {{keys}}. Elige otro en Configuración.",
+      "copied": "Captura de pantalla copiada."
+    },
+    "overlay": {
+      "modes": {
+        "area": "Área",
+        "window": "Ventana",
+        "screen": "Pantalla completa",
+        "freeform": "Forma libre"
+      },
+      "captureFailed": "No se pudo capturar la pantalla: {{error}}",
+      "allScreens": "Todas las pantallas",
+      "cancelTitle": "Cancelar (Esc)",
+      "hints": {
+        "area": "Arrastra para seleccionar un área · Esc para cancelar",
+        "window": "Haz clic en una ventana · Esc para cancelar",
+        "screen": "Haz clic en una pantalla · Esc para cancelar",
+        "freeform": "Dibuja alrededor de lo que quieras · Esc para cancelar"
+      }
+    },
+    "editor": {
+      "tools": {
+        "arrow": "Flecha",
+        "rect": "Rectángulo",
+        "ellipse": "Círculo",
+        "line": "Línea",
+        "pen": "Lápiz",
+        "highlight": "Resaltador",
+        "text": "Texto",
+        "step": "Paso numerado",
+        "blur": "Difuminar (pixelar)",
+        "redact": "Tapar",
+        "crop": "Recortar"
+      },
+      "widths": {
+        "thin": "Fino",
+        "medium": "Medio",
+        "thick": "Grueso"
+      },
+      "widthLines": {
+        "thin": "Líneas finas",
+        "medium": "Líneas medias",
+        "thick": "Líneas gruesas"
+      },
+      "notLoaded": "Aún no se ha cargado",
+      "copyFailed": "No se pudo copiar: {{error}}",
+      "saveTitle": "Guardar captura de pantalla",
+      "pngFilter": "Imagen PNG",
+      "unreadable": "No se pudo leer la imagen",
+      "sentToClaude": "Captura de pantalla agregada a tu mensaje para Claude. Agrega lo que quieras y presiona Enter.",
+      "deleteConfirm": "Se eliminarán esta captura de pantalla y sus marcas.",
+      "deleteTitle": "¿Eliminar la captura de pantalla?",
+      "colorLabel": "Color {{color}}",
+      "otherColor": "Otro color…",
+      "undoTitle": "Deshacer (Ctrl+Z)",
+      "undo": "Deshacer",
+      "redoTitle": "Rehacer (Ctrl+Y)",
+      "redo": "Rehacer",
+      "undoCrop": "Deshacer recorte",
+      "deleteThis": "Eliminar esta captura de pantalla",
+      "saveAsTitle": "Guardar como (Ctrl+S)",
+      "copyTitle": "Copiar (Ctrl+C)",
+      "needClaude": "Abre primero una pestaña de Claude y vuelve a enviarla.",
+      "send": "Enviar a Claude",
+      "textPlaceholder": "Escribe y presiona Enter",
+      "footer": {
+        "crop": "{{w}} × {{h}} px · arrastra para elegir la parte que quieres conservar",
+        "text": "{{w}} × {{h}} px · haz clic donde va el texto",
+        "step": "{{w}} × {{h}} px · haz clic para colocar el {{n}}",
+        "other": "{{w}} × {{h}} px · Shift mantiene proporcionados los rectángulos y círculos"
+      }
+    },
+    "page": {
+      "newScreenshot": "Nueva captura de pantalla",
+      "delay": "Captura de pantalla con retraso",
+      "delayItem_one": "Captura en {{count}} segundo",
+      "delayItem_many": "Captura en {{count}} segundos",
+      "delayItem_other": "Captura en {{count}} segundos",
+      "empty": "Aquí aparecen tus capturas de pantalla.",
+      "intro": "Recorta un área, una ventana, una pantalla completa o cualquier forma. Método abreviado desde cualquier aplicación: <0>{{keys}}</0>",
+      "shortcutOff": "desactivado"
+    }
+  }
+}

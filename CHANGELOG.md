@@ -3,6 +3,35 @@
 All notable changes to Helm are listed here. Helm follows [Semantic Versioning](https://semver.org).
 The same notes appear in the app under **Settings → What's new** (`src/lib/changelog.ts`).
 
+## 1.0.2 — October 2026
+
+### New
+- **11 languages:** English, Français, Deutsch, हिन्दी, Bahasa Indonesia, Italiano, 日本語, 한국어, Português (Brasil), Español (Latinoamérica) and Español (España), the same languages Claude offers. Helm follows the Windows language by default; change it in the gear menu or Settings → Appearance.
+- **Voice input:** hold Ctrl+Space or click the mic on a Claude tab and speak. Speech becomes text on your PC with NVIDIA Parakeet (English) through sherpa-onnx; nothing is sent anywhere. Words are typed into the prompt as you pause, and you press Enter to send. One-time model download (about 460 MB) on first use.
+- **Screenshots:** area, window, freeform or full screen, with a delay or Ctrl+Alt+S from any app. Mark up with arrows, boxes, text, pen, numbered steps and blur; copy, save or send to Claude; history of recent screenshots.
+- **Developer tools:** color picker, image tools, screen ruler, JSON tools, encode/decode, regex tester, compare text, UUID/password/hash generators, time converter, placeholder text, ports in use, API tester, environment variables and a scratchpad.
+- **Project files:** browse a project like VS Code's explorer, with quick open, search in files, git colors and file operations, and a built-in editor for text and Markdown.
+- **Phones for testing:** a connected Android phone shows in the status bar: mirror its screen, read your app's logs, take a screenshot, see details, switch to Wi-Fi.
+- **settings.json:** edit Helm's settings as a file (Ctrl+Shift+,), with suggestions, descriptions and checks; comments allowed. Changed settings are marked on the Settings page and can be reset one by one.
+- **Gear menu:** command palette, settings, settings.json, keyboard shortcuts, theme, language, Claude Code settings, What's new, check for updates, report a problem and About.
+- **New file menu:** create Markdown or text notes in the current folder from the + menu.
+
+### Improved
+- **Sidebar:** one list of projects with their conversations, a Running now group, and a toolbar with search, sort, collapse all, privacy blur and new project.
+- **Project menu:** rename the folder (its conversations move with it) or move it to the Recycle Bin, with checks for protected folders, permission and folders in use; remove from list, color labels, copy path, Claude settings files, usage, export all conversations, delete old conversations, open on GitHub and copy clone URL.
+- **Conversation menu:** branch off, continue beside, read in a tab, rename, pin, hide, delete, files it changed and copy the resume command.
+- **Agents page:** Live and Usage tabs (last 7, 14 or 30 days, split by real project), and a details view with what happened, files, context and cost.
+- **Side panel:** the Agents tab is now **Background**, with a cleaner card design and answers shown as formatted Markdown. Details shows file icons, counts and quick copy.
+- **Loading:** screens show a shimmer while they load instead of "Loading…" text or a brief empty state.
+- **Startup:** a splash screen instead of a see-through window for the first moments.
+- **Wording:** one word per idea across the app (conversation, side panel, Recycle Bin, Show in File Explorer…).
+
+### Fixed
+- Background commands no longer stay "running" after they finish.
+- Links opened from Helm (Open on GitHub, Report a problem, Open in default browser) were blocked; they open in your browser again.
+- "New PowerShell tab" items now say "New terminal tab", since they open your default shell.
+- Very large conversations are no longer cut off when counting usage.
+
 ## 1.0.1 — October 2026
 
 - **History:** every conversation's ⋯ menu has "Usage & context details": its context window (exact or estimated), how it grew, tokens and cache, cost, time and tools, with PDF export and Continue.

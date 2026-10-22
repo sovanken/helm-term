@@ -1,0 +1,330 @@
+{
+  "sidebar": {
+    "projects": "プロジェクト",
+    "conversations": "会話",
+    "pinned": "ピン留め",
+    "recent": "最近",
+    "searchTitle": "プロジェクトと会話を検索 (Ctrl+Shift+H)",
+    "searchPlaceholder": "プロジェクトと会話を検索",
+    "searching": "検索しています…",
+    "noMatch": "一致する会話はありません。",
+    "sortProjects": "プロジェクトの並べ替え",
+    "sortBy": "プロジェクトの並べ替え基準",
+    "sorts": {
+      "recent": "最近使用した順",
+      "name": "名前 (A から Z)",
+      "chats": "会話の多い順"
+    },
+    "collapseAll": "すべて折りたたむ",
+    "expandAll": "すべて展開",
+    "collapseAllProjects": "すべてのプロジェクトを折りたたむ",
+    "expandAllProjects": "すべてのプロジェクトを展開",
+    "blurNames": "名前をぼかす",
+    "blurOff": "名前を再表示",
+    "blurOn": "プロジェクト名と会話のタイトルをぼかします (画面共有用)。行にマウスを合わせると読めます。",
+    "newProject": "新しいプロジェクト…",
+    "empty": "Claude Code で使用したプロジェクトと会話がここに表示されます。",
+    "openFolder": "フォルダーを Claude で開く…",
+    "hideHidden": "非表示の会話を隠す",
+    "showHidden_other": "非表示の会話 {{count}} 件を表示",
+    "newClaudeTabHere": "ここで新しい Claude タブ",
+    "newTerminalTabHere": "ここで新しいターミナル タブ",
+    "pin": "先頭にピン留め",
+    "unpin": "ピン留めを外す",
+    "running": {
+      "title": "実行中",
+      "newConversation": "新しい会話",
+      "needsYou": "応答待ち",
+      "working": "作業中…",
+      "finished": "完了"
+    },
+    "project": {
+      "openFiles": "プロジェクトのファイルを開く",
+      "actions": "プロジェクトの操作",
+      "openTabs_other": "開いているタブ {{count}} 個",
+      "openBadge_other": "{{count}} 個を表示中",
+      "noChats": "まだ会話はありません。",
+      "showAll_other": "{{count}} 件の会話をすべて表示"
+    },
+    "projectMenu": {
+      "colorLabel": "色ラベル",
+      "noColor": "色なし",
+      "fullPath": "フル パス",
+      "folderName": "フォルダー名",
+      "copiedPath": "パスをコピーしました。",
+      "copiedFolderName": "フォルダー名をコピーしました。",
+      "copiedCloneUrl": "クローン URL をコピーしました。",
+      "openOn": "{{host}} で開く",
+      "copyCloneUrl": "クローン URL のコピー",
+      "claudeSettings": "Claude Code の設定",
+      "projectNotes": "Claude 向けのプロジェクト メモ",
+      "sharedSettings": "チームと共有する設定",
+      "localSettings": "自分専用の設定",
+      "usage": "使用量…",
+      "exportAll": "すべての会話をエクスポート…",
+      "deleteOld": "古い会話を削除…",
+      "renameFolder": "フォルダー名の変更…",
+      "removeFromList": "一覧から削除",
+      "deleteFolder": "フォルダーを削除…"
+    },
+    "colors": {
+      "red": "赤",
+      "orange": "オレンジ",
+      "yellow": "黄",
+      "green": "緑",
+      "teal": "ティール",
+      "blue": "青",
+      "purple": "紫",
+      "pink": "ピンク"
+    },
+    "conversation": {
+      "actions": "会話の操作",
+      "newTitle": "新しいタイトル",
+      "hidden": "非表示",
+      "tooltipOpen": "タブで開いています: クリックして移動",
+      "tooltipContinue": "クリックしてこの会話を続ける",
+      "goToTab": "タブに移動",
+      "continue": "続ける",
+      "continueBeside": "このタブの横で続ける",
+      "branch": "新しい会話に分岐",
+      "read": "続けずに読む",
+      "usage": "使用量とコンテキストの詳細",
+      "rename": "名前の変更…",
+      "showAgain": "一覧に再表示",
+      "hide": "一覧から非表示にする",
+      "openProjectIn": "プロジェクトを開くアプリ",
+      "helmFiles": "Helm (プロジェクト ファイル)",
+      "editor": "エディター",
+      "terminal": "ターミナル",
+      "editorFailed": "エディターを開けませんでした (VS Code はインストールされていますか?)",
+      "resumeCommand": "再開コマンド",
+      "conversationId": "会話 ID",
+      "exportMarkdown": "Markdown にエクスポート…",
+      "closeFirst": "先にタブを閉じてから削除してください。",
+      "deleteMessage": "「{{title}}」は完全に削除されます。Claude Code で続けることはできなくなります。",
+      "deleteTitle": "この会話を削除しますか?",
+      "deleted": "会話を削除しました。"
+    },
+    "filesDialog": {
+      "title": "変更されたファイル",
+      "reading": "会話を読み込んでいます…",
+      "none": "この会話で Claude が編集または作成したファイルはありません。",
+      "footer_other": "{{count}} 個のファイル · クリックして開く"
+    }
+  },
+  "projectActions": {
+    "checking": "フォルダーを確認しています…",
+    "inUse": {
+      "terminalTabs_other": "{{count}} 個のターミナル タブまたは Claude タブ",
+      "projectTabs_other": "{{count}} 個のプロジェクト タブ",
+      "fileTabs_other": "{{count}} 個のファイル タブ",
+      "terminals": "Helm はこのフォルダーを {{use}} で開いています。先にターミナル タブと Claude タブを閉じてください (処理中の可能性があります)。",
+      "viewers": "Helm はこのフォルダーを {{use}} で開いています。先にそれらを閉じてください。",
+      "closeThem": "閉じる"
+    },
+    "rename": {
+      "title": "{{name}} の名前の変更",
+      "renaming": "名前を変更しています…",
+      "newName": "新しいフォルダー名",
+      "blocked": "Helm はこのフォルダーの名前を変更しません。{{reason}}",
+      "renamed": "{{name}} に名前を変更しました。",
+      "renamedWithChats_other": "{{name}} に名前を変更しました。{{count}} 件の会話も一緒に移動しました。",
+      "info": "ディスク上のフォルダー名が変更されます。古いパスを参照しているもの (ショートカット、エディターのワークスペース、スクリプト) は手動で更新する必要があります。Claude からフォルダーを信頼するかどうか再度確認されることがあります。",
+      "infoWithChats_other": "ディスク上のフォルダー名が変更されます。{{count}} 件の会話も一緒に移動するため、引き続き続けることができます。古いパスを参照しているもの (ショートカット、エディターのワークスペース、スクリプト) は手動で更新する必要があります。Claude からフォルダーを信頼するかどうか再度確認されることがあります。"
+    },
+    "delete": {
+      "title": "{{name}} を削除しますか?",
+      "moving": "移動しています…",
+      "moveToBin": "ごみ箱に移動",
+      "blocked": "Helm はこのフォルダーを削除しません。{{reason}}",
+      "files_other": "{{files}} 個のファイル · {{size}}",
+      "moreFiles_other": "{{files}} 個を超えるファイル · {{size}}",
+      "wholeFolder": "フォルダー全体がごみ箱に移動します。ごみ箱から元に戻せます。",
+      "gitChanges_other": "{{count}} 個のファイルに git でコミットされていない変更があります。これらはごみ箱にしか残りません。",
+      "alsoChats_other": "{{count}} 件の会話もごみ箱に移動する",
+      "unchecked": "オフにすると、会話はサイドバーに残ります。",
+      "done": "{{name}} をごみ箱に移動しました。",
+      "chatsFailed_other": "{{count}} 件の会話を移動できませんでした。"
+    },
+    "oldChats": {
+      "title": "{{name}} の古い会話を削除",
+      "moveN_other": "{{count}} 件をごみ箱に移動",
+      "nothing": "削除するものはありません",
+      "notUsedFor": "使用されていない期間",
+      "days_other": "{{count}} 日",
+      "note": "開いている会話とピン留めした会話は対象外です。Claude Code の設定で変更していない限り、Claude Code は 30 日より古い会話を自動的に削除します。",
+      "none": "それほど古い会話はありません。",
+      "done_other": "{{count}} 件の会話をごみ箱に移動しました。",
+      "failed_other": "{{count}} 件を移動できませんでした。"
+    },
+    "usage": {
+      "title": "使用量 · {{name}}",
+      "showAll": "すべての使用量を表示",
+      "lastDays_other": "過去 {{count}} 日間",
+      "cost": "コスト",
+      "tokens": "トークン",
+      "share": "全作業に占める割合",
+      "note": "すべての会話で Claude がこのフォルダー内で変更したファイルをもとに集計します。期間を初めて表示するときは数秒かかることがあります。"
+    },
+    "export": {
+      "none": "このプロジェクトにはエクスポートする会話がありません。",
+      "dialogTitle_other": "{{name}} の {{count}} 件の会話のエクスポート先…",
+      "exported_other": "{{count}} 件の会話をエクスポートしました。",
+      "failed_other": "{{count}} 件をエクスポートできませんでした。",
+      "openFolder": "フォルダーを開く"
+    },
+    "removed": "{{name}} を一覧から削除しました。フォルダーと会話はそのまま残っています。",
+    "undo": "元に戻す"
+  },
+  "tasks": {
+    "sectionTitle": "{{name}} のタスク",
+    "newTask": "新しい並列タスク",
+    "intro": "Claude は新しいブランチ上のプロジェクトの専用コピーで作業するため、複数のタスクを互いに影響させずに同時に実行できます。完了したら結果をマージして戻します。",
+    "notRepo": "<0>{{name}}</0> は git リポジトリではありません。並列タスクには git が必要です。<1>git init</1> を実行して最初のコミットを作成してから、もう一度お試しください。",
+    "whatTask": "どんなタスクですか?",
+    "placeholder": "例: 設定にダーク モードを追加する",
+    "branchAndFolder": "ブランチとフォルダー: {{folder}} 内の <0>{{id}}</0>",
+    "giveName": "短い名前を付けてください",
+    "start": "タスクを開始",
+    "started": "並列タスク「{{id}}」を専用のブランチで開始しました。",
+    "empty": "2 つ目のタスクを Claude で並列に実行",
+    "tooltip": "{{path}}\nブランチ: {{branch}}\nクリックしてこのタスクで Claude を開く",
+    "noBranch": "なし",
+    "merging": "マージしています…",
+    "uncommitted_other": "未コミット {{count}} 件",
+    "toMerge_other": "マージ待ち {{count}} 件",
+    "noChanges": "まだ変更はありません。",
+    "actions": "タスクの操作",
+    "mergeInto": "{{branch}} にマージ",
+    "nothingToMerge": "まだマージするものはありません",
+    "commitFirst": "先にタスク内の Claude に作業をコミットするよう頼んでください。",
+    "delete": "タスクを削除",
+    "merge": {
+      "message": "タスクのブランチ「{{branch}}」を「{{main}}」にマージしますか?",
+      "title": "タスクをマージしますか?",
+      "ok": "マージ",
+      "done": "{{branch}} を {{main}} にマージしました。"
+    },
+    "remove": {
+      "message": "タスクのフォルダー {{name}} を削除しますか?",
+      "dirty_other": "コミットされていない {{count}} 件の変更は失われます。",
+      "ahead_other": "マージされていない {{count}} 件のコミットはブランチ「{{branch}}」に残ります。",
+      "title": "タスクを削除しますか?",
+      "done": "タスク {{name}} を削除しました。"
+    }
+  },
+  "workspace": {
+    "git": {
+      "changed": "変更",
+      "added": "追加",
+      "new": "新規",
+      "renamed": "名前変更",
+      "deleted": "削除"
+    },
+    "folderName": "フォルダー名",
+    "fileName": "ファイル名",
+    "files": "ファイル",
+    "searchInFilesShortcut": "ファイル内を検索 (Ctrl+Shift+F)",
+    "goToFile": "ファイルに移動",
+    "goToFileShortcut": "ファイルに移動 (Ctrl+P)",
+    "newFile": "新しいファイル",
+    "newFolder": "新しいフォルダー",
+    "emptyFolder": "空",
+    "closeFile": "{{name}} を閉じる",
+    "emptyState": "左側でファイルを選ぶか、<0>Ctrl+P</0> でファイルを探すか、<1>Ctrl+Shift+F</1> でファイル内を検索します。",
+    "quickOpen": {
+      "placeholder": "{{name}} 内のファイルに移動",
+      "listing": "ファイルを一覧表示しています…",
+      "none": "一致するファイルはありません。"
+    },
+    "search": {
+      "placeholder": "ファイル内を検索",
+      "matchCase": "大文字と小文字を区別する",
+      "noMatches": "一致する結果はありません。",
+      "summary": "{{files}} で {{matches}}",
+      "matches_other": "{{n}} 件の一致",
+      "files_other": "{{count}} 個のファイル",
+      "hint": "node_modules と .gitignore に記載された項目を除く、プロジェクト内のすべてのファイルからテキストを検索します。"
+    },
+    "menu": {
+      "newFile": "新しいファイル…",
+      "newFolder": "新しいフォルダー…",
+      "rename": "名前の変更…"
+    },
+    "remove": {
+      "file": "「{{name}}」はごみ箱に移動されます。",
+      "folder": "フォルダー「{{name}}」とその中のすべての項目はごみ箱に移動されます。",
+      "unsavedLost": "開いているファイルの未保存の変更は失われます。",
+      "titleFile": "ファイルを削除しますか?",
+      "titleFolder": "フォルダーを削除しますか?"
+    }
+  },
+  "files": {
+    "opening": "開いています…",
+    "couldntOpen": "このファイルを開けませんでした。",
+    "gone": "このファイルはもう存在しません。",
+    "tooLarge": "このファイルは大きすぎるため、ここには表示できません ({{size}})。",
+    "binary": "このファイルはテキストとして表示できません。",
+    "empty": "このファイルは空です。",
+    "truncated": "このファイルの最初の 3 MB を表示しています。",
+    "saveFailed": "保存できませんでした: {{error}}",
+    "notSaved": "未保存",
+    "saved": "保存済み",
+    "linesAndSize_other": "{{n}} 行 · {{size}}",
+    "stopEditing": "編集を終了",
+    "showSource": "ソースを表示",
+    "showPreview": "プレビューを表示",
+    "noWrap": "長い行を折り返さない",
+    "wrap": "長い行を折り返す",
+    "reload": "再読み込み",
+    "saveShortcut": "保存 (Ctrl+S)",
+    "copyFileName": "ファイル名のコピー",
+    "copyAtPath": "Claude 用に @パス としてコピー",
+    "conflict": "編集中に、このファイルが Helm の外部 (Claude の可能性があります) で変更されました。",
+    "loadNew": "新しいバージョンを読み込む",
+    "keepMine": "自分の変更を残して保存",
+    "editorPlaceholder": "入力を開始…",
+    "find": {
+      "placeholder": "検索",
+      "label": "このファイル内を検索",
+      "count": "{{current}}/{{total}}",
+      "none": "なし",
+      "previous": "前へ (Shift+Enter)",
+      "next": "次へ (Enter)",
+      "close": "閉じる (Esc)"
+    }
+  },
+  "actions": {
+    "closeWorking": {
+      "tab": "このタブではまだ Claude が作業中です。閉じると停止します。",
+      "pane": "このペインではまだ Claude が作業中です。閉じると停止します。",
+      "many": "1 つ以上のタブでまだ Claude が作業中です。閉じると停止します。",
+      "title": "Claude の作業中に閉じますか?"
+    },
+    "keepOpen": "開いたままにする",
+    "unsaved": {
+      "close_other": "{{names}} に保存されていない変更があります。閉じると失われます。",
+      "closeTitle": "保存せずに閉じますか?",
+      "closeOk": "保存せずに閉じる",
+      "quit_other": "{{names}} に保存されていない変更があります。終了すると失われます。",
+      "quitTitle": "保存せずに終了しますか?",
+      "quitOk": "保存せずに終了"
+    },
+    "export": {
+      "noConversation": "このタブにはまだエクスポートできる Claude の会話がありません。",
+      "title": "会話をエクスポート",
+      "exported": "{{name}} にエクスポートしました。"
+    }
+  },
+  "pdf": {
+    "page": "{{number}} ページ",
+    "pageOf": "{{current}}/{{total}} ページ",
+    "failed": "この PDF を開けませんでした。破損しているか、パスワードで保護されている可能性があります。",
+    "zoomOut": "縮小",
+    "zoomIn": "拡大",
+    "fitWidth": "幅に合わせる",
+    "saveAs": "PDF として保存",
+    "saved": "{{name}} を保存しました。",
+    "saveFailed": "PDF を保存できませんでした: {{error}}"
+  }
+}

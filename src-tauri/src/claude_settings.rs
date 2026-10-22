@@ -38,6 +38,8 @@ pub struct SettingsFile {
     pub exists: bool,
     pub permissions: Value,
     pub hooks: Value,
+    /// How many days Claude Code keeps conversations (its default is 30).
+    pub cleanup_period_days: Option<u64>,
 }
 
 fn read_json(path: &Path) -> Result<Map<String, Value>, String> {
@@ -61,13 +63,21 @@ pub fn read_settings(scope: &str, cwd: &str) -> Result<SettingsFile, String> {
         exists: path.is_file(),
         permissions: map.get("permissions").cloned().unwrap_or(Value::Null),
         hooks: map.get("hooks").cloned().unwrap_or(Value::Null),
+        cleanup_period_days: map.get("cleanupPeriodDays").and_then(Value::as_u64),
     })
 }
 
-/// Replaces one top-level key ("permissions" or "hooks"), keeping everything else as it was.
+/// Replaces one top-level key ("permissions", "hooks" or "cleanupPeriodDays"), keeping everything
+/// else as it was.
 pub fn write_settings_key(scope: &str, cwd: &str, key: &str, value: Value) -> Result<(), String> {
-    if key != "permissions" && key != "hooks" {
-        return Err("Helm only edits permissions and hooks".into());
+    let allowed = match key {
+        "permissions" | "hooks" => true,
+        // How long Claude keeps conversations: a whole number of days (or removed for the default).
+        "cleanupPeriodDays" => value.is_null() || value.as_u64().is_some_and(|d| (1..=3650).contains(&d)),
+        _ => false,
+    };
+    if !allowed {
+        return Err("Helm only edits permissions, hooks and how long conversations are kept".into());
     }
     let path = settings_path(scope, cwd)?;
     let mut map = read_json(&path)?;

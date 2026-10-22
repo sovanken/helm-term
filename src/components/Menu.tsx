@@ -15,6 +15,41 @@ export interface MenuItem {
   keepOpen?: boolean;
   /** Small non-clickable heading shown above this item. */
   heading?: string;
+  /** Opens a side list (on hover or click) instead of running `onSelect`. */
+  submenu?: MenuItem[];
+  /** Destructive action (shown in red). */
+  danger?: boolean;
+}
+
+/** The side list of an item with a `submenu`, beside the item, flipped or moved up to stay on screen. */
+function SubMenu({ items, onPick }: { items: MenuItem[]; onPick: (item: MenuItem) => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [style, setStyle] = useState<CSSProperties>({ visibility: "hidden", left: "100%", top: -5 });
+  useLayoutEffect(() => {
+    const el = ref.current;
+    const row = el?.parentElement?.getBoundingClientRect();
+    if (!el || !row) return;
+    const w = el.offsetWidth;
+    const h = el.offsetHeight;
+    const right = row.right + 4 + w <= window.innerWidth - 8;
+    const top = Math.min(-5, window.innerHeight - 8 - h - row.top);
+    setStyle(right ? { left: "calc(100% + 4px)", top } : { right: "calc(100% + 4px)", top });
+  }, []);
+  return (
+    <div ref={ref} role="menu" style={style} className="absolute z-10 max-h-[calc(100vh-16px)] min-w-60 overflow-y-auto rounded-lg border border-line bg-raised p-1 shadow-lg shadow-black/20">
+      {items.map((item, i) => (
+        <div key={`${i}-${item.label}`}>
+          {item.separatorBefore && <div className="my-1 h-px bg-line" />}
+          {item.heading && <div className="px-2.5 pt-1.5 pb-1 text-[11px] font-semibold tracking-wide text-faint uppercase">{item.heading}</div>}
+          <button role="menuitem" onClick={() => onPick(item)} className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-fg hover:bg-hover">
+            <span className="flex size-4 items-center justify-center text-muted">{item.icon}</span>
+            <span className="flex-1">{item.label}</span>
+            {item.hint && <span className="text-[11px] text-faint">{item.hint}</span>}
+          </button>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 /**
@@ -33,6 +68,7 @@ export function Menu({
   const marker = useRef<HTMLSpanElement>(null);
   const ref = useRef<HTMLDivElement>(null);
   const [style, setStyle] = useState<CSSProperties>({ visibility: "hidden" });
+  const [openSub, setOpenSub] = useState<number | null>(null);
   const anchor = () => marker.current?.parentElement ?? null;
 
   useLayoutEffect(() => {
@@ -75,18 +111,21 @@ export function Menu({
           className="anim-pop fixed z-50 min-w-60 rounded-lg border border-line bg-raised p-1 shadow-lg shadow-black/20"
         >
           {items.map((item, i) => (
-            <div key={`${i}-${item.label}`}>
+            <div key={`${i}-${item.label}`} className="relative" onPointerEnter={() => setOpenSub(item.submenu ? i : null)}>
               {item.separatorBefore && <div className="my-1 h-px bg-line" />}
               {item.heading && <div className="px-2.5 pt-1.5 pb-1 text-[11px] font-semibold tracking-wide text-faint uppercase">{item.heading}</div>}
               <button
                 role={item.checked === undefined ? "menuitem" : "menuitemcheckbox"}
                 aria-checked={item.checked}
+                aria-haspopup={item.submenu ? "menu" : undefined}
+                aria-expanded={item.submenu ? openSub === i : undefined}
                 onClick={() => {
+                  if (item.submenu) return setOpenSub(i);
                   if (!item.keepOpen) onClose();
                   item.onSelect();
                 }}
                 aria-current={item.current || undefined}
-                className={`flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-fg hover:bg-hover ${item.current ? "bg-hover font-medium" : ""}`}
+                className={`flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left hover:bg-hover ${item.danger ? "text-danger" : "text-fg"} ${item.current || (item.submenu && openSub === i) ? "bg-hover" : ""} ${item.current ? "font-medium" : ""}`}
               >
                 {item.checked !== undefined && (
                   <span className={`flex size-4 items-center justify-center rounded border ${item.checked ? "border-accent bg-accent text-on-accent" : "border-line"}`}>
@@ -97,10 +136,24 @@ export function Menu({
                     )}
                   </span>
                 )}
-                {(item.icon || item.checked === undefined) && <span className={`flex size-4 items-center justify-center ${item.current ? "text-accent" : "text-muted"}`}>{item.icon}</span>}
+                {(item.icon || item.checked === undefined) && <span className={`flex size-4 items-center justify-center ${item.danger ? "text-danger" : item.current ? "text-accent" : "text-muted"}`}>{item.icon}</span>}
                 <span className="flex-1">{item.label}</span>
                 {item.hint && <span className="text-[11px] text-faint">{item.hint}</span>}
+                {item.submenu && (
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" className="text-faint" aria-hidden>
+                    <path d="M4.5 2.5L8 6l-3.5 3.5" />
+                  </svg>
+                )}
               </button>
+              {item.submenu && openSub === i && (
+                <SubMenu
+                  items={item.submenu}
+                  onPick={(sub) => {
+                    onClose();
+                    sub.onSelect();
+                  }}
+                />
+              )}
             </div>
           ))}
         </div>,

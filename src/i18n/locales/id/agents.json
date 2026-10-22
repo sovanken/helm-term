@@ -1,0 +1,431 @@
+{
+  "agents": {
+    "title": "Agen",
+    "noTabs": "Tidak ada tab Claude yang terbuka.",
+    "summary_other": "{{count}} sesi terbuka · {{working}} bekerja · {{waiting}} menunggu Anda",
+    "tabs": {
+      "live": "Langsung",
+      "usage": "Penggunaan"
+    },
+    "exportTitle_other": "Simpan {{count}} hari terakhir (batas, total, proyek, dan percakapan) sebagai PDF",
+    "exportPdf": "Ekspor PDF…",
+    "newParallelTask": "Tugas paralel baru…",
+    "replies_other": "{{n}} balasan",
+    "live": {
+      "newConversation": "Percakapan baru",
+      "waitingForYou": "Menunggu Anda",
+      "workingNow": "Bekerja…",
+      "finishedYourTurn": "Selesai, giliran Anda",
+      "ready": "Siap",
+      "task": "Tugas",
+      "contextTitle": "Konteks {{pct}}% dari {{window}}",
+      "contextPending": "Konteks muncul setelah balasan pertama Claude",
+      "goToTab": "Buka tab ini",
+      "column": {
+        "conversation": "Percakapan",
+        "doingNow": "Sedang dikerjakan",
+        "context": "Konteks",
+        "cost": "Biaya",
+        "lastActive": "Terakhir aktif"
+      },
+      "group": {
+        "needsYou": "Membutuhkan Anda",
+        "working": "Bekerja",
+        "finished": "Selesai",
+        "ready": "Siap"
+      },
+      "waitingApproval": "Menunggu persetujuan Anda",
+      "empty": "Mulai Claude di beberapa tab atau tugas paralel. Masing-masing muncul di sini beserta apa yang sedang dikerjakannya dan apakah membutuhkan Anda.",
+      "startClaude": "Mulai Claude",
+      "clickHint": "Klik percakapan untuk melihat apa yang terjadi, file yang diubahnya, konteks, dan biayanya."
+    },
+    "today": {
+      "title": "Hari ini",
+      "reading": "Membaca percakapan hari ini…",
+      "repliesSoFar_other": "{{n}} balasan sejauh ini",
+      "noWork": "Belum ada pekerjaan hari ini",
+      "tooltip_other": "{{time}} · {{n}} balasan",
+      "note": "Setiap batang mewakili 15 menit, dari tengah malam hingga sekarang (jam di bagian bawah)."
+    },
+    "usage": {
+      "lastDays_other": "{{count}} hari terakhir",
+      "source": "Dari setiap percakapan Claude Code di PC ini. Claude Code menyimpannya selama 30 hari.",
+      "kpi": {
+        "cost": "Biaya",
+        "costPerDay": "Rata-rata {{amount}} per hari",
+        "tokens": "Token",
+        "cached": "ditambah {{tokens}} dibaca ulang dari cache",
+        "cachedWithHit": "ditambah {{tokens}} dibaca ulang dari cache ({{pct}}% dari input)",
+        "time": "Waktu kerja Claude",
+        "lines": "Baris yang diubah"
+      },
+      "chart": {
+        "costPerDay": "Biaya per hari",
+        "tokensPerDay": "Token per hari",
+        "timePerDay": "Waktu kerja Claude per hari"
+      },
+      "metric": {
+        "cost": "Biaya",
+        "tokens": "Token",
+        "time": "Waktu"
+      },
+      "byProject": "Menurut proyek",
+      "byProjectNote": "Berdasarkan file yang diubah Claude",
+      "noProject": "{{name}} (tanpa proyek)",
+      "homeFolderTitle": "Obrolan di folder beranda Anda yang tidak mengedit file di sebuah proyek",
+      "noWork": "Tidak ada pekerjaan dalam periode ini.",
+      "byModel": "Menurut model",
+      "whenYouWork": "Kapan Anda bekerja dengan Claude",
+      "busiest": "Paling sibuk sekitar {{hour}}",
+      "hourTooltip_other": "{{from}}–{{to}} · {{n}} balasan"
+    }
+  },
+  "background": {
+    "duration": {
+      "seconds": "{{s}} dtk",
+      "minutesSeconds": "{{m}} mnt {{s}} dtk",
+      "hoursMinutes": "{{h}} j {{m}} mnt"
+    },
+    "state": {
+      "running": "Bekerja",
+      "done": "Selesai",
+      "failed": "Gagal",
+      "stopped": "Dihentikan"
+    },
+    "answer": "Jawaban",
+    "result": "Hasil",
+    "fullOutput": "Output lengkap",
+    "earlierSteps_other": "{{count}} langkah sebelumnya",
+    "subagent": "Subagen",
+    "command": "Perintah",
+    "inBackground": "di latar belakang",
+    "steps_other": "{{count}} langkah",
+    "running": "Berjalan…",
+    "gettingStarted": "Memulai…",
+    "finishedNoAnswer": "Selesai tanpa jawaban tertulis.",
+    "finishedCommand": "Selesai. Claude memiliki outputnya.",
+    "activity": "Aktivitas",
+    "goToTab": "Buka tab ini",
+    "thisTab": "Tab ini",
+    "workingCount_other": "{{count}} bekerja",
+    "empty": {
+      "title": "Belum ada pekerjaan latar belakang",
+      "text": "Saat Claude memulai subagen atau perintah latar belakang, itu muncul di sini: apa yang sedang dikerjakannya, berapa lama sudah berjalan, dan jawabannya."
+    },
+    "filter": {
+      "all": "Semua"
+    },
+    "clearFinishedTitle": "Hapus subagen dan perintah yang sudah selesai dari daftar ini",
+    "clearFinished": "Hapus yang selesai",
+    "nothingWorking": "Tidak ada yang sedang bekerja.",
+    "nothingFinished": "Belum ada yang selesai."
+  },
+  "sessionDetail": {
+    "dialogLabel": "Detail percakapan",
+    "newConversation": "Percakapan baru",
+    "effort": "Upaya {{effort}}",
+    "started": "dimulai {{time}}",
+    "savePdfTitle": "Simpan laporan ini sebagai PDF",
+    "savePdf": "Simpan sebagai PDF…",
+    "goToTab": "Buka tab ini",
+    "openTab": "Buka tab",
+    "continueTitle": "Lanjutkan percakapan ini di tab",
+    "continue": "Lanjutkan",
+    "reading": "Membaca percakapan…",
+    "noTranscript": "Percakapan ini belum memiliki transkrip tersimpan.",
+    "stat": {
+      "cost": "Biaya",
+      "worked": "Claude bekerja",
+      "messages": "Pesan",
+      "messagesSub": "pesan Anda → balasan Claude",
+      "filesChanged": "File yang diubah"
+    },
+    "tabs": {
+      "happened": "Apa yang terjadi",
+      "files": "File",
+      "context": "Konteks",
+      "cost": "Biaya dan token"
+    },
+    "toast": {
+      "busyRetry": "Claude sedang bekerja di tab ini. Coba lagi setelah selesai.",
+      "busyCompact": "Claude sedang bekerja di tab ini. Coba ringkas setelah selesai.",
+      "askedExact": "Meminta angka pasti ke Claude. Angka akan muncul di sini sebentar lagi.",
+      "sentCommand": "{{cmd}} dikirim ke tab ini."
+    },
+    "happened": {
+      "empty": "Belum ada: langkah-langkah muncul setelah pesan pertama Anda.",
+      "you": "Anda · {{time}}",
+      "showEarlier_other": "Tampilkan {{count}} langkah sebelumnya"
+    },
+    "files": {
+      "empty": "Claude belum mengedit atau membuat file apa pun dalam percakapan ini.",
+      "summary_other": "{{count}} file · <0>+{{added}}</0> <1>−{{removed}}</1> baris dalam pengeditan Claude",
+      "clickToOpen": "Klik untuk membuka",
+      "new": "baru",
+      "edits_other": "{{count}} pengeditan",
+      "note": "Dihitung dari pengeditan Claude, jadi baris yang diubah dua kali dihitung dua kali. Lihat Perubahan di panel samping untuk melihat apa yang berbeda dari Git."
+    },
+    "context": {
+      "title": "Apa yang mengisi konteks",
+      "usedAria": "{{used}} dari {{window}} token digunakan",
+      "usedOf": "{{used}} dari {{window}} token",
+      "setupTitle": "Penyiapan: {{tokens}}",
+      "conversationTitle": "Percakapan: {{tokens}}",
+      "reserveTitle": "Dicadangkan untuk ringkas otomatis: {{tokens}}",
+      "setup": "Penyiapan",
+      "setupHint": "Prompt sistem, alat, MCP, file memori, dan skill: dikirim bersama setiap pesan",
+      "conversation": "Percakapan",
+      "conversationHint": "Pesan Anda, balasan Claude, dan hasil alat",
+      "reserve": "Cadangan ringkas otomatis",
+      "reserveHint": "Dibiarkan kosong agar Claude dapat meringkas percakapan saat konteks penuh",
+      "free": "Kosong",
+      "setupNote": "Penyiapan adalah prompt sistem, alat, MCP, file memori, dan skill, yang dikirim bersama setiap pesan.",
+      "exactTitle": "Menjalankan /context di tab ini (gratis) dan membaca angka pasti dari Claude",
+      "refreshExact": "Segarkan angka pasti",
+      "getExact": "Dapatkan angka pasti",
+      "pending": "Muncul setelah balasan pertama Claude.",
+      "exact": "Pasti · {{time}}",
+      "estimate": "Perkiraan",
+      "adviceFull": "Hampir penuh. Claude akan segera meringkas pesan lama dengan sendirinya. Ringkas sekarang untuk memilih waktunya, atau mulai percakapan baru untuk tugas berikutnya.",
+      "adviceHalf": "Lebih dari setengah penuh. Setiap pesan mengirim ulang semua ini, sehingga percakapan panjang menjadi lebih lambat dan lebih mahal. Ringkas setelah Anda menyelesaikan tugas ini.",
+      "adviceRoom": "Masih banyak ruang tersisa.",
+      "compactNow": "Ringkas sekarang",
+      "newConversation": "Mulai percakapan baru",
+      "estimatedOpen": "Diperkirakan dari percakapan. \"Dapatkan angka pasti\" menjalankan perintah /context gratis dari Claude di tab ini.",
+      "estimatedPast": "Diperkirakan dari percakapan. Lanjutkan di tab untuk mendapatkan angka pasti dari Claude."
+    },
+    "growth": {
+      "title": "Bagaimana konteks bertambah",
+      "peak": "puncak {{tokens}}",
+      "tooltip": "Balasan {{n}} · konteks <0>{{tokens}}</0> · {{time}}",
+      "compacted_other": "diringkas {{count}}×"
+    },
+    "cost": {
+      "title": "Biaya",
+      "thisConversation": "Percakapan ini",
+      "asReported": "seperti yang dilaporkan Claude",
+      "perMessage": "Per pesan",
+      "onAverage": "rata-rata",
+      "linesChanged": "Baris yang diubah"
+    },
+    "tokens": {
+      "title": "Token",
+      "sent": "Dikirim (baru)",
+      "cacheRead": "Dibaca ulang dari cache",
+      "cacheWrite": "Disimpan ke cache",
+      "output": "Ditulis Claude",
+      "cacheHits": "Cache hit",
+      "hitPct": "{{pct}}% dari yang dikirim",
+      "cacheNote": "Membaca ulang dari cache biayanya sekitar sepersepuluh dari mengirimnya dari awal, jadi angka yang tinggi di sini itu bagus.",
+      "warmUntil": "Cache hangat hingga {{time}}: membalas sebelum itu lebih hemat.",
+      "warm": "Cache hangat: membalas sebelum cache dingin lebih hemat.",
+      "cold": "Cache sudah dingin; pesan berikutnya membaca ulang seluruh percakapan."
+    },
+    "tools": {
+      "title": "Alat yang digunakan Claude · {{count}}"
+    }
+  },
+  "inspector": {
+    "tabs": {
+      "changes": "Perubahan",
+      "background": "Latar Belakang",
+      "details": "Detail"
+    },
+    "closePanel": "Tutup panel",
+    "closeShortcut": "Tutup (Ctrl+Shift+G)",
+    "details": {
+      "projectFolder": "folder proyek",
+      "openProject": "Buka proyek",
+      "openInNewTab": "Buka di tab baru",
+      "editCount_other": "{{count}} pengeditan",
+      "readCount_other": "{{count}} kali",
+      "search": "pencarian",
+      "copyLink": "Salin tautan",
+      "noClaude": {
+        "title": "Tidak ada percakapan Claude di sini",
+        "text": "Buka tab Claude untuk melihat tangkapan layar dan file yang Anda lampirkan, serta file yang dibaca, diubah, dan dicari Claude."
+      },
+      "nothingYet": {
+        "title": "Belum ada apa pun",
+        "text": "Detail muncul setelah pesan pertama dalam percakapan ini."
+      },
+      "nothingUsed": {
+        "title": "Belum ada yang dilampirkan atau digunakan",
+        "text": "Tangkapan layar yang ditempel, file yang disebut dengan @, dan semua yang dibaca atau diubah Claude dalam percakapan ini akan dicantumkan di sini."
+      },
+      "stat": {
+        "changed": "Diubah",
+        "read": "Dibaca",
+        "attached": "Dilampirkan",
+        "web": "Web"
+      },
+      "group": {
+        "changed": "File yang diubah Claude",
+        "screenshots": "Tangkapan layar yang Anda tempel",
+        "mentioned": "File yang Anda lampirkan",
+        "read": "File yang dibaca Claude",
+        "web": "Halaman web dan pencarian",
+        "subagents": "Subagen yang digunakan",
+        "mcp": "Alat MCP yang digunakan"
+      },
+      "pastedScreenshot": "Tangkapan layar tempelan {{n}}",
+      "screenshot": "Tangkapan layar"
+    }
+  },
+  "changes": {
+    "status": {
+      "changed": "Diubah",
+      "added": "Ditambahkan",
+      "new": "Baru",
+      "deleted": "Dihapus",
+      "renamed": "Diganti nama"
+    },
+    "revert": {
+      "deleteNewMessage": "Ini akan menghapus file baru ini:\n\n{{path}}\n\nTindakan ini tidak dapat diurungkan.",
+      "undoMessage": "Ini akan mengurungkan semua perubahan pada file ini:\n\n{{path}}\n\nTindakan ini tidak dapat diurungkan.",
+      "title": "Urungkan perubahan?",
+      "deleteFile": "Hapus file",
+      "undoChanges": "Urungkan perubahan"
+    },
+    "reviewComments_other": "{{count}} komentar tinjauan",
+    "clear": "Hapus",
+    "sendToClaude": "Kirim ke Claude",
+    "filesSinceCommit_other": "{{count}} file sejak commit terakhir",
+    "noTab": "Buka tab untuk melihat perubahannya.",
+    "notRepo": "Folder ini bukan repositori Git. Helm menggunakan Git untuk menampilkan apa yang berubah dan mengurungkan perubahan — jalankan <0>git init</0> di sini untuk mengaktifkannya.",
+    "noChanges": "Tidak ada perubahan sejak commit terakhir.",
+    "fileTitle": "{{status}}: {{path}}",
+    "undoFileNamed": "Urungkan perubahan pada {{path}}",
+    "undoFile": "Urungkan perubahan pada file ini",
+    "openClaudeFirst": "Buka Claude di proyek ini terlebih dahulu, lalu kirim komentarnya.",
+    "sentComments_other": "{{count}} komentar tinjauan dikirim ke Claude.",
+    "commentOnLine": "Komentari baris ini",
+    "commentPlaceholder": "Apa yang harus diubah Claude di sini? (Enter untuk menambahkan, Shift+Enter untuk baris baru)",
+    "addComment": "Tambahkan komentar",
+    "hunk": {
+      "message": "Urungkan bagian file ini? Perubahan lain di file tetap ada.",
+      "title": "Urungkan bagian ini?",
+      "ok": "Urungkan bagian",
+      "done": "Bagian file itu telah diurungkan.",
+      "button": "Urungkan bagian ini"
+    },
+    "sendComments_other": "Kirim {{count}} komentar ke Claude",
+    "undoFileChanges": "Urungkan perubahan file",
+    "closeDiff": "Tutup perbandingan",
+    "closeEsc": "Tutup (Esc)",
+    "before": "Sebelum (commit terakhir)",
+    "now": "Sekarang <0>· klik nomor baris untuk berkomentar</0>",
+    "binary": "Ini adalah file biner, jadi tidak ada teks untuk dibandingkan.",
+    "noTextChanged": "Tidak ada teks yang berubah. Hanya izin atau nama file yang berubah.",
+    "removeComment": "Hapus komentar"
+  },
+  "reports": {
+    "generated": "Dibuat",
+    "footer": "Angka berasal dari Claude Code di PC ini. Angka konteks yang bertanda \"perkiraan\" bersifat perkiraan; biaya sesuai yang dilaporkan Claude Code.",
+    "cost": "Biaya",
+    "timeWorking": "Waktu bekerja",
+    "replies_other": "{{count}} balasan",
+    "session": {
+      "title": "{{project}} · laporan percakapan",
+      "conversation": "Percakapan",
+      "effort": "Upaya {{effort}}",
+      "contextExact": "Jendela konteks · pasti",
+      "contextEstimate": "Jendela konteks · perkiraan",
+      "usedOf": "<0>{{used}}</0> dari {{window}} token ({{pct}}%)",
+      "category": "Kategori",
+      "tokens": "Token",
+      "ofWindow": "Dari jendela",
+      "grew": "Bagaimana konteks bertambah",
+      "grewCompacted_other": "Bagaimana konteks bertambah · diringkas {{count}}×",
+      "sent": "Dikirim (baru)",
+      "fromCache": "Dari cache",
+      "cacheHits": "{{pct}}% cache hit",
+      "writtenToCache": "Ditulis ke cache",
+      "claudeWrote": "Ditulis Claude",
+      "activity": "Aktivitas",
+      "yourMessages": "Pesan Anda",
+      "toolCalls": "Panggilan alat",
+      "lines": "+{{added}} −{{removed}} baris",
+      "toolsUsed": "Alat yang digunakan Claude"
+    },
+    "usage": {
+      "fiveHourLimit": "Batas 5 jam",
+      "weeklyLimit": "Batas mingguan (semua model)",
+      "spendLimit": "Batas pengeluaran",
+      "noProject": "{{name}} (tanpa proyek)",
+      "title": "Laporan penggunaan Claude",
+      "subtitle_other": "{{count}} hari terakhir di PC ini · {{span}}",
+      "limits": "Batas penggunaan",
+      "limit": "Batas",
+      "used": "Digunakan",
+      "resets": "Reset",
+      "startsNext": "Dimulai dengan pesan berikutnya",
+      "totals": "Total",
+      "tokens": "Token",
+      "fromCacheSub": "{{tokens}} dari cache",
+      "linesChanged": "Baris yang diubah",
+      "byDay": "Menurut hari",
+      "col": {
+        "day": "Hari",
+        "fromCache": "Dari cache",
+        "time": "Waktu",
+        "lines": "Baris",
+        "conversations": "Percakapan",
+        "project": "Proyek",
+        "conversation": "Percakapan",
+        "model": "Model",
+        "context": "Konteks"
+      },
+      "byProject": "Menurut proyek",
+      "byModel": "Menurut model",
+      "openConversations": "Percakapan Claude yang terbuka"
+    }
+  },
+  "usage": {
+    "window": {
+      "fiveHour": "5 jam",
+      "weekly": "Mingguan"
+    },
+    "title": "Batas penggunaan",
+    "startsWithNextMessage": "Dimulai dengan pesan Anda berikutnya",
+    "resetsIn": "Reset dalam {{time}} · {{clock}}",
+    "notYet": "Muncul setelah balasan Claude berikutnya di tab mana pun. Batas ditampilkan untuk paket Claude Pro dan Max (serta batas pengeluaran tim). Jika Anda menyiapkan baris status Claude sendiri, Helm tidak mengubahnya dan tidak dapat menampilkan batas.",
+    "turnedOff": "Dinonaktifkan di Pengaturan → Claude di Helm.",
+    "updated": "diperbarui {{ago}}",
+    "fiveHourLimit": "Batas 5 jam",
+    "currentSession": "sesi saat ini",
+    "weeklyLimit": "Batas mingguan",
+    "allModels": "semua model",
+    "spendLimit": "Batas pengeluaran",
+    "spendOf": "${{used}} dari ${{limit}}",
+    "byTab": "Jendela 5 jam ini menurut tab (perkiraan)",
+    "duration": {
+      "hoursMinutes": "{{h}} j {{m}} mnt",
+      "minutes": "{{m}} mnt"
+    },
+    "pace": {
+      "weekJustStarted": "Minggu baru saja dimulai",
+      "even": "Pada kecepatan rata ({{pct}}% minggu ini telah berlalu)",
+      "ahead_other": "{{count}} poin di atas kecepatan rata",
+      "under_other": "{{count}} poin di bawah kecepatan rata",
+      "soon": "Kecepatan Anda muncul setelah beberapa menit bekerja",
+      "eta": "Dengan kecepatan ini Anda akan mencapainya dalam sekitar {{time}}",
+      "perHour": "Sekitar {{rate}}% per jam · Anda tidak akan kehabisan sebelum reset"
+    },
+    "history": {
+      "title": "Riwayat penggunaan",
+      "showChart": "Tampilkan bagan",
+      "showTable": "Tampilkan sebagai tabel",
+      "subtitle": "Porsi batas mingguan yang digunakan setiap hari · 7 hari terakhir: {{pct}}%",
+      "empty": "Helm mencatat penggunaan Anda mulai sekarang. Periksa lagi setelah sehari bekerja.",
+      "day": "Hari",
+      "weeklyUsed": "Batas mingguan yang digunakan",
+      "chartLabel": "Porsi harian dari batas mingguan, 14 hari terakhir",
+      "tooltip": "<0>{{pct}}%</0> <1>dari batas mingguan · {{day}}</1>",
+      "mostUsed": "Paling banyak digunakan minggu ini"
+    }
+  },
+  "charts": {
+    "barChartLabel": "Bagan batang, tertinggi {{max}}"
+  }
+}

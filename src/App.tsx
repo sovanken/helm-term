@@ -1,4 +1,6 @@
+import { VoiceSetupDialog } from "./components/Voice";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { Effect, getCurrentWindow } from "@tauri-apps/api/window";
 import { quotePath } from "./lib/ipc";
@@ -6,12 +8,16 @@ import { accentColor, resolveTheme, uiFontStack } from "./lib/themes";
 import { activePane, DEFAULT_SETTINGS, useStore } from "./state/store";
 import { applyThemeToAll, currentTerminalTheme, insertText, windowsBuildNumber } from "./terminal/terminals";
 import { AgentsPage } from "./components/AgentsPage";
+import { ToolsPage } from "./tools/ToolsPage";
+import { SnipsPage } from "./snip/SnipsPage";
+import { WorkspaceView } from "./components/WorkspaceView";
 import { PartBoundary } from "./components/ErrorBoundary";
 import { ApprovalBar } from "./components/Approvals";
 import { Inspector } from "./components/Inspector";
 import { FileView } from "./components/FileView";
 import { SessionDetail } from "./components/SessionDetail";
 import { NewTaskDialog } from "./components/Tasks";
+import { NewFileDialog } from "./components/NewFileDialog";
 import { ToastView } from "./components/Toast";
 import { CommandPalette } from "./components/CommandPalette";
 import { PromptComposer } from "./components/PromptComposer";
@@ -39,6 +45,12 @@ function useAppearance() {
       root.style.setProperty("--ui-font", uiFontStack(s.uiFont));
       root.style.setProperty("--term-bg", String(currentTerminalTheme(s).background));
       applyThemeToAll();
+      // The splash screen (public/boot.js) reads this before the app loads, to open in the same theme.
+      try {
+        localStorage.setItem("helm-boot", JSON.stringify({ theme: mode, accent }));
+      } catch {
+        // Storage can be unavailable; the splash then follows the system theme.
+      }
     };
     apply();
     const mq = window.matchMedia("(prefers-color-scheme: light)");
@@ -104,6 +116,7 @@ function useFileDrop() {
 }
 
 export default function App() {
+  const { t } = useTranslation();
   const tabs = useStore((s) => s.tabs);
   const activeTabId = useStore((s) => s.activeTabId);
   const sidebarOpen = useStore((s) => s.sidebarOpen);
@@ -112,6 +125,7 @@ export default function App() {
   const promptsOpen = useStore((s) => s.promptsOpen);
   const changesOpen = useStore((s) => s.changesOpen);
   const newTaskOpen = useStore((s) => s.newTaskOpen);
+  const newFile = useStore((s) => s.newFile);
   const composerOpen = useStore((s) => s.composerOpen);
   const historyDetail = useStore((s) => s.historyDetail);
   const sidebarWidth = useStore((s) => s.settings.sidebarWidth);
@@ -132,13 +146,13 @@ export default function App() {
         {showSidebar && (
           <>
             <div className="flex shrink-0" style={{ width: sidebarWidth }}>
-              <PartBoundary name="sidebar" className="w-full">
+              <PartBoundary name="sidebar" message={t("errors.part.sidebar")} className="w-full">
                 <Sidebar />
               </PartBoundary>
             </div>
             <ResizeHandle
               side="left"
-              label="Resize sidebar"
+              label={t("app.resizeSidebar")}
               width={sidebarWidth}
               min={200}
               max={480}
@@ -151,37 +165,58 @@ export default function App() {
           id="main-area"
           className={`relative min-w-0 flex-1 overflow-hidden border-line ${view === "terminal" && tabs.length ? "bg-[var(--term-bg)]" : "bg-surface"} rounded-lg border ${showSidebar ? "" : "ml-2"} ${showChanges ? "" : "mr-2"}`}
         >
-          {tabs.map((t) => (
-            <TabView key={t.id} tab={t} visible={view === "terminal" && t.id === activeTabId} />
+          {tabs.map((tab) => (
+            <TabView key={tab.id} tab={tab} visible={view === "terminal" && tab.id === activeTabId} />
           ))}
           {tabs.length === 0 && view === "terminal" && <Welcome />}
           {view === "settings" && (
             <div className="anim-fade absolute inset-0 z-20 bg-surface">
-              <PartBoundary name="settings">
+              <PartBoundary name="settings" message={t("errors.part.settings")}>
                 <SettingsPage />
               </PartBoundary>
             </div>
           )}
           {view === "file" && (
             <div className="anim-fade absolute inset-0 z-20 bg-surface">
-              <PartBoundary name="file">
+              <PartBoundary name="file" message={t("errors.part.file")}>
                 <FileView />
+              </PartBoundary>
+            </div>
+          )}
+          {view === "workspace" && (
+            <div className="anim-fade absolute inset-0 z-20 bg-surface">
+              <PartBoundary name="project" message={t("errors.part.project")}>
+                <WorkspaceView />
+              </PartBoundary>
+            </div>
+          )}
+          {view === "snips" && (
+            <div className="anim-fade absolute inset-0 z-20 bg-surface">
+              <PartBoundary name="screenshots" message={t("errors.part.screenshots")}>
+                <SnipsPage />
+              </PartBoundary>
+            </div>
+          )}
+          {view === "tools" && (
+            <div className="anim-fade absolute inset-0 z-20 bg-surface">
+              <PartBoundary name="tools" message={t("errors.part.tools")}>
+                <ToolsPage />
               </PartBoundary>
             </div>
           )}
           {view === "agents" && (
             <div className="anim-fade absolute inset-0 z-20 bg-surface">
-              <PartBoundary name="agents view">
+              <PartBoundary name="agents view" message={t("errors.part.agentsView")}>
                 <AgentsPage />
               </PartBoundary>
             </div>
           )}
           {historyDetail && (
-            <PartBoundary name="session details">
+            <PartBoundary name="session details" message={t("errors.part.sessionDetails")}>
               <SessionDetail session={historyDetail} onClose={() => useStore.getState().set({ historyDetail: null })} />
             </PartBoundary>
           )}
-          <PartBoundary name="approval cards">
+          <PartBoundary name="approval cards" message={t("errors.part.approvalCards")}>
             <ApprovalBar />
           </PartBoundary>
         </main>
@@ -189,7 +224,7 @@ export default function App() {
           <>
             <ResizeHandle
               side="right"
-              label="Resize changes panel"
+              label={t("app.resizeChanges")}
               width={changesWidth}
               min={260}
               max={640}
@@ -197,19 +232,21 @@ export default function App() {
               onChange={(w) => updateSettings({ changesWidth: w })}
             />
             <div className="flex shrink-0" style={{ width: changesWidth }}>
-              <PartBoundary name="right panel" className="w-full">
+              <PartBoundary name="right panel" message={t("errors.part.rightPanel")} className="w-full">
                 <Inspector />
               </PartBoundary>
             </div>
           </>
         )}
       </div>
-      <PartBoundary name="status bar" className="h-[30px] shrink-0 bg-bg">
+      <PartBoundary name="status bar" message={t("errors.part.statusBar")} className="h-[30px] shrink-0 bg-bg">
         <StatusBar />
       </PartBoundary>
       {paletteOpen && <CommandPalette />}
       {promptsOpen && <PromptsDialog />}
       {newTaskOpen && <NewTaskDialog />}
+      <VoiceSetupDialog />
+      {newFile && <NewFileDialog key={newFile.ext + newFile.dir} ext={newFile.ext} dir={newFile.dir} />}
       {composerOpen && <PromptComposer />}
       <ToastView />
     </div>

@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { beginLiveResize, endLiveResize } from "../terminal/terminals";
+import { useTranslation } from "react-i18next";
 
 /**
  * Vertical drag handle on the edge of a side panel. Drag to resize, double-click to reset.
@@ -22,6 +23,7 @@ export function ResizeHandle({
   onChange: (width: number) => void;
   label: string;
 }) {
+  const { t } = useTranslation();
   const [dragging, setDragging] = useState(false);
   const start = useRef({ x: 0, width });
 
@@ -54,7 +56,7 @@ export function ResizeHandle({
       aria-valuemin={min}
       aria-valuemax={max}
       tabIndex={0}
-      title="Drag to resize · double-click to reset"
+      title={t("app.resizeHint")}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={stop}

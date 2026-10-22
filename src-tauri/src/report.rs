@@ -12,7 +12,10 @@ use serde::Serialize;
 use serde_json::Value;
 
 /// Transcripts bigger than this are only partly read (keeps the page fast on huge sessions).
-const MAX_READ: u64 = 64 * 1024 * 1024;
+/// A safety stop for absurdly large files; real conversations reach a few hundred MB.
+const MAX_READ: u64 = 4 * 1024 * 1024 * 1024;
+/// Tool results longer than this are only skimmed for their time (their text never affects a report).
+const SKIM_ABOVE: usize = 8 * 1024;
 /// Gaps longer than this between messages don't count as time working.
 const IDLE_GAP_MS: i64 = 5 * 60 * 1000;
 
@@ -90,6 +93,17 @@ fn parse_amount(num: &str, unit: &str) -> Option<u64> {
     Some((n * mult).round() as u64)
 }
 
+/// The string value of `"key":"…"` in a JSON line, without parsing the line.
+fn quick_field<'a>(line: &'a str, key: &str) -> Option<&'a str> {
+    let pat = format!("\"{key}\":\"");
+    let start = line.find(&pat)? + pat.len();
+    let end = line[start..].find('"')?;
+    Some(&line[start..start + end])
+}
+
+/// Calls `f` for each JSON line. A big tool result (most of a long conversation's size: file
+/// contents, command output) is only skimmed: `f` gets its type, time and side-chain flag, which
+/// is all any report uses from it, so huge conversations are read quickly and in full.
 fn for_each_line(path: &Path, mut f: impl FnMut(Value)) {
     let Ok(file) = File::open(path) else { return };
     let mut read = 0u64;
@@ -98,6 +112,17 @@ fn for_each_line(path: &Path, mut f: impl FnMut(Value)) {
         read += line.len() as u64 + 1;
         if read > MAX_READ {
             break;
+        }
+        if line.len() > SKIM_ABOVE && line.contains("\"tool_result\"") && quick_field(&line, "type") == Some("user") {
+            let mut v = serde_json::json!({ "type": "user", "isSidechain": line.contains("\"isSidechain\":true") });
+            if let Some(ts) = quick_field(&line, "timestamp") {
+                v["timestamp"] = Value::String(ts.to_string());
+            }
+            if let Some(cwd) = quick_field(&line, "cwd") {
+                v["cwd"] = Value::String(cwd.replace("\\\\", "\\"));
+            }
+            f(v);
+            continue;
         }
         if let Ok(v) = serde_json::from_str::<Value>(&line) {
             f(v);
@@ -184,6 +209,63 @@ pub struct Count {
     pub count: u32,
 }
 
+/// One step of a conversation for the timeline: a prompt you sent, a tool Claude used, or a compaction.
+#[derive(Serialize, Default, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct TimelineEvent {
+    pub t: i64,
+    /// "prompt", "tool" or "compact".
+    pub kind: String,
+    pub text: String,
+    /// Tool name for "tool" events (Edit, Bash, Read, …).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tool: Option<String>,
+    /// File the tool worked on, if any.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub path: Option<String>,
+}
+
+/// A file Claude changed in this conversation, with lines added and removed by its edits.
+#[derive(Serialize, Default, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct FileChange {
+    pub path: String,
+    pub added: u64,
+    pub removed: u64,
+    pub edits: u32,
+    /// Written from scratch with Write (often a new file).
+    pub created: bool,
+}
+
+const TIMELINE_MAX: usize = 800;
+
+fn lines_in(s: &str) -> u64 {
+    if s.is_empty() {
+        0
+    } else {
+        s.lines().count() as u64
+    }
+}
+
+/// One-line description of a tool call and the file it touched.
+fn tool_event(p: &Value) -> (String, Option<String>) {
+    let name = p.get("name").and_then(Value::as_str).unwrap_or("tool");
+    let input = p.get("input");
+    let field = |k: &str| input.and_then(|i| i.get(k)).and_then(Value::as_str);
+    let path = field("file_path").or_else(|| field("notebook_path")).map(String::from);
+    let first = |s: &str| s.lines().next().unwrap_or("").chars().take(140).collect::<String>();
+    let text = match name {
+        "Bash" | "PowerShell" => field("description").map(String::from).or_else(|| field("command").map(first)).unwrap_or_default(),
+        "Grep" | "Glob" => field("pattern").map(|x| format!("“{x}”")).unwrap_or_default(),
+        "WebFetch" => field("url").map(String::from).unwrap_or_default(),
+        "WebSearch" => field("query").map(|q| format!("“{q}”")).unwrap_or_default(),
+        "Agent" | "Task" => field("description").map(String::from).unwrap_or_default(),
+        "TodoWrite" => "Updated the to-do list".into(),
+        _ => path.clone().or_else(|| field("description").map(String::from)).unwrap_or_default(),
+    };
+    (text, path)
+}
+
 #[derive(Serialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct SessionReport {
@@ -209,6 +291,9 @@ pub struct SessionReport {
     pub lines_added: Option<u64>,
     pub lines_removed: Option<u64>,
     pub exact: Option<ExactContext>,
+    /// Newest last; the most recent steps only for very long conversations.
+    pub timeline: Vec<TimelineEvent>,
+    pub files: Vec<FileChange>,
 }
 
 fn human_text_len(v: &Value) -> usize {
@@ -229,6 +314,18 @@ pub fn session(path: &Path) -> SessionReport {
     let mut first_prompt_len: Option<usize> = None;
     let mut last_t: Option<i64> = None;
     let mut one_m = false;
+    let mut files: Vec<FileChange> = vec![];
+    let mut file_change = |path: &str, added: u64, removed: u64, created: bool| {
+        let i = files.iter().position(|f| f.path.eq_ignore_ascii_case(path)).unwrap_or_else(|| {
+            files.push(FileChange { path: path.to_string(), ..Default::default() });
+            files.len() - 1
+        });
+        let f = &mut files[i];
+        f.added += added;
+        f.removed += removed;
+        f.edits += 1;
+        f.created |= created;
+    };
 
     for_each_line(path, |v| {
         let ts = v.get("timestamp").and_then(Value::as_str).and_then(parse_ts);
@@ -246,9 +343,13 @@ pub fn session(path: &Path) -> SessionReport {
         let sidechain = v.get("isSidechain").and_then(Value::as_bool) == Some(true);
         match v.get("type").and_then(Value::as_str) {
             Some("user") if !sidechain => {
-                if crate::sessions::human_prompt(&v).is_some() {
+                // The summary Claude writes after compacting arrives as a user message; it isn't one.
+                let summary = v.get("isCompactSummary").and_then(Value::as_bool) == Some(true);
+                if let Some(text) = crate::sessions::human_prompt(&v).filter(|_| !summary) {
                     r.prompts += 1;
                     first_prompt_len.get_or_insert_with(|| human_text_len(&v));
+                    let text: String = text.split_whitespace().collect::<Vec<_>>().join(" ").chars().take(240).collect();
+                    r.timeline.push(TimelineEvent { t: ts.unwrap_or(0), kind: "prompt".into(), text, ..Default::default() });
                 }
             }
             Some("assistant") if !sidechain => {
@@ -262,9 +363,26 @@ pub fn session(path: &Path) -> SessionReport {
                     for p in parts {
                         if p.get("type").and_then(Value::as_str) == Some("tool_use") {
                             let name = p.get("name").and_then(Value::as_str).unwrap_or("tool");
-                            let name = if name.starts_with("mcp__") { "MCP tools" } else { name };
-                            *tools.entry(name.to_string()).or_default() += 1;
+                            let short = if name.starts_with("mcp__") { "MCP tools" } else { name };
+                            *tools.entry(short.to_string()).or_default() += 1;
                             r.tool_calls += 1;
+                            let (text, path) = tool_event(p);
+                            r.timeline.push(TimelineEvent { t: ts.unwrap_or(0), kind: "tool".into(), text, tool: Some(short.to_string()), path: path.clone() });
+                            let input = p.get("input");
+                            let s = |k: &str| input.and_then(|i| i.get(k)).and_then(Value::as_str).unwrap_or("");
+                            if let Some(path) = path {
+                                match name {
+                                    "Edit" => file_change(&path, lines_in(s("new_string")), lines_in(s("old_string")), false),
+                                    "MultiEdit" => {
+                                        let edits = input.and_then(|i| i.get("edits")).and_then(Value::as_array).cloned().unwrap_or_default();
+                                        let get = |e: &Value, k: &str| e.get(k).and_then(Value::as_str).map(lines_in).unwrap_or(0);
+                                        file_change(&path, edits.iter().map(|e| get(e, "new_string")).sum(), edits.iter().map(|e| get(e, "old_string")).sum(), false)
+                                    }
+                                    "Write" => file_change(&path, lines_in(s("content")), 0, true),
+                                    "NotebookEdit" => file_change(&path, lines_in(s("new_source")), 0, false),
+                                    _ => {}
+                                }
+                            }
                         }
                     }
                 }
@@ -286,6 +404,7 @@ pub fn session(path: &Path) -> SessionReport {
             Some("system") => {
                 if v.get("subtype").and_then(Value::as_str) == Some("compact_boundary") {
                     r.compactions += 1;
+                    r.timeline.push(TimelineEvent { t: ts.unwrap_or(0), kind: "compact".into(), text: "The conversation was compacted to free up context".into(), ..Default::default() });
                 }
                 if v.pointer("/commandRun/command").and_then(Value::as_str) == Some("context") {
                     if let Some(raw) = v.get("content").and_then(Value::as_str) {
@@ -326,6 +445,10 @@ pub fn session(path: &Path) -> SessionReport {
     one_m |= models.iter().any(|m| m.contains("[1m]")) || r.context_tokens > 200_000;
     r.context_window = r.exact.as_ref().map(|e| e.window).filter(|w| *w > 0).unwrap_or(if one_m { 1_000_000 } else { 200_000 });
     r.models = models;
+    if r.timeline.len() > TIMELINE_MAX {
+        r.timeline.drain(..r.timeline.len() - TIMELINE_MAX);
+    }
+    r.files = files;
     r
 }
 
@@ -363,19 +486,109 @@ pub struct UsageTotals {
     /// Totals over the whole period, by project folder (cwd) and by model.
     pub by_project: Vec<GroupTotals>,
     pub by_model: Vec<GroupTotals>,
+    /// Replies per local hour of the day (0–23) over the period: when you work with Claude.
+    pub hours: Vec<u32>,
+    /// Replies per 15 minutes today (96 slots from midnight): when Claude worked today.
+    pub today: Vec<u32>,
+}
+
+/// The project a file belongs to: the nearest folder above it with a `.git`, or None.
+fn git_root(file: &Path, cache: &mut HashMap<PathBuf, Option<PathBuf>>) -> Option<PathBuf> {
+    let mut dir = file.parent()?.to_path_buf();
+    let mut visited = vec![];
+    let found = loop {
+        if let Some(hit) = cache.get(&dir) {
+            break hit.clone();
+        }
+        visited.push(dir.clone());
+        if dir.join(".git").exists() {
+            break Some(dir.clone());
+        }
+        match dir.parent() {
+            Some(up) => dir = up.to_path_buf(),
+            None => break None,
+        }
+    };
+    for v in visited {
+        cache.insert(v, found.clone());
+    }
+    found
+}
+
+/// For a file outside any git repo but inside the folder Claude ran in: the folder directly under
+/// it ("C:\Users\you\site\index.html" → "C:\Users\you\site"), unless that's a hidden or
+/// app-data folder rather than a project.
+fn top_folder(file: &Path, cwd: &str) -> Option<String> {
+    // Folders that hold projects rather than being one: look one level further in.
+    const CONTAINERS: &[&str] = &["desktop", "documents", "downloads", "source", "repos", "projects", "dev", "code", "work", "github"];
+    let rest = file.strip_prefix(Path::new(cwd)).ok()?;
+    let parts: Vec<String> = rest.components().map(|c| c.as_os_str().to_string_lossy().into_owned()).collect();
+    let mut depth = 0;
+    while depth + 1 < parts.len() {
+        let name = parts[depth].to_lowercase();
+        if name.starts_with('.') || name == "appdata" {
+            return None;
+        }
+        if !(CONTAINERS.contains(&name.as_str()) || name.starts_with("onedrive")) {
+            break;
+        }
+        depth += 1;
+    }
+    // The file itself, directly in cwd or a container: no project folder.
+    if depth + 1 >= parts.len() {
+        return None;
+    }
+    Some(parts[..=depth].iter().fold(PathBuf::from(cwd), |p, c| p.join(c)).to_string_lossy().into_owned())
+}
+
+/// Which projects a conversation worked on, as shares that add up to 1: by the git folders of the
+/// files Claude edited (or, if it edited nothing, read), so a chat started in your home folder
+/// counts toward the projects it actually changed. Nothing edited or read: the folder it ran in.
+pub fn project_shares(cwd: &str, files: &[String], cache: &mut HashMap<PathBuf, Option<PathBuf>>) -> Vec<(String, f64)> {
+    // Counted case-insensitively (Windows paths), shown as first seen; "/" and "\\" alike.
+    let mut counts: HashMap<String, (String, f64)> = HashMap::new();
+    for f in files {
+        let path = PathBuf::from(f.replace('/', "\\"));
+        // Temp files, app data and dot-folders (.claude memory, settings) aren't project work.
+        // Judged below the folder the chat ran in (that folder may itself live in Temp).
+        let below = path.strip_prefix(Path::new(cwd)).map(Path::to_path_buf).unwrap_or_else(|_| path.clone());
+        let lower = format!("\\{}", below.to_string_lossy().to_lowercase());
+        let dotted = below.components().any(|c| {
+            let n = c.as_os_str().to_string_lossy();
+            n.starts_with('.') && n != "." && n != ".."
+        });
+        if lower.contains("\\appdata\\") || lower.contains("\\temp\\") || dotted {
+            continue;
+        }
+        let key = git_root(&path, cache).map(|p| p.to_string_lossy().into_owned()).or_else(|| top_folder(&path, cwd)).unwrap_or_else(|| cwd.to_string());
+        counts.entry(key.to_lowercase()).or_insert_with(|| (key, 0.0)).1 += 1.0;
+    }
+    if counts.is_empty() {
+        return vec![(cwd.to_string(), 1.0)];
+    }
+    let total: f64 = counts.values().map(|v| v.1).sum();
+    let mut out: Vec<(String, f64)> = counts.into_values().map(|(k, n)| (k, n / total)).collect();
+    out.sort_by(|a, b| b.1.total_cmp(&a.1));
+    out
 }
 
 /// One transcript's contribution, per local day.
 #[derive(Clone, Default)]
 struct FileTotals {
     cwd: String,
+    /// The projects this conversation worked on, with their share (see `project_shares`).
+    projects: Vec<(String, f64)>,
     days: HashMap<String, DayTotals>,
     /// day → model → (tokens, cost)
     models: HashMap<String, HashMap<String, (u64, f64)>>,
+    /// day → replies per 15-minute slot (96)
+    slots: HashMap<String, Vec<u32>>,
 }
 
-fn file_totals(path: &Path, offset_min: i64) -> FileTotals {
+fn file_totals(path: &Path, offset_min: i64, roots: &mut HashMap<PathBuf, Option<PathBuf>>) -> FileTotals {
     let mut f = FileTotals::default();
+    let mut edited: Vec<String> = vec![];
+    let mut read: Vec<String> = vec![];
     let mut seen: HashSet<String> = HashSet::new();
     let mut last_t: Option<i64> = None;
     let mut prev_cost: Option<(f64, u64, u64, HashMap<String, f64>)> = None;
@@ -402,6 +615,19 @@ fn file_totals(path: &Path, offset_min: i64) -> FileTotals {
         match v.get("type").and_then(Value::as_str) {
             Some("assistant") => {
                 let msg = &v["message"];
+                for p in msg.get("content").and_then(Value::as_array).into_iter().flatten() {
+                    if p.get("type").and_then(Value::as_str) != Some("tool_use") {
+                        continue;
+                    }
+                    let file = p.pointer("/input/file_path").or_else(|| p.pointer("/input/notebook_path")).and_then(Value::as_str);
+                    if let Some(file) = file {
+                        match p.get("name").and_then(Value::as_str) {
+                            Some("Edit" | "MultiEdit" | "Write" | "NotebookEdit") => edited.push(file.to_string()),
+                            Some("Read") => read.push(file.to_string()),
+                            _ => {}
+                        }
+                    }
+                }
                 if let (Some(id), Some(u)) = (msg.get("id").and_then(Value::as_str), msg.get("usage")) {
                     if seen.insert(id.to_string()) {
                         order.push(id.to_string());
@@ -449,6 +675,9 @@ fn file_totals(path: &Path, offset_min: i64) -> FileTotals {
         d.cache_read_tokens += n("cache_read_input_tokens");
         d.cache_write_tokens += n("cache_creation_input_tokens");
         d.replies += 1;
+        let local = t + offset_min * 60_000;
+        let slot = (local.rem_euclid(86_400_000) / 900_000) as usize;
+        f.slots.entry(day.clone()).or_insert_with(|| vec![0; 96])[slot.min(95)] += 1;
         if !model.is_empty() && !model.starts_with('<') {
             f.models.entry(day).or_default().entry(model.clone()).or_default().0 += n("input_tokens") + n("output_tokens") + n("cache_creation_input_tokens");
         }
@@ -456,6 +685,7 @@ fn file_totals(path: &Path, offset_min: i64) -> FileTotals {
     for d in f.days.values_mut() {
         d.sessions = 1;
     }
+    f.projects = project_shares(&f.cwd, if edited.is_empty() { &read } else { &edited }, roots);
     f
 }
 
@@ -467,6 +697,7 @@ pub fn totals(cache: &TotalsCache, days: u32, offset_min: i64) -> UsageTotals {
     let since_ms = now - i64::from(days) * 86_400_000;
     let first_day = local_day(since_ms + 86_400_000, offset_min);
     let mut all: Vec<FileTotals> = vec![];
+    let mut roots: HashMap<PathBuf, Option<PathBuf>> = HashMap::new();
     for path in crate::sessions::transcript_paths() {
         let Ok(meta) = std::fs::metadata(&path) else { continue };
         let mtime = meta.modified().ok().and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok()).map(|d| d.as_millis() as i64).unwrap_or(0);
@@ -476,7 +707,7 @@ pub fn totals(cache: &TotalsCache, days: u32, offset_min: i64) -> UsageTotals {
         let key = (mtime as u64, meta.len());
         let cached = cache.0.lock().unwrap().get(&path).filter(|c| (c.0, c.1) == key && c.2 == offset_min).map(|c| c.3.clone());
         let t = cached.unwrap_or_else(|| {
-            let t = file_totals(&path, offset_min);
+            let t = file_totals(&path, offset_min, &mut roots);
             cache.0.lock().unwrap().insert(path.clone(), (key.0, key.1, offset_min, t.clone()));
             t
         });
@@ -486,7 +717,21 @@ pub fn totals(cache: &TotalsCache, days: u32, offset_min: i64) -> UsageTotals {
     let mut days_map: HashMap<String, DayTotals> = HashMap::new();
     let mut projects: HashMap<String, GroupTotals> = HashMap::new();
     let mut models: HashMap<String, GroupTotals> = HashMap::new();
+    let mut hours = vec![0u32; 24];
+    let mut today = vec![0u32; 96];
+    let today_key = local_day(now, offset_min);
     for f in &all {
+        for (day, slots) in &f.slots {
+            if *day < first_day {
+                continue;
+            }
+            for (i, n) in slots.iter().enumerate() {
+                hours[i / 4] += n;
+                if *day == today_key {
+                    today[i] += n;
+                }
+            }
+        }
         let mut counted_project = false;
         for (day, d) in &f.days {
             if *day < first_day {
@@ -505,11 +750,16 @@ pub fn totals(cache: &TotalsCache, days: u32, offset_min: i64) -> UsageTotals {
             if d.replies > 0 || d.cost_usd > 0.0 {
                 e.sessions += 1;
             }
-            let p = projects.entry(f.cwd.clone()).or_insert_with(|| GroupTotals { key: f.cwd.clone(), ..Default::default() });
-            p.tokens += d.input_tokens + d.output_tokens + d.cache_write_tokens;
-            p.cost_usd += d.cost_usd;
-            if !counted_project && d.replies > 0 {
-                p.sessions += 1;
+            // Split the day's cost and tokens over the projects the conversation worked on.
+            for (key, share) in &f.projects {
+                let p = projects.entry(key.clone()).or_insert_with(|| GroupTotals { key: key.clone(), ..Default::default() });
+                p.tokens += ((d.input_tokens + d.output_tokens + d.cache_write_tokens) as f64 * share).round() as u64;
+                p.cost_usd += d.cost_usd * share;
+                if !counted_project && d.replies > 0 {
+                    p.sessions += 1;
+                }
+            }
+            if d.replies > 0 {
                 counted_project = true;
             }
         }
@@ -532,5 +782,5 @@ pub fn totals(cache: &TotalsCache, days: u32, offset_min: i64) -> UsageTotals {
         v.sort_by(|a, b| b.cost_usd.total_cmp(&a.cost_usd).then(b.tokens.cmp(&a.tokens)));
         v
     };
-    UsageTotals { days, by_project: sort(projects), by_model: sort(models) }
+    UsageTotals { days, by_project: sort(projects), by_model: sort(models), hours, today }
 }

@@ -22,6 +22,9 @@ pub struct LaunchRequest {
     pub new_session_id: Option<String>,
     /// Resumes an existing Claude session.
     pub resume_session_id: Option<String>,
+    /// With `resume_session_id`: continue in a new conversation and leave the original as it was.
+    #[serde(default)]
+    pub fork: bool,
     /// Starts Claude in a new git worktree with this name (a parallel task).
     pub worktree: Option<String>,
     /// Identifies this launch so hook events from a previous process in the same pane are ignored.
@@ -85,6 +88,7 @@ pub(crate) fn claude_line(req: &LaunchRequest) -> Option<String> {
         return None;
     }
     let base = match (&req.resume_session_id, &req.new_session_id, &req.worktree) {
+        (Some(id), _, _) if req.fork => format!("claude --resume {id} --fork-session"),
         (Some(id), _, _) => format!("claude --resume {id}"),
         (None, Some(id), Some(name)) => format!("claude --session-id {id} --worktree {name}"),
         (None, Some(id), None) => format!("claude --session-id {id}"),

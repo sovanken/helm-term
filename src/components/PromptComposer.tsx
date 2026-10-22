@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { BookmarkPlus, CornerDownLeft, Sparkles, Undo2, Wand2, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { ipc } from "../lib/ipc";
 import { paneIds } from "../lib/layout";
 import { activePane, folderName, type Pane, showToast, useStore } from "../state/store";
@@ -28,6 +29,7 @@ export function PromptComposer() {
   const [busy, setBusy] = useState(false);
   const [pane] = useState(claudeTarget);
   const claude = !!pane;
+  const { t } = useTranslation();
   const close = () => {
     useStore.getState().set({ composerOpen: false });
     const back = pane ?? activePane();
@@ -47,7 +49,7 @@ export function PromptComposer() {
       setOriginal(text);
       setText(better);
     } catch (e) {
-      showToast(`Couldn't improve the prompt: ${String(e)}`, "error");
+      showToast(t("prompts.composer.improveFailed", { error: String(e) }), "error");
     } finally {
       setBusy(false);
     }
@@ -66,7 +68,7 @@ export function PromptComposer() {
     const title = text.trim().split("\n")[0].slice(0, 60);
     const st = useStore.getState();
     st.set({ prompts: [...st.prompts, { id: crypto.randomUUID(), title, text }] });
-    showToast("Saved to your prompts (Ctrl+Shift+P)", "success");
+    showToast(t("prompts.composer.savedToast"), "success");
   };
 
   return (
@@ -81,12 +83,12 @@ export function PromptComposer() {
           <Wand2 size={16} />
         </span>
         <div className="flex-1">
-          <h2 className="text-[15px] font-semibold">Write a prompt</h2>
+          <h2 className="text-[15px] font-semibold">{t("prompts.composer.title")}</h2>
           <p className="text-[12px] text-faint">
-            {claude ? `For Claude in ${folderName(pane!.cwd)}` : "Open a Claude tab to send this prompt"} · a clear prompt saves back-and-forth (and usage)
+            {claude ? t("prompts.composer.subtitleFor", { folder: folderName(pane!.cwd) }) : t("prompts.composer.subtitleNoTab")}
           </p>
         </div>
-        <button aria-label="Close" onClick={close} className="flex size-7 items-center justify-center rounded-md text-muted hover:bg-hover hover:text-fg">
+        <button aria-label={t("common.close")} onClick={close} className="flex size-7 items-center justify-center rounded-md text-muted hover:bg-hover hover:text-fg">
           <X size={15} />
         </button>
       </div>
@@ -103,12 +105,12 @@ export function PromptComposer() {
             }
           }}
           rows={10}
-          placeholder="What should Claude do? e.g. fix the login bug that happens sometimes"
+          placeholder={t("prompts.composer.placeholder")}
           className="scroll-thin w-full resize-y rounded-lg border border-line bg-bg px-3 py-2.5 text-[13px] leading-relaxed outline-none focus:border-accent"
         />
         {busy && (
           <div className="anim-fade absolute inset-x-5 top-4 bottom-1.5 flex items-center justify-center gap-2 rounded-lg bg-surface/80 text-[13px] text-muted">
-            <span className="status-working size-4 rounded-full border-2 border-accent border-t-transparent" /> Improving your prompt…
+            <span className="status-working size-4 rounded-full border-2 border-accent border-t-transparent" /> {t("prompts.composer.improving")}
           </div>
         )}
       </div>
@@ -117,29 +119,29 @@ export function PromptComposer() {
         <button
           onClick={() => void improve()}
           disabled={!text.trim() || busy}
-          title="Uses Claude Haiku once (a small amount of your usage). Takes about 10–20 seconds."
+          title={t("prompts.composer.improveTitle")}
           className="flex items-center gap-1.5 rounded-lg border border-accent/50 px-3 py-1.5 text-[13px] font-medium text-accent hover:bg-accent-soft disabled:opacity-40"
         >
-          <Sparkles size={14} /> Improve
+          <Sparkles size={14} /> {t("prompts.composer.improve")}
         </button>
         {original !== null && (
           <button onClick={() => (setText(original), setOriginal(null))} className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] text-muted hover:bg-hover hover:text-fg">
-            <Undo2 size={14} /> Use my original
+            <Undo2 size={14} /> {t("prompts.composer.useOriginal")}
           </button>
         )}
         <button onClick={save} disabled={!text.trim()} className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] text-muted hover:bg-hover hover:text-fg disabled:opacity-40">
-          <BookmarkPlus size={14} /> Save
+          <BookmarkPlus size={14} /> {t("common.save")}
         </button>
         <span className="flex-1" />
         <button onClick={() => send(false)} disabled={!claude || !text.trim()} className="rounded-lg px-3 py-1.5 text-[13px] text-fg hover:bg-hover disabled:opacity-40">
-          Insert
+          {t("prompts.composer.insert")}
         </button>
         <button
           onClick={() => send(true)}
           disabled={!claude || !text.trim()}
           className="flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-[13px] font-medium text-on-accent hover:opacity-90 disabled:opacity-40"
         >
-          Send to Claude <CornerDownLeft size={13} /> <span className="text-[11px] opacity-70">Ctrl+Enter</span>
+          {t("prompts.composer.send")} <CornerDownLeft size={13} /> <span className="text-[11px] opacity-70">Ctrl+Enter</span>
         </button>
       </div>
     </dialog>

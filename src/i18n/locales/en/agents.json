@@ -1,0 +1,456 @@
+{
+  "agents": {
+    "title": "Agents",
+    "noTabs": "No Claude tabs are open.",
+    "summary_one": "{{count}} session open · {{working}} working · {{waiting}} waiting for you",
+    "summary_other": "{{count}} sessions open · {{working}} working · {{waiting}} waiting for you",
+    "tabs": {
+      "live": "Live",
+      "usage": "Usage"
+    },
+    "exportTitle_one": "Save the last {{count}} day (limits, totals, projects and conversations) as a PDF",
+    "exportTitle_other": "Save the last {{count}} days (limits, totals, projects and conversations) as a PDF",
+    "exportPdf": "Export PDF…",
+    "newParallelTask": "New parallel task…",
+    "replies_one": "{{n}} reply",
+    "replies_other": "{{n}} replies",
+    "live": {
+      "newConversation": "New conversation",
+      "waitingForYou": "Waiting for you",
+      "workingNow": "Working…",
+      "finishedYourTurn": "Finished, your turn",
+      "ready": "Ready",
+      "task": "Task",
+      "contextTitle": "Context {{pct}}% of {{window}}",
+      "contextPending": "Context appears after Claude's first reply",
+      "goToTab": "Go to this tab",
+      "column": {
+        "conversation": "Conversation",
+        "doingNow": "Doing now",
+        "context": "Context",
+        "cost": "Cost",
+        "lastActive": "Last active"
+      },
+      "group": {
+        "needsYou": "Needs you",
+        "working": "Working",
+        "finished": "Finished",
+        "ready": "Ready"
+      },
+      "waitingApproval": "Waiting for your approval",
+      "empty": "Start Claude in a few tabs or parallel tasks. Each one shows up here with what it's doing and whether it needs you.",
+      "startClaude": "Start Claude",
+      "clickHint": "Click a conversation for what happened, the files it changed, its context and cost."
+    },
+    "today": {
+      "title": "Today",
+      "reading": "Reading today's conversations…",
+      "repliesSoFar_one": "{{n}} reply so far",
+      "repliesSoFar_other": "{{n}} replies so far",
+      "noWork": "No work yet today",
+      "tooltip_one": "{{time}} · {{n}} reply",
+      "tooltip_other": "{{time}} · {{n}} replies",
+      "note": "Each bar is 15 minutes, from midnight to now (hours along the bottom)."
+    },
+    "usage": {
+      "lastDays_one": "Last {{count}} day",
+      "lastDays_other": "Last {{count}} days",
+      "source": "From every Claude Code conversation on this PC. Claude Code keeps them for 30 days.",
+      "kpi": {
+        "cost": "Cost",
+        "costPerDay": "{{amount}} a day on average",
+        "tokens": "Tokens",
+        "cached": "plus {{tokens}} re-read from cache",
+        "cachedWithHit": "plus {{tokens}} re-read from cache ({{pct}}% of input)",
+        "time": "Time Claude worked",
+        "lines": "Lines changed"
+      },
+      "chart": {
+        "costPerDay": "Cost per day",
+        "tokensPerDay": "Tokens per day",
+        "timePerDay": "Time Claude worked per day"
+      },
+      "metric": {
+        "cost": "Cost",
+        "tokens": "Tokens",
+        "time": "Time"
+      },
+      "byProject": "By project",
+      "byProjectNote": "Based on the files Claude changed",
+      "noProject": "{{name}} (no project)",
+      "homeFolderTitle": "Chats in your home folder that didn't edit files in a project",
+      "noWork": "No work in this period.",
+      "byModel": "By model",
+      "whenYouWork": "When you work with Claude",
+      "busiest": "Busiest around {{hour}}",
+      "hourTooltip_one": "{{from}}–{{to}} · {{n}} reply",
+      "hourTooltip_other": "{{from}}–{{to}} · {{n}} replies"
+    }
+  },
+  "background": {
+    "duration": {
+      "seconds": "{{s}}s",
+      "minutesSeconds": "{{m}}m {{s}}s",
+      "hoursMinutes": "{{h}}h {{m}}m"
+    },
+    "state": {
+      "running": "Working",
+      "done": "Finished",
+      "failed": "Failed",
+      "stopped": "Stopped"
+    },
+    "answer": "Answer",
+    "result": "Result",
+    "fullOutput": "Full output",
+    "earlierSteps_one": "{{count}} earlier step",
+    "earlierSteps_other": "{{count}} earlier steps",
+    "subagent": "Subagent",
+    "command": "Command",
+    "inBackground": "in background",
+    "steps_one": "{{count}} step",
+    "steps_other": "{{count}} steps",
+    "running": "Running…",
+    "gettingStarted": "Getting started…",
+    "finishedNoAnswer": "Finished without a written answer.",
+    "finishedCommand": "Finished. Claude has the output.",
+    "activity": "Activity",
+    "goToTab": "Go to this tab",
+    "thisTab": "This tab",
+    "workingCount_one": "{{count}} working",
+    "workingCount_other": "{{count}} working",
+    "empty": {
+      "title": "No background work yet",
+      "text": "When Claude starts a subagent or a background command, it shows up here: what it's doing right now, how long it has run, and its answer."
+    },
+    "filter": {
+      "all": "All"
+    },
+    "clearFinishedTitle": "Remove finished subagents and commands from this list",
+    "clearFinished": "Clear finished",
+    "nothingWorking": "Nothing working right now.",
+    "nothingFinished": "Nothing finished yet."
+  },
+  "sessionDetail": {
+    "dialogLabel": "Conversation details",
+    "newConversation": "New conversation",
+    "effort": "{{effort}} effort",
+    "started": "started {{time}}",
+    "savePdfTitle": "Save this report as a PDF",
+    "savePdf": "Save as PDF…",
+    "goToTab": "Go to this tab",
+    "openTab": "Open tab",
+    "continueTitle": "Continue this conversation in a tab",
+    "continue": "Continue",
+    "reading": "Reading the conversation…",
+    "noTranscript": "This conversation has no saved transcript yet.",
+    "stat": {
+      "cost": "Cost",
+      "worked": "Claude worked",
+      "messages": "Messages",
+      "messagesSub": "your messages → Claude's replies",
+      "filesChanged": "Files changed"
+    },
+    "tabs": {
+      "happened": "What happened",
+      "files": "Files",
+      "context": "Context",
+      "cost": "Cost and tokens"
+    },
+    "toast": {
+      "busyRetry": "Claude is working in this tab. Try again when it's done.",
+      "busyCompact": "Claude is working in this tab. Try compacting when it's done.",
+      "askedExact": "Asked Claude for exact numbers. They appear here in a moment.",
+      "sentCommand": "Sent {{cmd}} to this tab."
+    },
+    "happened": {
+      "empty": "Nothing yet: steps show up after your first message.",
+      "you": "You · {{time}}",
+      "showEarlier_one": "Show {{count}} earlier step",
+      "showEarlier_other": "Show {{count}} earlier steps"
+    },
+    "files": {
+      "empty": "Claude hasn't edited or created any files in this conversation.",
+      "summary_one": "{{count}} file · <0>+{{added}}</0> <1>−{{removed}}</1> lines in Claude's edits",
+      "summary_other": "{{count}} files · <0>+{{added}}</0> <1>−{{removed}}</1> lines in Claude's edits",
+      "clickToOpen": "Click to open",
+      "new": "new",
+      "edits_one": "{{count}} edit",
+      "edits_other": "{{count}} edits",
+      "note": "Counted from Claude's edits, so a line changed twice counts twice. See the side panel's Changes for what's different from Git."
+    },
+    "context": {
+      "title": "What fills the context",
+      "usedAria": "{{used}} of {{window}} tokens used",
+      "usedOf": "{{used}} of {{window}} tokens",
+      "setupTitle": "Setup: {{tokens}}",
+      "conversationTitle": "Conversation: {{tokens}}",
+      "reserveTitle": "Reserved for auto-compact: {{tokens}}",
+      "setup": "Setup",
+      "setupHint": "System prompt, tools, MCP, memory files and skills: sent with every message",
+      "conversation": "Conversation",
+      "conversationHint": "Your messages, Claude's replies and tool results",
+      "reserve": "Auto-compact reserve",
+      "reserveHint": "Kept free so Claude can summarize the conversation when it fills up",
+      "free": "Free",
+      "setupNote": "Setup is the system prompt, tools, MCP, memory files and skills, sent with every message.",
+      "exactTitle": "Runs /context in this tab (free) and reads Claude's exact numbers",
+      "refreshExact": "Refresh exact numbers",
+      "getExact": "Get exact numbers",
+      "pending": "Appears after Claude's first reply.",
+      "exact": "Exact · {{time}}",
+      "estimate": "Estimate",
+      "adviceFull": "Nearly full. Claude will soon summarize older messages on its own. Compact now to choose when, or start a new conversation for the next task.",
+      "adviceHalf": "Over half full. Each message re-sends all of this, so long conversations get slower and cost more. Compact when you finish this task.",
+      "adviceRoom": "Plenty of room left.",
+      "compactNow": "Compact now",
+      "newConversation": "Start new conversation",
+      "estimatedOpen": "Estimated from the conversation. \"Get exact numbers\" runs Claude's free /context command in this tab.",
+      "estimatedPast": "Estimated from the conversation. Continue it in a tab to get Claude's exact numbers."
+    },
+    "growth": {
+      "title": "How it grew",
+      "peak": "peak {{tokens}}",
+      "tooltip": "Reply {{n}} · <0>{{tokens}}</0> context · {{time}}",
+      "compacted_one": "compacted {{count}}×",
+      "compacted_other": "compacted {{count}}×"
+    },
+    "cost": {
+      "title": "Cost",
+      "thisConversation": "This conversation",
+      "asReported": "as Claude reports it",
+      "perMessage": "Per message",
+      "onAverage": "on average",
+      "linesChanged": "Lines changed"
+    },
+    "tokens": {
+      "title": "Tokens",
+      "sent": "Sent (new)",
+      "cacheRead": "Re-read from cache",
+      "cacheWrite": "Saved to cache",
+      "output": "Claude wrote",
+      "cacheHits": "Cache hits",
+      "hitPct": "{{pct}}% of what was sent",
+      "cacheNote": "Re-reading from the cache costs about a tenth of sending it fresh, so a high number here is good.",
+      "warmUntil": "The cache is warm until {{time}}: replying before then is cheaper.",
+      "warm": "The cache is warm: replying before then is cheaper.",
+      "cold": "The cache has gone cold; the next message re-reads the whole conversation."
+    },
+    "tools": {
+      "title": "Tools Claude used · {{count}}"
+    }
+  },
+  "inspector": {
+    "tabs": {
+      "changes": "Changes",
+      "background": "Background",
+      "details": "Details"
+    },
+    "closePanel": "Close panel",
+    "closeShortcut": "Close (Ctrl+Shift+G)",
+    "details": {
+      "projectFolder": "the project folder",
+      "openProject": "Open project",
+      "openInNewTab": "Open in new tab",
+      "editCount_one": "{{count}} edit",
+      "editCount_other": "{{count}} edits",
+      "readCount_one": "{{count}} time",
+      "readCount_other": "{{count}} times",
+      "search": "search",
+      "copyLink": "Copy link",
+      "noClaude": {
+        "title": "No Claude conversation here",
+        "text": "Open a Claude tab to see the screenshots and files you attached, and the files Claude read, changed and looked up."
+      },
+      "nothingYet": {
+        "title": "Nothing yet",
+        "text": "Details appear after the first message in this conversation."
+      },
+      "nothingUsed": {
+        "title": "Nothing attached or used yet",
+        "text": "Pasted screenshots, @-mentioned files and everything Claude reads or changes in this conversation will be listed here."
+      },
+      "stat": {
+        "changed": "Changed",
+        "read": "Read",
+        "attached": "Attached",
+        "web": "Web"
+      },
+      "group": {
+        "changed": "Files Claude changed",
+        "screenshots": "Screenshots you pasted",
+        "mentioned": "Files you attached",
+        "read": "Files Claude read",
+        "web": "Web pages and searches",
+        "subagents": "Subagents used",
+        "mcp": "MCP tools used"
+      },
+      "pastedScreenshot": "Pasted screenshot {{n}}",
+      "screenshot": "Screenshot"
+    }
+  },
+  "changes": {
+    "status": {
+      "changed": "Changed",
+      "added": "Added",
+      "new": "New",
+      "deleted": "Deleted",
+      "renamed": "Renamed"
+    },
+    "revert": {
+      "deleteNewMessage": "This will delete this new file:\n\n{{path}}\n\nThis cannot be undone.",
+      "undoMessage": "This will undo all changes to this file:\n\n{{path}}\n\nThis cannot be undone.",
+      "title": "Undo changes?",
+      "deleteFile": "Delete file",
+      "undoChanges": "Undo changes"
+    },
+    "reviewComments_one": "{{count}} review comment",
+    "reviewComments_other": "{{count}} review comments",
+    "clear": "Clear",
+    "sendToClaude": "Send to Claude",
+    "filesSinceCommit_one": "{{count}} file since last commit",
+    "filesSinceCommit_other": "{{count}} files since last commit",
+    "noTab": "Open a tab to see its changes.",
+    "notRepo": "This folder isn't a Git repository. Helm uses Git to show what changed and to undo changes — run <0>git init</0> here to turn it on.",
+    "noChanges": "No changes since the last commit.",
+    "fileTitle": "{{status}}: {{path}}",
+    "undoFileNamed": "Undo changes to {{path}}",
+    "undoFile": "Undo changes to this file",
+    "openClaudeFirst": "Open Claude in this project first, then send the comments.",
+    "sentComments_one": "Sent {{count}} review comment to Claude.",
+    "sentComments_other": "Sent {{count}} review comments to Claude.",
+    "commentOnLine": "Comment on this line",
+    "commentPlaceholder": "What should Claude change here? (Enter to add, Shift+Enter for a new line)",
+    "addComment": "Add comment",
+    "hunk": {
+      "message": "Undo this part of the file? Other changes in the file stay.",
+      "title": "Undo this part?",
+      "ok": "Undo part",
+      "done": "Undid that part of the file.",
+      "button": "Undo this part"
+    },
+    "sendComments_one": "Send {{count}} comment to Claude",
+    "sendComments_other": "Send {{count}} comments to Claude",
+    "undoFileChanges": "Undo file changes",
+    "closeDiff": "Close diff",
+    "closeEsc": "Close (Esc)",
+    "before": "Before (last commit)",
+    "now": "Now <0>· click a line number to comment</0>",
+    "binary": "This is a binary file, so there is no text to compare.",
+    "noTextChanged": "No text changed. Only the file's permissions or name changed.",
+    "removeComment": "Remove comment"
+  },
+  "reports": {
+    "generated": "Generated",
+    "footer": "Numbers come from Claude Code on this PC. Context figures marked \"estimate\" are approximate; costs are what Claude Code reports.",
+    "cost": "Cost",
+    "timeWorking": "Time working",
+    "replies_one": "{{count}} reply",
+    "replies_other": "{{count}} replies",
+    "session": {
+      "title": "{{project}} · conversation report",
+      "conversation": "Conversation",
+      "effort": "{{effort}} effort",
+      "contextExact": "Context window · exact",
+      "contextEstimate": "Context window · estimate",
+      "usedOf": "<0>{{used}}</0> of {{window}} tokens ({{pct}}%)",
+      "category": "Category",
+      "tokens": "Tokens",
+      "ofWindow": "Of window",
+      "grew": "How the context grew",
+      "grewCompacted_one": "How the context grew · compacted {{count}}×",
+      "grewCompacted_other": "How the context grew · compacted {{count}}×",
+      "sent": "Sent (new)",
+      "fromCache": "From cache",
+      "cacheHits": "{{pct}}% cache hits",
+      "writtenToCache": "Written to cache",
+      "claudeWrote": "Claude wrote",
+      "activity": "Activity",
+      "yourMessages": "Your messages",
+      "toolCalls": "Tool calls",
+      "lines": "+{{added}} −{{removed}} lines",
+      "toolsUsed": "Tools Claude used"
+    },
+    "usage": {
+      "fiveHourLimit": "5-hour limit",
+      "weeklyLimit": "Weekly limit (all models)",
+      "spendLimit": "Spend limit",
+      "noProject": "{{name}} (no project)",
+      "title": "Claude usage report",
+      "subtitle_one": "Last {{count}} day on this PC · {{span}}",
+      "subtitle_other": "Last {{count}} days on this PC · {{span}}",
+      "limits": "Usage limits",
+      "limit": "Limit",
+      "used": "Used",
+      "resets": "Resets",
+      "startsNext": "Starts with the next message",
+      "totals": "Totals",
+      "tokens": "Tokens",
+      "fromCacheSub": "{{tokens}} from cache",
+      "linesChanged": "Lines changed",
+      "byDay": "By day",
+      "col": {
+        "day": "Day",
+        "fromCache": "From cache",
+        "time": "Time",
+        "lines": "Lines",
+        "conversations": "Conversations",
+        "project": "Project",
+        "conversation": "Conversation",
+        "model": "Model",
+        "context": "Context"
+      },
+      "byProject": "By project",
+      "byModel": "By model",
+      "openConversations": "Open Claude conversations"
+    }
+  },
+  "usage": {
+    "window": {
+      "fiveHour": "5-hour",
+      "weekly": "Weekly"
+    },
+    "title": "Usage limits",
+    "startsWithNextMessage": "Starts with your next message",
+    "resetsIn": "Resets in {{time}} · {{clock}}",
+    "notYet": "Appears after Claude's next reply in any tab. Limits are shown for Claude Pro and Max plans (and team spend limits). If you set up your own Claude status line, Helm leaves it alone and can't show limits.",
+    "turnedOff": "Turned off in Settings → Claude in Helm.",
+    "updated": "updated {{ago}}",
+    "fiveHourLimit": "5-hour limit",
+    "currentSession": "current session",
+    "weeklyLimit": "Weekly limit",
+    "allModels": "all models",
+    "spendLimit": "Spend limit",
+    "spendOf": "${{used}} of ${{limit}}",
+    "byTab": "This 5-hour window by tab (approx.)",
+    "duration": {
+      "hoursMinutes": "{{h}}h {{m}}m",
+      "minutes": "{{m}}m"
+    },
+    "pace": {
+      "weekJustStarted": "A new week just started",
+      "even": "On an even pace ({{pct}}% of the week has passed)",
+      "ahead_one": "Ahead of an even pace by {{count}} point",
+      "ahead_other": "Ahead of an even pace by {{count}} points",
+      "under_one": "{{count}} point under an even pace",
+      "under_other": "{{count}} points under an even pace",
+      "soon": "Your pace shows after a few minutes of work",
+      "eta": "At this pace you'll hit it in about {{time}}",
+      "perHour": "About {{rate}}% an hour · you won't run out before it resets"
+    },
+    "history": {
+      "title": "Usage history",
+      "showChart": "Show chart",
+      "showTable": "Show as table",
+      "subtitle": "Share of your weekly limit used each day · last 7 days: {{pct}}%",
+      "empty": "Helm records your usage from now on. Check back after a day of work.",
+      "day": "Day",
+      "weeklyUsed": "Weekly limit used",
+      "chartLabel": "Daily share of the weekly limit, last 14 days",
+      "tooltip": "<0>{{pct}}%</0> <1>of the weekly limit · {{day}}</1>",
+      "mostUsed": "Most used this week"
+    }
+  },
+  "charts": {
+    "barChartLabel": "Bar chart, highest {{max}}"
+  }
+}

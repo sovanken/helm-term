@@ -1,0 +1,286 @@
+{
+  "status": {
+    "thinking": "Thinking…"
+  },
+  "events": {
+    "someTool": "a tool",
+    "waitingForYou": "Claude is waiting for you",
+    "needsYouTitle": "Claude needs you · {{where}}",
+    "finishedTitle": "Claude finished · {{where}}",
+    "readyForNext": "Ready for your next message",
+    "stoppedTitle": "Claude stopped · {{where}}",
+    "needsApprovalTitle": "Claude needs approval · {{where}}",
+    "whereAndTitle": "{{where}} · {{title}}",
+    "details": "Details",
+    "usageLimitTitle": "Claude usage limit",
+    "limitWarning": {
+      "fiveHour": "You've used {{pct}}% of your 5-hour Claude limit.",
+      "weekly": "You've used {{pct}}% of your weekly Claude limit."
+    },
+    "stop": {
+      "rateLimit": "Usage limit reached",
+      "authenticationFailed": "Claude stopped because signing in failed. Run /login to sign in again.",
+      "billingError": "Claude stopped because of a billing problem with your account.",
+      "invalidRequest": "Claude stopped because the request was rejected.",
+      "serverError": "Claude stopped because of a server error. Try again in a moment.",
+      "maxOutputTokens": "Claude stopped because the reply reached its length limit.",
+      "overloaded": "Claude stopped because the service is busy. Try again in a moment.",
+      "other": "Claude stopped."
+    }
+  },
+  "taskHints": {
+    "subagent": "Subagent",
+    "backgroundCommand": "Background command",
+    "compactHint": "{{project}}: this conversation uses {{pct}}% of its context. Compacting makes every next message cheaper.",
+    "compactNow": "Compact now",
+    "cacheExpiring": "{{project}}: the cache expires in about a minute. Reply now to keep this conversation cheap.",
+    "idleConversation": "{{project}} has a large conversation sitting idle. When you switch topics, /clear starts fresh and uses much less."
+  },
+  "store": {
+    "color": {
+      "red": "Red",
+      "orange": "Orange",
+      "yellow": "Yellow",
+      "green": "Green",
+      "teal": "Teal",
+      "blue": "Blue",
+      "purple": "Purple",
+      "pink": "Pink"
+    }
+  },
+  "terminal": {
+    "pasteLines_one": "You're pasting {{count}} line into a shell. Each line runs as its own command.",
+    "pasteLines_other": "You're pasting {{count}} lines into a shell. Each line runs as its own command.",
+    "pasteLinesTitle": "Paste multiple lines?",
+    "bigPaste": "This paste is {{size}} characters. Pasted text is re-sent with every later message. Saving it as a file and attaching the path lets Claude read it only when needed, which saves usage.",
+    "bigPasteTitle": "Attach as a file?",
+    "attachAsFile": "Attach as file",
+    "pasteText": "Paste text",
+    "startFailed": "Helm couldn't start this terminal: {{error}}"
+  },
+  "format": {
+    "thousand": "{{n}}k",
+    "million": "{{n}}M",
+    "billion": "{{n}}B",
+    "days": "{{n}}d",
+    "hours": "{{n}}h",
+    "minutes": "{{n}}m",
+    "seconds": "{{n}}s",
+    "pair": "{{a}} {{b}}",
+    "dayAndTime": "{{day}} {{time}}"
+  },
+  "agentText": {
+    "verb": {
+      "command": "run a command",
+      "file": "change a file",
+      "read": "read a file",
+      "web": "use the web",
+      "mcp": "use {{tool}} tool",
+      "mcpUnknown": "use an MCP tool",
+      "other": "use {{tool}}"
+    },
+    "wants": {
+      "command": "Wants to run a command",
+      "file": "Wants to change a file",
+      "read": "Wants to read a file",
+      "web": "Wants to use the web",
+      "mcp": "Wants to use {{tool}} tool",
+      "mcpUnknown": "Wants to use an MCP tool",
+      "other": "Wants to use {{tool}}"
+    },
+    "claudeWants": {
+      "command": "Claude wants to run a command",
+      "file": "Claude wants to change a file",
+      "read": "Claude wants to read a file",
+      "web": "Claude wants to use the web",
+      "mcp": "Claude wants to use {{tool}} tool",
+      "mcpUnknown": "Claude wants to use an MCP tool",
+      "other": "Claude wants to use {{tool}}"
+    },
+    "rule": {
+      "session": "{{rule}} for the rest of this session",
+      "local": "{{rule}} in this project (only you)",
+      "project": "{{rule}} in this project",
+      "user": "{{rule}} everywhere",
+      "none": "{{rule}}"
+    },
+    "allTool": {
+      "session": "all {{tool}} for the rest of this session",
+      "local": "all {{tool}} in this project (only you)",
+      "project": "all {{tool}} in this project",
+      "user": "all {{tool}} everywhere",
+      "none": "all {{tool}}"
+    },
+    "acceptEdits": {
+      "session": "accept file edits for the rest of this session",
+      "local": "accept file edits in this project (only you)",
+      "project": "accept file edits in this project",
+      "user": "accept file edits everywhere",
+      "none": "accept file edits"
+    },
+    "switchMode": {
+      "session": "switch to {{mode}} mode for the rest of this session",
+      "local": "switch to {{mode}} mode in this project (only you)",
+      "project": "switch to {{mode}} mode in this project",
+      "user": "switch to {{mode}} mode everywhere",
+      "none": "switch to {{mode}} mode"
+    },
+    "ruleSeparator": "; ",
+    "justNow": "just now",
+    "now": "now",
+    "ago": "{{time}} ago"
+  },
+  "themes": {
+    "accent": {
+      "brass": "Brass",
+      "blue": "Blue",
+      "violet": "Violet",
+      "green": "Green",
+      "rose": "Rose",
+      "teal": "Teal"
+    }
+  },
+  "changelog": {
+    "v1_0_1": {
+      "pastDetails": {
+        "title": "Details for past conversations",
+        "text": "In the sidebar, a conversation's ⋯ menu now shows its context, tokens, cost and tools, and can save them as a PDF."
+      }
+    },
+    "v1_0_0": {
+      "madeForClaudeCode": {
+        "title": "Made for Claude Code",
+        "text": "Runs the real claude CLI in fast, hardware-accelerated tabs and split panes, with every language and emoji rendering correctly."
+      },
+      "approveAnywhere": {
+        "title": "Approve from anywhere",
+        "text": "Background tabs ask for permission in Helm and in a Windows notification with Allow / Deny, plus Always allow for things you trust."
+      },
+      "usageLimits": {
+        "title": "Usage limits",
+        "text": "Live 5-hour and weekly meters with reset countdown, your pace, which tab used the most, and warnings at 80% and 95%."
+      },
+      "agentsTab": {
+        "title": "Agents tab",
+        "text": "Every Claude conversation grouped into Needs you, Working and Finished, with context, cost and what each one is doing (Ctrl+Shift+A)."
+      },
+      "usageAtAGlance": {
+        "title": "Usage and context at a glance",
+        "text": "Every limit with its reset time and your pace, today's and this week's cost and tokens, and per conversation what fills the context window. Save any of it as a PDF."
+      },
+      "builtInBrowser": {
+        "title": "Built-in browser",
+        "text": "Open your app beside the terminal, test phone and tablet sizes, and send errors, screenshots or any part of the page to Claude in one click."
+      },
+      "filesOpenInHelm": {
+        "title": "Files open in Helm",
+        "text": "Code with highlighting, Markdown, images, PDF, video and audio open as Helm tabs instead of other apps."
+      },
+      "backgroundWork": {
+        "title": "See background work",
+        "text": "The side panel opens on Background when Claude starts a subagent, showing what it's doing and its final answer. Details lists screenshots, files and web pages used."
+      },
+      "saveUsage": {
+        "title": "Save your usage",
+        "text": "Usage history by day and project, a reminder to /compact as context fills, a warning before the cache expires, and big pastes attached as a file."
+      },
+      "promptImprover": {
+        "title": "Prompt improver",
+        "text": "Write a prompt, let Claude make it clearer, then send it (Ctrl+Shift+I)."
+      },
+      "tabStatus": {
+        "title": "Status on every tab",
+        "text": "Working, needs approval or finished, with notifications for tabs you're not looking at."
+      },
+      "historyAndPalette": {
+        "title": "History and palette",
+        "text": "Search every conversation and continue it in one click. Ctrl+Shift+P for saved prompts, Claude commands, skills and actions."
+      },
+      "reviewChanges": {
+        "title": "Review changes",
+        "text": "Side-by-side diffs, comments sent to Claude, and undo for a whole file or just one part."
+      },
+      "parallelTasks": {
+        "title": "Parallel tasks",
+        "text": "Run Claude on several tasks at once, each in its own copy of the project on its own branch, then merge or remove them."
+      },
+      "keepConversations": {
+        "title": "Conversations you don't lose",
+        "text": "Tabs reopen the same conversations after a restart, and Ctrl+Alt+Shift+T reopens a closed tab."
+      },
+      "statusBar": {
+        "title": "Clean status bar",
+        "text": "Permission mode, prompt cache timer, effort, git push/pull, pull request, usage, cost, context and model. Right-click to choose."
+      },
+      "makeItYours": {
+        "title": "Make it yours",
+        "text": "Accent colors, 10 terminal color schemes, Inter and JetBrains Mono built in, resizable panels, Ctrl+mouse wheel zoom and Windows 11 Mica."
+      },
+      "claudeCodeSettings": {
+        "title": "Claude Code settings",
+        "text": "Edit permissions, hooks, MCP servers and CLAUDE.md without touching JSON."
+      },
+      "windowsDoneRight": {
+        "title": "Windows done right",
+        "text": "PowerShell 7, Windows PowerShell or Git Bash per tab, Windows hints for Claude, and screenshot paste with Ctrl+V."
+      },
+      "private": {
+        "title": "Private by design",
+        "text": "Everything stays on your PC. The only network request is the update check, and you can turn it off."
+      }
+    },
+    "v1_0_2": {
+      "languages": {
+        "title": "Helm in your language",
+        "text": "Choose from 11 languages, the same ones Claude offers, in the gear menu or Settings › Appearance. Helm follows your Windows language by default."
+      },
+      "voice": {
+        "title": "Voice input",
+        "text": "Hold Ctrl+Space or click the mic on a Claude tab and speak. Speech becomes text on your PC, nothing is sent anywhere, and it's typed into the prompt for you to send."
+      },
+      "tools": {
+        "title": "Developer tools",
+        "text": "Color picker, image tools, screen ruler, JSON, encode and decode, regex tester, compare text, generators, time converter, placeholder text, ports in use, API tester, environment variables and a scratchpad."
+      },
+      "screenshots": {
+        "title": "Screenshots",
+        "text": "Capture an area, a window, a freeform shape or the whole screen, with a delay or Ctrl+Alt+S from any app. Mark it up with arrows, boxes, text, numbered steps and blur, then copy, save or send it to Claude."
+      },
+      "projects": {
+        "title": "Project files and a new sidebar",
+        "text": "Browse, search and edit a project's files without leaving Helm. The sidebar now shows projects with their conversations, with search, sort, color labels, a privacy blur, and a safe rename and delete."
+      },
+      "phones": {
+        "title": "Phones for testing",
+        "text": "A connected Android phone shows in the status bar: mirror its screen, read your app's logs, take a screenshot or see its details."
+      },
+      "settings": {
+        "title": "settings.json and a gear menu",
+        "text": "Edit Helm's settings as a file, with suggestions and checks, like VS Code (Ctrl+Shift+,). The gear now opens a menu with settings, theme, language, updates and help."
+      },
+      "agents": {
+        "title": "Clearer Agents and Background",
+        "text": "The Agents page has Live and Usage tabs and a full view of each conversation. Background in the side panel shows subagents and commands with formatted answers, and finished commands no longer stay stuck as running."
+      }
+    }
+  },
+  "updater": {
+    "upToDate": "Helm is up to date.",
+    "downloading": "Downloading Helm {{version}}…",
+    "available": "Helm {{version}} is available.",
+    "checkFailed": "Couldn't check for updates: {{error}}"
+  },
+  "misc": {
+    "device": {
+      "laptop": "Laptop",
+      "laptopHd": "Laptop HD",
+      "desktop": "Desktop",
+      "custom": "Custom"
+    },
+    "deviceGroup": {
+      "phones": "Phones",
+      "tablets": "Tablets",
+      "computers": "Computers"
+    }
+  }
+}

@@ -1,6 +1,6 @@
 [package]
 name = "helm"
-version = "1.0.1"
+version = "1.0.2"
 description = "A terminal made for Claude Code"
 authors = ["Helm contributors"]
 license = "MIT"
@@ -27,6 +27,7 @@ tauri-plugin-single-instance = "2"
 tauri-plugin-updater = "2"
 tauri-plugin-process = "2"
 tauri-plugin-autostart = "2"
+tauri-plugin-global-shortcut = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = ["preserve_order"] }
 portable-pty = "0.9"
@@ -38,12 +39,35 @@ uuid = { version = "1", features = ["v4"] }
 dirs = "7"
 which = "8"
 base64 = "0.22"
+# Developer tools: hashes and the API request tester.
+sha2 = "0.11"
+sha1 = "0.11"
+md-5 = "0.11"
+reqwest = "0.13"
+# Project workspace tab: walking the project like git does, and the Recycle Bin.
+ignore = "0.4"
+trash = "5"
+sherpa-onnx = "1.13.8"
+cpal = "0.18.2"
+bzip2 = "0.6.1"
+tar = "0.4.46"
 
 [target."cfg(windows)".dependencies]
 tauri-winrt-notification = "0.8"
 # Same versions Tauri uses, to drive browser tabs through WebView2's DevTools protocol.
 webview2-com = "0.39"
-windows = "0.62"
+windows = { version = "0.62", features = [
+  "Win32_Devices_DeviceAndDriverInstallation",
+  "Win32_Graphics_Dwm",
+  "Win32_Graphics_Gdi",
+  "Win32_System_SystemInformation",
+  "Win32_System_Diagnostics_ToolHelp",
+  "Win32_NetworkManagement_IpHelper",
+  "Win32_Networking_WinSock",
+  "Win32_System_Threading",
+  "Win32_UI_WindowsAndMessaging",
+] }
+winreg = "0.56"
 
 [profile.release]
 codegen-units = 1

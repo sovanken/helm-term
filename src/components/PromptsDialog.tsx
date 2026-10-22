@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Plus, Send, Trash2, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { activePane, type SavedPrompt, useStore } from "../state/store";
 import { insertText } from "../terminal/terminals";
 
@@ -9,14 +10,17 @@ export function PromptsDialog() {
   const [selected, setSelected] = useState<string | null>(prompts[0]?.id ?? null);
   const current = prompts.find((p) => p.id === selected);
   const set = useStore.getState().set;
+  const { t } = useTranslation();
 
-  useEffect(() => dialog.current?.showModal(), []);
+  useEffect(() => {
+    dialog.current?.showModal();
+  }, []);
   const close = () => set({ promptsOpen: false });
 
   const save = (patch: Partial<SavedPrompt>) =>
     set({ prompts: useStore.getState().prompts.map((p) => (p.id === selected ? { ...p, ...patch } : p)) });
   const add = () => {
-    const prompt = { id: crypto.randomUUID(), title: "New prompt", text: "" };
+    const prompt = { id: crypto.randomUUID(), title: t("prompts.saved.newTitle"), text: "" };
     set({ prompts: [...useStore.getState().prompts, prompt] });
     setSelected(prompt.id);
   };
@@ -42,10 +46,10 @@ export function PromptsDialog() {
       <div className="flex h-full flex-col">
         <div className="flex items-center border-b border-line px-5 py-3.5">
           <div className="flex-1">
-            <h2 className="text-[15px] font-semibold">Saved prompts</h2>
-            <p className="text-[12px] text-faint">Reuse prompts you type often. Find them with Ctrl+Shift+P.</p>
+            <h2 className="text-[15px] font-semibold">{t("prompts.saved.title")}</h2>
+            <p className="text-[12px] text-faint">{t("prompts.saved.hint")}</p>
           </div>
-          <button aria-label="Close" onClick={close} className="flex size-7 items-center justify-center rounded-md text-muted hover:bg-hover hover:text-fg">
+          <button aria-label={t("common.close")} onClick={close} className="flex size-7 items-center justify-center rounded-md text-muted hover:bg-hover hover:text-fg">
             <X size={15} />
           </button>
         </div>
@@ -58,13 +62,13 @@ export function PromptsDialog() {
                   onClick={() => setSelected(p.id)}
                   className={`block w-full truncate rounded-md px-2.5 py-1.5 text-left ${p.id === selected ? "bg-hover text-fg" : "text-muted hover:bg-hover hover:text-fg"}`}
                 >
-                  {p.title || "Untitled"}
+                  {p.title || t("prompts.saved.untitled")}
                 </button>
               ))}
             </div>
             <div className="border-t border-line p-2">
               <button onClick={add} className="flex w-full items-center justify-center gap-1.5 rounded-md border border-line py-1.5 text-fg hover:bg-hover">
-                <Plus size={14} /> New prompt
+                <Plus size={14} /> {t("prompts.saved.new")}
               </button>
             </div>
           </div>
@@ -74,31 +78,31 @@ export function PromptsDialog() {
               <input
                 value={current.title}
                 onChange={(e) => save({ title: e.target.value })}
-                placeholder="Name"
+                placeholder={t("prompts.saved.namePlaceholder")}
                 className="rounded-md border border-line bg-bg px-3 py-2 font-medium outline-none focus:border-accent"
               />
               <textarea
                 value={current.text}
                 onChange={(e) => save({ text: e.target.value })}
-                placeholder="What should Claude do?"
+                placeholder={t("prompts.saved.textPlaceholder")}
                 className="scroll-thin flex-1 resize-none rounded-md border border-line bg-bg px-3 py-2 leading-relaxed outline-none focus:border-accent"
               />
               <div className="flex items-center gap-2">
                 <button onClick={remove} className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-danger hover:bg-hover">
-                  <Trash2 size={14} /> Delete
+                  <Trash2 size={14} /> {t("common.delete")}
                 </button>
-                <span className="flex-1 text-[12px] text-faint">Saved automatically</span>
+                <span className="flex-1 text-[12px] text-faint">{t("prompts.saved.autosaved")}</span>
                 <button
                   onClick={use}
                   disabled={!current.text.trim() || !activePane()}
                   className="flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 font-medium text-on-accent hover:opacity-90 disabled:opacity-40"
                 >
-                  <Send size={14} /> Insert into terminal
+                  <Send size={14} /> {t("prompts.saved.insert")}
                 </button>
               </div>
             </div>
           ) : (
-            <div className="flex flex-1 items-center justify-center text-faint">No saved prompts yet.</div>
+            <div className="flex flex-1 items-center justify-center text-faint">{t("prompts.saved.empty")}</div>
           )}
         </div>
       </div>

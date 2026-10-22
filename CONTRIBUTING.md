@@ -36,14 +36,20 @@ npm run build          # type-check + production web build
 | `src-tauri/src/shell.rs` | Shell launch (PowerShell / Git Bash) and the `claude` wrapper |
 | `src-tauri/src/git.rs`, `worktrees.rs` | Changes panel and parallel tasks |
 | `src-tauri/src/sessions.rs`, `export.rs` | History, status numbers and Markdown export from transcripts |
+| `src-tauri/src/voice.rs` | Voice input: microphone, voice detection and speech to text (sherpa-onnx) |
+| `src-tauri/src/project_ops.rs` | Safe project rename and delete |
+| `src/i18n/` | Interface languages and how to translate |
 
 ## Guidelines
 
 - Keep app shortcuts on Ctrl+Shift / Alt+Shift so Claude Code keeps its own keys.
-- Use plain, friendly words in the UI (no internal jargon).
+- Use plain, friendly words in the UI (no internal jargon). Every visible text goes through
+  `t("…")` with its English in `src/i18n/locales/en/`; see [src/i18n/README.md](src/i18n/README.md).
+  New text in other languages falls back to English until it's translated.
 - Never write to the user's Claude Code settings except from the Settings screen, and only the
   `permissions` / `hooks` keys.
-- Nothing leaves the user's PC except the update check. Don't add telemetry.
+- Nothing leaves the user's PC on its own except the update check; anything else online happens only
+  when the user starts it. Don't add telemetry.
 - Add or update unit tests for logic you change; CI runs `npm test` and `cargo test`.
 - Match the surrounding code style; run `npm run build` before opening a pull request.
 

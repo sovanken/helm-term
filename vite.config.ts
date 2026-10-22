@@ -9,7 +9,9 @@ const host = process.env.TAURI_DEV_HOST;
 export default defineConfig(() => ({
   plugins: [react(), tailwindcss()],
   // Pre-bundle the code highlighter so the first file tab opens without a reload in dev.
-  optimizeDeps: { include: ["shiki", "marked", "dompurify"] },
+  optimizeDeps: {
+    include: ["shiki", "marked", "dompurify", "yaml", "diff", "@codemirror/view", "@codemirror/state", "@codemirror/commands", "@codemirror/language", "@codemirror/language-data", "@codemirror/search", "@lezer/highlight"],
+  },
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   //

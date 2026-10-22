@@ -15,7 +15,8 @@ pub const MAX_MEDIA: u64 = 300 * 1024 * 1024;
 #[serde(tag = "kind", rename_all = "camelCase")]
 pub enum FilePreview {
     #[serde(rename_all = "camelCase")]
-    Text { text: String, size: u64, truncated: bool, modified: u64 },
+    /// `editable`: the whole file was read and it is valid UTF-8, so saving it back loses nothing.
+    Text { text: String, size: u64, truncated: bool, editable: bool, modified: u64 },
     #[serde(rename_all = "camelCase")]
     Image { data_url: String, size: u64, modified: u64 },
     /// PDF, video or audio: fetch the bytes with `file_bytes`.
@@ -107,8 +108,12 @@ pub fn read(path: &Path) -> Result<FilePreview, String> {
     if bytes[..bytes.len().min(8192)].contains(&0) {
         return Ok(FilePreview::Binary { size, modified });
     }
-    let text = String::from_utf8_lossy(&bytes).into_owned();
-    Ok(FilePreview::Text { text, size, truncated: size > MAX_TEXT, modified })
+    let truncated = size > MAX_TEXT;
+    let (text, editable) = match String::from_utf8(bytes) {
+        Ok(text) => (text, !truncated),
+        Err(e) => (String::from_utf8_lossy(e.as_bytes()).into_owned(), false),
+    };
+    Ok(FilePreview::Text { text, size, truncated, editable, modified })
 }
 
 /// Raw bytes of a PDF, video or audio file (only those types, and within the size limit).
@@ -118,4 +123,45 @@ pub fn bytes(path: &Path) -> Result<Vec<u8>, String> {
         return Err("This file can't be shown here.".into());
     }
     std::fs::read(path).map_err(|e| e.to_string())
+}
+
+/// Characters Windows doesn't allow in a file name.
+const BAD_NAME: &[char] = &['<', '>', ':', '"', '|', '?', '*'];
+
+/// Creates a new, empty file `name` inside `dir` and returns its full path. `name` may include
+/// sub-folders (created as needed) but never leaves `dir`, and an existing file is never replaced.
+pub fn create(dir: &Path, name: &str) -> Result<std::path::PathBuf, String> {
+    let parts: Vec<&str> = name.trim().split(['/', '\\']).filter(|p| !p.is_empty()).collect();
+    if parts.is_empty() {
+        return Err("Give the file a name.".into());
+    }
+    if parts.iter().any(|p| *p == "." || *p == ".." || p.ends_with(['.', ' ']) || p.chars().any(|c| BAD_NAME.contains(&c) || c.is_control())) {
+        return Err("That name can't be used for a file.".into());
+    }
+    if !dir.is_dir() {
+        return Err("The folder no longer exists.".into());
+    }
+    let path = parts.iter().fold(dir.to_path_buf(), |p, part| p.join(part));
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    }
+    match std::fs::OpenOptions::new().write(true).create_new(true).open(&path) {
+        Ok(_) => Ok(path),
+        Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => Err("A file with that name already exists.".into()),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+/// Saves edited text. `expected` is the modified time the editor started from: if the file has
+/// changed since (Claude edited it, say), nothing is written unless `force`. Returns the new time.
+pub fn save(path: &Path, text: &str, expected: u64, force: bool) -> Result<u64, String> {
+    if !force {
+        if let Ok(meta) = std::fs::metadata(path) {
+            if modified_ms(&meta) != expected {
+                return Err("changed".into());
+            }
+        }
+    }
+    std::fs::write(path, text).map_err(|e| e.to_string())?;
+    std::fs::metadata(path).map(|m| modified_ms(&m)).map_err(|e| e.to_string())
 }

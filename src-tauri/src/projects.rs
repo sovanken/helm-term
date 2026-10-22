@@ -28,7 +28,7 @@ fn modified_ms(path: &Path) -> u64 {
 }
 
 /// Reads the first transcript lines until one carries the session's working directory.
-fn cwd_from_transcript(path: &Path) -> Option<String> {
+pub fn cwd_from_transcript(path: &Path) -> Option<String> {
     let file = std::fs::File::open(path).ok()?;
     for line in BufReader::new(file).lines().take(60).map_while(Result::ok) {
         if !line.contains("\"cwd\"") {

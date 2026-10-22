@@ -9,6 +9,7 @@ import { quotePath } from "./ipc";
 import { deviceById, screenSize } from "./devices";
 import { type Pane, type PageProblem, showToast, useStore } from "../state/store";
 import { insertText } from "../terminal/terminals";
+import { t } from "../i18n";
 
 export interface Bounds {
   x: number;
@@ -56,7 +57,7 @@ export function pageName(pane: Pane) {
       return "";
     }
   })();
-  return pane.page?.title?.trim() || host || "New page";
+  return pane.page?.title?.trim() || host || t("browser.newPage");
 }
 
 // ---------- page events ----------
@@ -112,13 +113,13 @@ export function initBrowserEvents() {
         break;
       case "pickFailed":
         s.updatePage(e.pane, { picking: false });
-        showToast("Couldn't read that element. Try picking it again.", "error");
+        showToast(t("browser.pickFailed"), "error");
         break;
       case "newWindow":
         if (typeof e.url === "string") s.openBrowser(e.url, { cwd: pane.cwd });
         break;
       case "blocked":
-        showToast("That page tried to open part of Helm itself, so it was stopped.", "error");
+        showToast(t("browser.blocked"), "error");
         break;
     }
   });
@@ -142,13 +143,16 @@ function claudeFor(browserPane: Pane): Pane | undefined {
   return byRecent(sameProject) ?? byRecent(all);
 }
 
-/** `text` may be several pieces, pasted one after another (an image path must be its own paste to attach). */
-function sendToClaude(browserPane: Pane, text: string | string[], what: string) {
+/**
+ * `text` may be several pieces, pasted one after another (an image path must be its own paste to attach).
+ * `done` is the (translated) message shown once it is in Claude's prompt.
+ */
+function sendToClaude(browserPane: Pane, text: string | string[], done: string) {
   const s = useStore.getState();
   const target = claudeFor(browserPane);
   if (!target) {
-    showToast("Open a Claude tab first, then send it again.", "error", {
-      label: "New Claude tab",
+    showToast(t("browser.needClaude"), "error", {
+      label: t("common.newClaudeTab"),
       run: () => s.openTab(browserPane.cwd, "claude"),
     });
     return;
@@ -157,7 +161,7 @@ function sendToClaude(browserPane: Pane, text: string | string[], what: string) 
   if (tab && tab.id !== s.activeTabId) s.setActiveTab(tab.id);
   s.focusPane(target.id);
   for (const part of Array.isArray(text) ? text : [text]) insertText(target.id, part);
-  showToast(`${what} added to your message to Claude. Add what you want and press Enter.`, "success");
+  showToast(done, "success");
 }
 
 function problemLine(p: PageProblem) {
@@ -176,7 +180,7 @@ export function sendProblemsToClaude(pane: Pane, problems: PageProblem[]) {
     size += line.length;
   }
   const text = `The page ${pane.url ?? ""} shows these problems:\n${lines.join("\n")}\n\nPlease find the cause and fix it. `;
-  sendToClaude(pane, text, problems.length === 1 ? "The error was" : `${problems.length} problems were`);
+  sendToClaude(pane, text, problems.length === 1 ? t("browser.sent.error") : t("browser.sent.problems", { count: problems.length }));
 }
 
 export async function sendScreenshotToClaude(pane: Pane) {
@@ -185,9 +189,9 @@ export async function sendScreenshotToClaude(pane: Pane) {
     const device = deviceById(pane.page?.device);
     const size = device ? screenSize(device, pane.page?.rotated) : null;
     const where = device && size ? ` on ${device.label} (${size.width}×${size.height})` : "";
-    sendToClaude(pane, [quotePath(path), ` This is how ${pane.url ?? "the page"} looks${where}. `], "The screenshot was");
+    sendToClaude(pane, [quotePath(path), ` This is how ${pane.url ?? "the page"} looks${where}. `], t("browser.sent.screenshot"));
   } catch (e) {
-    showToast(`Couldn't capture the page: ${String(e)}`, "error");
+    showToast(t("browser.captureFailed", { error: String(e) }), "error");
   }
 }
 
@@ -204,5 +208,5 @@ function sendElementToClaude(pane: Pane, el: PickedElement) {
   ]
     .filter((l, i) => l !== "" || i > 5)
     .join("\n");
-  sendToClaude(pane, text, "The element was");
+  sendToClaude(pane, text, t("browser.sent.element"));
 }

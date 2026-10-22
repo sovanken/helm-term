@@ -1,0 +1,651 @@
+{
+  "settings": {
+    "nav": {
+      "general": "Umum",
+      "appearance": "Tampilan",
+      "terminal": "Terminal",
+      "notifications": "Pemberitahuan",
+      "claudeInHelm": "Claude di Helm",
+      "shortcuts": "Pintasan keyboard",
+      "privacy": "Privasi",
+      "advanced": "Lanjutan",
+      "whatsNew": "Yang baru",
+      "about": "Tentang"
+    },
+    "row": {
+      "changed": "Diubah dari default",
+      "resetLabel": "Atur ulang {{label}}",
+      "resetTitle": "Kembalikan ke default ({{value}})"
+    },
+    "shortcutBox": {
+      "recording": "Tekan tombolnya…",
+      "turnOff": "Nonaktifkan"
+    },
+    "general": {
+      "hint": "Cara Helm dimulai dan membuka tab baru.",
+      "startup": "Startup",
+      "autostart": {
+        "label": "Mulai Helm saat Anda masuk ke Windows",
+        "hint": "Membuka Helm di latar belakang saat PC Anda menyala.",
+        "toggle": "Mulai bersama Windows",
+        "failed": "Tidak dapat mengubahnya: {{error}}"
+      },
+      "restoreTabs": {
+        "label": "Buka kembali tab saat dimulai",
+        "hint": "Tab Claude melanjutkan percakapan yang sama.",
+        "toggle": "Buka kembali tab"
+      },
+      "newTabs": "Tab baru",
+      "shell": {
+        "label": "Shell",
+        "hint": "Anda juga dapat memilih shell per tab dari menu +."
+      },
+      "startFolder": {
+        "label": "Folder awal",
+        "hint": "Digunakan saat tidak ada tab yang terbuka. Jika ada, tab baru dibuka di folder tab saat ini.",
+        "dialogTitle": "Pilih folder awal",
+        "home": "Folder beranda",
+        "last": "Folder terakhir digunakan",
+        "custom": "Pilih folder…"
+      },
+      "closing": "Menutup",
+      "confirmClose": {
+        "label": "Tanyakan sebelum menutup saat Claude sedang bekerja",
+        "hint": "Berlaku saat menutup tab, panel, atau jendela.",
+        "toggle": "Konfirmasi tutup"
+      },
+      "screenshots": "Tangkapan layar",
+      "snipShortcut": {
+        "label": "Pintasan dari aplikasi mana pun",
+        "hint": "Memulai tangkapan layar bahkan saat Helm berada di latar belakang. Klik kotaknya dan tekan tombol yang Anda inginkan."
+      },
+      "snipAutoCopy": {
+        "label": "Langsung salin setiap tangkapan layar",
+        "hint": "Agar Anda dapat langsung menempelkannya di mana saja setelah mengambilnya. Tangkapan layar juga terbuka di tab Tangkapan layar Helm.",
+        "toggle": "Salin setiap tangkapan layar"
+      }
+    },
+    "voice": {
+      "title": "Input suara",
+      "speech": {
+        "label": "Ucapan ke teks",
+        "hintInstalled": "Berjalan di PC ini dengan NVIDIA Parakeet (bahasa Inggris). Tidak ada ucapan Anda yang keluar dari PC Anda. Menggunakan {{size}} MB.",
+        "hintDownload": "Bicara alih-alih mengetik di tab Claude. Berjalan di PC ini, tidak ada yang dikirim ke mana pun. Unduhan satu kali sekitar {{size}} MB, hanya bahasa Inggris."
+      },
+      "removeConfirm": {
+        "message": "Hapus model suara? Anda dapat mengunduhnya lagi kapan saja.",
+        "title": "Hapus model suara?"
+      },
+      "download": "Unduh",
+      "mic": {
+        "label": "Mikrofon",
+        "hint": "Uji untuk melihat levelnya bergerak saat Anda berbicara.",
+        "windowsDefault": "Default Windows",
+        "notConnected": "{{name}} (tidak terhubung)",
+        "stop": "Berhenti",
+        "test": "Uji"
+      },
+      "holdKey": {
+        "label": "Tahan untuk bicara",
+        "hint": "Tahan tombol saat Anda berbicara, lepaskan untuk selesai. Ketukan singkat terus mendengarkan sampai Anda menekannya lagi. Berfungsi di tab Claude."
+      },
+      "button": {
+        "label": "Tombol mikrofon di tab Claude",
+        "hint": "Tombol kecil di sudut setiap tab Claude.",
+        "toggle": "Tombol mikrofon"
+      }
+    },
+    "appearance": {
+      "hint": "Atur tampilan Helm dan terminal Anda sesuai keinginan. Perubahan langsung terlihat.",
+      "app": "Aplikasi",
+      "language": {
+        "label": "Bahasa",
+        "hint": "Menu dan layar Helm. Claude menjawab dalam bahasa apa pun yang Anda gunakan untuk menulis kepadanya.",
+        "auto": "Sama seperti Windows",
+        "autoNamed": "Sama seperti Windows ({{language}})"
+      },
+      "theme": {
+        "label": "Tema",
+        "hint": "Sistem mengikuti pengaturan Windows Anda.",
+        "dark": "Gelap",
+        "light": "Terang",
+        "system": "Sistem"
+      },
+      "accent": {
+        "label": "Warna aksen",
+        "hint": "Digunakan untuk tombol, sorotan, kursor, dan pilihan."
+      },
+      "uiFont": {
+        "label": "Font antarmuka"
+      },
+      "uiScale": {
+        "label": "Ukuran antarmuka",
+        "hint": "Ctrl+roda mouse di luar terminal juga mengubah ini."
+      },
+      "mica": {
+        "label": "Jendela tembus pandang (Mica)",
+        "hint": "Membiarkan warna desktop Anda mewarnai bilah samping dan bilah judul, seperti aplikasi Windows 11.",
+        "unsupported": "Memerlukan Windows 11.",
+        "toggle": "Mica"
+      },
+      "terminalColors": "Warna terminal",
+      "helmScheme": "Helm (sesuai tema)",
+      "terminalText": "Teks terminal",
+      "font": {
+        "label": "Font",
+        "hint": "JetBrains Mono dan Geist Mono disertakan bersama Helm. Setiap bahasa dan emoji tetap ditampilkan.",
+        "defaultOption": "{{name}} (default)",
+        "other": "Font terinstal lainnya…",
+        "placeholder": "Nama font"
+      },
+      "fontSize": {
+        "label": "Ukuran teks",
+        "hint": "Ctrl+roda mouse di atas terminal, atau Ctrl+= dan Ctrl+-."
+      },
+      "lineHeight": {
+        "label": "Tinggi baris"
+      },
+      "cursor": {
+        "label": "Kursor",
+        "bar": "Garis",
+        "block": "Blok",
+        "underline": "Garis bawah",
+        "blink": "Berkedip"
+      }
+    },
+    "terminal": {
+      "hint": "Cara terminal berperilaku. Langsung berlaku untuk setiap tab.",
+      "textAndClipboard": "Teks dan papan klip",
+      "scrollback": {
+        "label": "Riwayat gulir",
+        "hint": "Berapa banyak baris yang disimpan setiap tab agar Anda dapat menggulir kembali.",
+        "lines_other": "{{lines}} baris"
+      },
+      "copyOnSelect": {
+        "label": "Salin saat Anda memilih teks",
+        "hint": "Teks yang dipilih masuk ke papan klip tanpa menekan Ctrl+C.",
+        "toggle": "Salin saat memilih"
+      },
+      "rightClick": {
+        "label": "Klik kanan",
+        "smart": "Salin atau tempel",
+        "paste": "Selalu tempel"
+      },
+      "pasteWarning": {
+        "label": "Peringatkan sebelum menempelkan beberapa baris ke shell",
+        "hint": "Setiap baris akan dijalankan sebagai perintah. Prompt Claude tidak pernah terpengaruh.",
+        "toggle": "Peringatan tempel"
+      },
+      "bellAndRendering": "Bel dan rendering",
+      "bell": {
+        "label": "Bel",
+        "hint": "Saat program membunyikan bel terminal.",
+        "flash": "Kedip",
+        "sound": "Suara"
+      },
+      "gpu": {
+        "label": "Akselerasi perangkat keras",
+        "hint": "Lebih cepat dan lebih mulus. Nonaktifkan hanya jika teks terlihat salah di PC Anda."
+      }
+    },
+    "notifications": {
+      "hint": "Pemberitahuan Windows untuk tab yang tidak sedang Anda lihat.",
+      "show": {
+        "label": "Tampilkan pemberitahuan"
+      },
+      "finished": {
+        "label": "Saat Claude selesai",
+        "toggle": "Selesai"
+      },
+      "approval": {
+        "label": "Saat Claude membutuhkan persetujuan",
+        "hint": "Dengan tombol Izinkan / Tolak saat persetujuan dijawab di Helm.",
+        "toggle": "Persetujuan"
+      },
+      "usage": {
+        "label": "Peringatan batas penggunaan",
+        "hint": "Pada 80% dan 95% dari batas 5 jam atau mingguan Anda.",
+        "toggle": "Penggunaan"
+      },
+      "sound": {
+        "label": "Putar suara",
+        "toggle": "Suara"
+      },
+      "test": {
+        "title": "Pemberitahuan Helm berfungsi",
+        "body": "Beginilah cara Helm memberi tahu Anda tentang tab yang tidak sedang Anda lihat.",
+        "button": "Kirim pemberitahuan uji"
+      }
+    },
+    "claudeInHelm": {
+      "hint": "Cara Helm bekerja dengan tab Claude yang dimulainya. Perubahan berlaku untuk tab Claude baru.",
+      "approvals": {
+        "label": "Jawab persetujuan di Helm",
+        "hint": "Saat tab yang tidak sedang Anda lihat membutuhkan izin, tanyakan di Helm dan dalam pemberitahuan Windows dengan Izinkan / Tolak. Tab yang sedang Anda lihat selalu bertanya di terminalnya.",
+        "toggle": "Persetujuan di Helm"
+      },
+      "usageCockpit": {
+        "label": "Pantau batas penggunaan",
+        "hint": "Tampilkan batas 5 jam dan mingguan, kecepatan, dan peringatan Anda. Menggunakan baris status Claude, jadi dilewati jika Anda menyiapkan baris status sendiri.",
+        "toggle": "Batas penggunaan"
+      },
+      "autoOpenAgents": {
+        "label": "Buka Latar Belakang secara otomatis",
+        "hint": "Saat Claude memulai subagen atau perintah latar belakang, buka panel samping di Latar Belakang (hanya jika sedang tertutup)."
+      },
+      "usageTips": {
+        "label": "Tips menghemat penggunaan",
+        "hint": "Pemberitahuan sebelum cache percakapan menjadi dingin, /compact sekali klik saat konteks penuh, lampirkan sebagai file untuk tempelan besar, dan pengingat untuk percakapan besar yang tidak aktif."
+      },
+      "openLinksIn": {
+        "label": "Buka tautan web di",
+        "hint": "Tautan di terminal dan di Detail, serta server dev yang Anda buka. Browser Helm dapat menguji ukuran ponsel dan mengirim kesalahan, tangkapan layar, dan elemen halaman ke Claude.",
+        "browser": "Browser saya"
+      },
+      "devServerPrompt": {
+        "label": "Tawarkan untuk membuka server dev",
+        "hint": "Saat terminal mencetak alamat lokal seperti localhost:5173, tampilkan tombol untuk membukanya."
+      },
+      "windowsHints": {
+        "label": "Petunjuk Windows untuk Claude",
+        "hint": "Beri tahu Claude bahwa ia berjalan di Windows dan sintaks shell mana yang harus digunakan, agar tidak lagi mencampur perintah PowerShell dan Bash.",
+        "toggle": "Petunjuk Windows"
+      }
+    },
+    "shortcuts": {
+      "hint": "Helm menggunakan Ctrl+Shift dan Alt+Shift agar Claude Code tetap memiliki semua tombolnya sendiri.",
+      "filter": "Cari pintasan",
+      "empty": "Tidak ada pintasan yang cocok."
+    },
+    "advanced": {
+      "export": {
+        "dialogTitle": "Ekspor pengaturan Helm",
+        "done": "Pengaturan diekspor."
+      },
+      "import": {
+        "dialogTitle": "Impor pengaturan Helm",
+        "notHelmFile": "Ini bukan file pengaturan Helm",
+        "done": "Pengaturan diimpor."
+      },
+      "resetConfirm": {
+        "message": "Kembalikan setiap pengaturan Helm ke default? Tab, prompt tersimpan, dan proyek yang disematkan tetap ada.",
+        "title": "Atur ulang pengaturan?",
+        "done": "Pengaturan dikembalikan ke default."
+      },
+      "hint": "Untuk pengguna mahir. Berlaku untuk tab yang Anda buka mulai sekarang.",
+      "claude": "Claude",
+      "extraArgs": {
+        "label": "Opsi tambahan saat Helm memulai Claude",
+        "hint": "Ditambahkan setelah opsi milik Helm, persis seperti yang diketik, mis. <1>--model sonnet</1> atau <1>--add-dir ../shared</1>."
+      },
+      "environment": "Lingkungan",
+      "env": {
+        "label": "Variabel lingkungan untuk tab baru",
+        "hint": "Satu per baris: <1>NAME=value</1>. Tersedia untuk shell dan Claude."
+      },
+      "data": "Data",
+      "backup": {
+        "label": "Cadangan pengaturan",
+        "hint": "Pengaturan, prompt tersimpan, dan proyek yang disematkan dalam satu file.",
+        "export": "Ekspor…",
+        "import": "Impor…"
+      },
+      "dataFolderHint": "Pengaturan, file hook, dan tangkapan layar yang ditempel.",
+      "reset": {
+        "label": "Atur ulang pengaturan",
+        "hint": "Kembali ke default. Tab, prompt, dan proyek yang disematkan tetap disimpan."
+      }
+    },
+    "dataFolder": "Folder data Helm",
+    "whatsNew": {
+      "hint": "Perubahan terbaru di Helm.",
+      "installed": "Terinstal"
+    },
+    "privacy": {
+      "facts": {
+        "local": {
+          "title": "Semuanya tetap di PC ini",
+          "text": "Tab, pengaturan, prompt tersimpan, dan output terminal Anda tidak pernah meninggalkan komputer Anda. Helm tidak memiliki akun dan tidak ada analitik atau pelacakan."
+        },
+        "network": {
+          "title": "Online hanya untuk pembaruan, atau saat Anda memintanya",
+          "text": "Dengan sendirinya, Helm hanya memeriksa versi baru di GitHub, dan Anda bisa mematikannya di bawah. Selebihnya hanya terjadi saat Anda memulainya: mengunduh model suara, permintaan yang Anda kirim dari penguji API, dan halaman yang Anda buka di tab browser Helm."
+        },
+        "conversations": {
+          "title": "Percakapan Claude",
+          "text": "Helm membaca file percakapan yang sudah disimpan Claude Code di PC Anda untuk menampilkan riwayat, penggunaan, dan biaya. Helm tidak pernah mengunggahnya. Claude Code sendiri berkomunikasi dengan Anthropic berdasarkan kebijakan privasi Anthropic."
+        },
+        "status": {
+          "title": "Koneksi status lokal",
+          "text": "Tab Claude melaporkan statusnya ke Helm melalui koneksi privat yang hanya berfungsi di PC ini dan memerlukan kunci rahasia yang berubah setiap kali Helm dimulai."
+        }
+      },
+      "hint": "Apa yang disimpan Helm, di mana, dan apa yang dapat Anda hapus.",
+      "network": "Jaringan",
+      "autoUpdateHint": "Satu-satunya koneksi yang dibuat Helm dengan sendirinya (github.com).",
+      "yourData": "Data Anda",
+      "screenshots": {
+        "hint_other": "{{count}} gambar · {{size}}. Dihapus otomatis setelah seminggu.",
+        "label": "Tangkapan layar yang ditempel",
+        "deleted_other": "{{count}} tangkapan layar yang ditempel telah dihapus.",
+        "deleteNow": "Hapus sekarang"
+      },
+      "closedTabs": {
+        "hint_other": "{{count}} diingat agar Ctrl+Alt+Shift+T dapat membukanya kembali.",
+        "label": "Tab yang baru ditutup",
+        "cleared": "Tab yang baru ditutup telah dihapus."
+      },
+      "clear": "Hapus",
+      "recentFolder": {
+        "label": "Folder terbaru",
+        "hint": "Folder terakhir yang digunakan, untuk opsi awal “Folder terakhir digunakan”.",
+        "cleared": "Folder terakhir digunakan telah dihapus."
+      },
+      "dataFolderHint": "Tempat semua hal di atas disimpan.",
+      "openSource": "Helm bersifat open source, jadi Anda dapat memeriksa semua ini di kodenya di github.com/sovanken/helm-term.",
+      "anthropicPolicy": "Kebijakan privasi Anthropic"
+    },
+    "autoUpdate": "Periksa pembaruan secara otomatis",
+    "about": {
+      "tagline": "Terminal yang dibuat untuk Claude Code · gratis dan open source (MIT)",
+      "updates": "Pembaruan",
+      "autoUpdateHint": "Helm mencari versi baru saat dimulai dan setiap beberapa jam.",
+      "updateReady": "Versi {{version}} siap",
+      "upToDate": "Anda menggunakan versi terbaru",
+      "updateHint": "Menginstal dan memulai ulang Helm.",
+      "updateAndRestart": "Perbarui dan mulai ulang",
+      "checkNow": "Periksa sekarang",
+      "project": "Proyek",
+      "source": "Kode sumber dan masalah",
+      "openGitHub": "Buka GitHub",
+      "notices": {
+        "label": "Pemberitahuan open source",
+        "hint": "Helm dibuat dengan Tauri, React, xterm.js, Inter, Geist, dan JetBrains Mono (OFL), serta proyek open source lainnya.",
+        "view": "Lihat"
+      },
+      "independent": "Helm adalah proyek komunitas independen dan tidak berafiliasi dengan Anthropic."
+    },
+    "page": {
+      "search": "Cari pengaturan",
+      "clearSearch": "Hapus pencarian",
+      "noMatch": "Tidak ada pengaturan yang cocok dengan “{{query}}”.",
+      "openJsonTitle": "Edit pengaturan Helm sebagai file JSON (Ctrl+Shift+,)",
+      "openJson": "Buka settings.json"
+    }
+  },
+  "claudeSettings": {
+    "sections": {
+      "permissions": {
+        "label": "Izin",
+        "hint": "Apa yang boleh dilakukan Claude tanpa bertanya"
+      },
+      "hooks": {
+        "label": "Hook",
+        "hint": "Perintah yang berjalan pada peristiwa Claude"
+      },
+      "mcp": {
+        "label": "Server MCP",
+        "hint": "Alat tambahan untuk Claude"
+      },
+      "memory": {
+        "label": "CLAUDE.md",
+        "hint": "Instruksi yang selalu dibaca Claude"
+      }
+    },
+    "scopes": {
+      "user": {
+        "label": "Semua proyek",
+        "hint": "Hanya Anda, setiap proyek"
+      },
+      "project": {
+        "label": "Proyek ini",
+        "hint": "Dibagikan dengan tim Anda (commit file ini)"
+      },
+      "local": {
+        "label": "Proyek ini, hanya Anda",
+        "hint": "Tidak di-commit"
+      }
+    },
+    "modes": {
+      "claudeDefault": "Default Claude (tanya bila perlu)",
+      "default": "Tanya sebelum pengeditan dan perintah",
+      "acceptEdits": "Terima pengeditan file secara otomatis",
+      "plan": "Hanya rencana (tanpa perubahan)",
+      "bypassPermissions": "Jangan pernah bertanya (berbahaya)"
+    },
+    "permissions": {
+      "removeRule": "Hapus {{rule}}",
+      "addRule": "Tambahkan aturan…",
+      "rulePlaceholder": "mis. Bash(npm test:*) atau Read(./docs/**)",
+      "mode": {
+        "label": "Saat Claude ingin melakukan sesuatu",
+        "hint": "Mode awal untuk percakapan baru. Anda tetap dapat beralih dengan Shift+Tab di dalam Claude."
+      },
+      "allow": {
+        "title": "Izinkan",
+        "hint": "Claude melakukan ini tanpa bertanya"
+      },
+      "ask": {
+        "title": "Tanya",
+        "hint": "Claude selalu bertanya terlebih dahulu"
+      },
+      "deny": {
+        "title": "Tolak",
+        "hint": "Claude tidak pernah diizinkan"
+      },
+      "help": "Aturan berbentuk <1>Tool</1> atau <1>Tool(pattern)</1>: <1>Bash(git status)</1>, <1>Bash(npm run test:*)</1>, <1>Edit(src/**)</1>, <1>WebFetch(domain:github.com)</1>, <1>mcp__server__tool</1>. Tolak mengalahkan tanya, dan tanya mengalahkan izinkan."
+    },
+    "hooks": {
+      "empty": "Tidak ada hook di file ini.",
+      "remove": "Hapus hook",
+      "addTitle": "Tambahkan hook",
+      "when": "Kapan",
+      "forTools": "Untuk alat (opsional)",
+      "matcherPlaceholder": "mis. Edit|Write atau Bash",
+      "commandPlaceholder": "Perintah yang dijalankan, mis. npx prettier --write .",
+      "add": "Tambahkan",
+      "help": "Perintah menerima detail peristiwa sebagai JSON pada inputnya. Hook berjalan dengan izin Anda — hanya tambahkan perintah yang Anda percayai."
+    },
+    "mcp": {
+      "added": "Server MCP {{name}} ditambahkan.",
+      "removed": "{{name}} dihapus.",
+      "listTitle": "Semua server yang dapat digunakan Claude di sini",
+      "checkAgain": "Periksa lagi",
+      "checking": "Memeriksa server. Ini dapat memakan waktu beberapa detik.",
+      "empty": "Belum ada server MCP.",
+      "fromClaudeAi": "dari claude.ai",
+      "fromPlugin": "dari plugin",
+      "removeServer": "Hapus {{name}}",
+      "addTitle": "Tambahkan server <1>· disimpan ke “{{scope}}”</1>",
+      "name": "Nama",
+      "namePlaceholder": "mis. github",
+      "type": "Jenis",
+      "command": "Perintah",
+      "url": "URL",
+      "env": {
+        "label": "Variabel lingkungan (opsional)",
+        "hint": "Satu per baris: KEY=value"
+      },
+      "adding": "Menambahkan…",
+      "addServer": "Tambahkan server"
+    },
+    "memory": {
+      "saved": "CLAUDE.md disimpan.",
+      "notYet": "Belum ada. Menyimpan akan membuatnya.",
+      "placeholder": "# Catatan proyek untuk Claude\n\n- Cara menjalankan dan menguji\n- Aturan gaya kode\n- Hal yang harus dihindari",
+      "unsaved": "Perubahan belum disimpan",
+      "hint": "Claude membaca ini di awal setiap sesi.",
+      "save": "Simpan (Ctrl+S)"
+    },
+    "intro": "{{hint}}. Ini adalah file yang sama yang digunakan Claude Code; perubahan berlaku untuk sesi Claude baru.",
+    "scopeInFolder": "{{folder}} · {{hint}}",
+    "needsProject": "Buka tab di sebuah proyek terlebih dahulu untuk mengedit pengaturannya.",
+    "createdOnChange": "· dibuat saat Anda membuat perubahan"
+  },
+  "settingsJson": {
+    "descriptions": {
+      "language": "Bahasa antarmuka. \"auto\" mengikuti bahasa tampilan Windows Anda.",
+      "theme": "Tema warna: gelap (dark), terang (light), atau ikuti Windows (system).",
+      "accent": "Warna aksen untuk tombol, sorotan, dan kursor.",
+      "uiFont": "Font untuk menu dan panel.",
+      "uiScale": "Zoom antarmuka, dari 0.8 hingga 1.5. 1 adalah ukuran normal.",
+      "mica": "Latar belakang jendela tembus pandang (Mica) Windows 11.",
+      "terminalScheme": "Warna terminal. \"helm\" mengikuti tema aplikasi.",
+      "fontFamily": "Nama font terminal, misalnya \"JetBrains Mono\" atau \"Cascadia Mono\".",
+      "fontSize": "Ukuran font terminal dalam piksel.",
+      "lineHeight": "Tinggi baris terminal. 1.2 adalah normal.",
+      "cursorStyle": "Bentuk kursor terminal.",
+      "cursorBlink": "Buat kursor terminal berkedip.",
+      "sidebarWidth": "Lebar bilah samping dalam piksel.",
+      "changesWidth": "Lebar panel samping dalam piksel.",
+      "restoreTabs": "Buka kembali tab Anda (dan percakapan Claude) saat Helm dimulai.",
+      "shell": "Shell untuk tab baru: \"pwsh\", \"powershell\", \"cmd\", \"bash\" (Git Bash), atau \"wsl\".",
+      "startFolder": "Folder untuk tab baru saat tidak ada yang terbuka: \"home\", \"last\", atau jalur folder lengkap.",
+      "confirmClose": "Tanyakan sebelum menutup tab, panel, atau jendela saat Claude sedang bekerja.",
+      "openLinksIn": "Tempat tautan dan server dev dibuka: tab browser Helm (\"helm\") atau browser Anda sendiri (\"browser\").",
+      "devServerPrompt": "Tawarkan untuk membuka server dev saat terminal mencetak alamatnya.",
+      "deviceFrame": "Gambar bingkai ponsel, tablet, atau laptop di sekitar halaman yang ditampilkan dalam ukuran perangkat.",
+      "projectSort": "Urutan proyek di bilah samping.",
+      "privacyBlur": "Buramkan nama proyek dan judul percakapan di bilah samping (untuk berbagi layar).",
+      "snipShortcut": "Kombinasi tombol yang memulai tangkapan layar dari aplikasi mana pun, misalnya \"Ctrl+Alt+S\". Kosong berarti nonaktif.",
+      "snipAutoCopy": "Langsung salin setiap tangkapan layar baru ke papan klip.",
+      "voiceMic": "Mikrofon untuk input suara, berdasarkan namanya di Windows. Kosong berarti menggunakan default Windows.",
+      "voiceHoldKey": "Tombol yang ditahan saat berbicara. Kosong berarti nonaktif.",
+      "voiceButton": "Tampilkan tombol mikrofon di tab Claude.",
+      "scrollback": "Jumlah baris yang disimpan setiap terminal untuk digulir kembali.",
+      "copyOnSelect": "Salin teks segera setelah Anda memilihnya di terminal.",
+      "rightClick": "Klik kanan di terminal: salin pilihan atau tempel (\"smart\"), atau selalu tempel (\"paste\").",
+      "bell": "Apa yang terjadi saat terminal membunyikan belnya.",
+      "pasteWarning": "Tanyakan sebelum menempelkan banyak baris ke terminal.",
+      "gpu": "Gambar terminal dengan akselerasi perangkat keras (lebih cepat). Nonaktifkan jika teks terlihat salah.",
+      "approvals": "Jawab permintaan persetujuan Claude dari tab latar belakang di dalam Helm.",
+      "usageCockpit": "Tampilkan batas penggunaan Claude Anda di bilah status.",
+      "windowsHints": "Beri tahu Claude bahwa ia berjalan di Windows dan sintaks shell mana yang harus digunakan.",
+      "autoOpenAgents": "Buka panel samping di Latar Belakang saat Claude memulai subagen atau perintah latar belakang.",
+      "usageTips": "Tampilkan tips untuk menghemat penggunaan (cache akan kedaluwarsa, meringkas percakapan panjang, dan sebagainya).",
+      "hiddenStatusItems": "Item bilah status yang Anda nonaktifkan (klik kanan bilah status).",
+      "notifications": "Pemberitahuan Windows untuk tab yang tidak sedang Anda lihat.",
+      "notifyFinished": "Beri tahu saat Claude selesai.",
+      "notifyApproval": "Beri tahu saat Claude membutuhkan persetujuan Anda.",
+      "notifyUsage": "Beri tahu saat Anda mendekati batas penggunaan.",
+      "notifySound": "Putar suara bersama pemberitahuan.",
+      "autoUpdate": "Periksa pembaruan Helm secara otomatis.",
+      "extraClaudeArgs": "Argumen tambahan untuk setiap tab Claude baru, misalnya \"--model opus\".",
+      "extraEnv": "Variabel lingkungan tambahan untuk tab baru, satu KEY=value per baris (gunakan \\n di antara baris)."
+    },
+    "header": "// Pengaturan Helm. Hanya pengaturan yang Anda ubah yang dicantumkan; yang tidak ada di sini menggunakan default-nya.\n// Ketik tanda kutip untuk melihat setiap pengaturan beserta deskripsi singkatnya. Simpan (Ctrl+S) untuk menerapkan.",
+    "problems": {
+      "unknown": "\"{{key}}\" bukan pengaturan Helm.",
+      "boolean": "\"{{key}}\" harus true atau false.",
+      "string": "\"{{key}}\" harus berupa teks dalam tanda kutip.",
+      "stringList": "\"{{key}}\" harus berupa daftar teks, seperti [\"a\", \"b\"].",
+      "enum": "\"{{key}}\" harus salah satu dari: {{values}}.",
+      "number": "\"{{key}}\" harus berupa angka.",
+      "range": "\"{{key}}\" harus antara {{min}} dan {{max}}.",
+      "notObject": "File harus berupa satu blok pengaturan { … }."
+    },
+    "parseErrors": {
+      "commaExpected": "Ada koma yang hilang di sini.",
+      "colonExpected": "Ada \":\" yang hilang di antara nama dan nilai.",
+      "propertyNameExpected": "Nama pengaturan dalam tanda kutip diharapkan di sini.",
+      "valueExpected": "Ada nilai yang hilang di sini.",
+      "closeBraceExpected": "Ada \"}\" penutup yang hilang.",
+      "closeBracketExpected": "Ada \"]\" penutup yang hilang.",
+      "endOfFileExpected": "Ada teks tambahan setelah } penutup.",
+      "invalidSymbol": "Karakter ini tidak seharusnya ada di sini.",
+      "unexpectedEndOfString": "Ada tanda kutip penutup yang hilang.",
+      "other": "JSON tidak valid ({{code}})."
+    },
+    "toasts": {
+      "broken": "settings.json berisi kesalahan, jadi tidak ada yang berubah. Editor menandai lokasinya.",
+      "partial_other": "Pengaturan disimpan, kecuali {{count}} baris yang tidak dapat digunakan Helm (ditandai di editor).",
+      "changedOutside": "settings.json diubah di luar Helm dan berisi kesalahan, jadi Helm mempertahankan pengaturan Anda saat ini."
+    },
+    "hover": {
+      "allowed": "Diizinkan: {{values}}",
+      "range": "Dari {{min}} hingga {{max}}",
+      "default": "Default: {{value}}"
+    }
+  },
+  "voice": {
+    "pill": {
+      "loading": "Bersiap…",
+      "listening": "Mendengarkan… bicaralah, lalu jeda",
+      "listeningHold": "Mendengarkan… lepaskan {{key}} saat Anda selesai",
+      "cancelTitle": "Berhenti dan buang yang belum diketik",
+      "doneTitle": "Selesai: ketik sisanya ke prompt",
+      "hint": "Kata-kata masuk ke prompt saat Anda jeda · tekan Enter untuk mengirim"
+    },
+    "button": {
+      "speakHold": "Bicara alih-alih mengetik (tahan {{key}})",
+      "stopLabel": "Hentikan input suara",
+      "stopTitle": "Berhenti mendengarkan",
+      "speak": "Bicara alih-alih mengetik"
+    },
+    "title": "Input suara",
+    "install": {
+      "unpacking": "Mengekstrak…",
+      "downloading": "Mengunduh…",
+      "progress": "{{done}} dari {{total}} MB"
+    },
+    "setup": {
+      "readyKey": "Siap. Klik mikrofon di tab Claude, atau tahan {{key}}, lalu bicara. Kata-kata diketik saat Anda jeda; Anda menekan Enter untuk mengirim.",
+      "ready": "Siap. Klik mikrofon di tab Claude, atau tahan tombol suara, lalu bicara. Kata-kata diketik saat Anda jeda; Anda menekan Enter untuk mengirim.",
+      "intro": "Helm mengubah ucapan Anda menjadi teks langsung di PC Anda, dengan model open source (NVIDIA Parakeet). Tidak ada ucapan Anda yang dikirim ke mana pun.",
+      "size": "Perlu unduhan satu kali sekitar {{size}} MB. Untuk saat ini hanya bahasa Inggris.",
+      "cancelDownload": "Batalkan unduhan",
+      "notNow": "Jangan sekarang",
+      "download": "Unduh"
+    },
+    "stopped": "Input suara dihentikan.",
+    "needsClaudeTab": "Input suara mengetik ke tab Claude. Beralihlah ke salah satunya terlebih dahulu."
+  },
+  "dialogs": {
+    "newFile": {
+      "titleMarkdown": "File Markdown baru",
+      "titleText": "File teks baru",
+      "title": "File baru",
+      "name": "Nama file",
+      "location": "Di <1>{{folder}}</1> · {{dir}}",
+      "create": "Buat"
+    },
+    "newProject": {
+      "pickTitle": "Di mana proyek baru harus diletakkan?",
+      "title": "Proyek baru",
+      "name": "Nama folder",
+      "inside": "Di dalam",
+      "chooseFolder": "Pilih folder",
+      "change": "Ubah…",
+      "hint": "Helm membuat folder dan membuka tab Claude di dalamnya.",
+      "create": "Buat dan buka"
+    }
+  },
+  "prompts": {
+    "saved": {
+      "newTitle": "Prompt baru",
+      "title": "Prompt tersimpan",
+      "hint": "Gunakan kembali prompt yang sering Anda ketik. Temukan dengan Ctrl+Shift+P.",
+      "untitled": "Tanpa judul",
+      "new": "Prompt baru",
+      "namePlaceholder": "Nama",
+      "textPlaceholder": "Apa yang harus dilakukan Claude?",
+      "autosaved": "Disimpan otomatis",
+      "insert": "Sisipkan ke prompt",
+      "empty": "Belum ada prompt tersimpan."
+    },
+    "composer": {
+      "improveFailed": "Tidak dapat menyempurnakan prompt: {{error}}",
+      "savedToast": "Disimpan ke prompt Anda. Temukan dengan Ctrl+Shift+P.",
+      "title": "Tulis prompt",
+      "subtitleFor": "Untuk Claude di {{folder}} · prompt yang jelas menghemat bolak-balik (dan penggunaan)",
+      "subtitleNoTab": "Buka tab Claude untuk mengirim prompt ini · prompt yang jelas menghemat bolak-balik (dan penggunaan)",
+      "placeholder": "Apa yang harus dilakukan Claude? mis. perbaiki bug login yang kadang terjadi",
+      "improving": "Menyempurnakan prompt Anda…",
+      "improveTitle": "Menggunakan Claude Haiku sekali (sebagian kecil penggunaan Anda). Memakan waktu sekitar 10–20 detik.",
+      "improve": "Sempurnakan",
+      "useOriginal": "Gunakan yang asli",
+      "insert": "Sisipkan",
+      "send": "Kirim ke Claude"
+    }
+  }
+}

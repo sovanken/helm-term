@@ -1,24 +1,28 @@
-// One Claude session in detail, like Claude Code's /context and /cost: what fills the context
-// window, how it grew, tokens and cache use, activity and the tools Claude used.
+// One Claude session in detail: what happened (prompts and the steps Claude took), the files it
+// changed, what fills the context window (like /context) and its cost and tokens (like /cost).
 
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowUpRight, FileDown, Layers, Play, RefreshCw, Shrink, X } from "lucide-react";
+import { Trans, useTranslation } from "react-i18next";
+import { ArrowUpRight, Bot, FileDown, FilePlus, FileText, Globe, Layers, Lightbulb, ListChecks, MessageSquare, Pencil, Play, RefreshCw, Search, Shrink, SquareTerminal, Wrench, X } from "lucide-react";
+import { MaterialIcon } from "../lib/fileIcons";
 
 import { ipc, type SessionInfo, type SessionReport } from "../lib/ipc";
 import { paneIds } from "../lib/layout";
 import { clock, duration, money, tokens, windowFor } from "../lib/format";
 import { cleanTitle, folderName, type Pane, showToast, useStore } from "../state/store";
+import { locale } from "../i18n";
 import { typeCommand } from "../terminal/terminals";
 import { exportPdf, pdfName } from "../lib/pdf";
 import { SessionPrint } from "./PrintReports";
 import { modelLabel } from "./StatusBar";
 import { StatusDot } from "./StatusDot";
+import { ShimmerRows } from "./Shimmer";
 
 const SETUP_LABELS = /system|tools|mcp|memory|skills|agents|instructions|output style/i;
 
 export function openPane(paneId: string) {
   const s = useStore.getState();
-  const tab = s.tabs.find((t) => paneIds(t.root).includes(paneId));
+  const tab = s.tabs.find((tb) => paneIds(tb.root).includes(paneId));
   if (tab) {
     s.setActiveTab(tab.id);
     s.focusPane(paneId);
@@ -82,22 +86,23 @@ export function breakdown(pane: Pane, r: SessionReport | null): Breakdown | null
 }
 
 export function ContextBar({ b }: { b: Breakdown }) {
+  const { t } = useTranslation();
   const seg = (n: number) => `${Math.max(0, (n / b.window) * 100)}%`;
   return (
     <div>
-      <div className="flex h-3 w-full overflow-hidden rounded-full bg-hover" role="img" aria-label={`${tokens(b.used)} of ${tokens(b.window)} tokens used`}>
-        <div className="h-full bg-accent/45" style={{ width: seg(b.setup) }} title={`Setup: ${tokens(b.setup)}`} />
-        <div className="h-full border-l-2 border-surface bg-accent" style={{ width: seg(b.messages) }} title={`Conversation: ${tokens(b.messages)}`} />
+      <div className="flex h-3 w-full overflow-hidden rounded-full bg-hover" role="img" aria-label={t("sessionDetail.context.usedAria", { used: tokens(b.used), window: tokens(b.window) })}>
+        <div className="h-full bg-accent/45" style={{ width: seg(b.setup) }} title={t("sessionDetail.context.setupTitle", { tokens: tokens(b.setup) })} />
+        <div className="h-full border-l-2 border-surface bg-accent" style={{ width: seg(b.messages) }} title={t("sessionDetail.context.conversationTitle", { tokens: tokens(b.messages) })} />
         <div className="flex-1" />
-        {b.buffer > 0 && <div className="h-full border-l-2 border-surface bg-[repeating-linear-gradient(135deg,var(--faint)_0_2px,transparent_2px_5px)] opacity-60" style={{ width: seg(b.buffer) }} title={`Reserved for auto-compact: ${tokens(b.buffer)}`} />}
+        {b.buffer > 0 && <div className="h-full border-l-2 border-surface bg-[repeating-linear-gradient(135deg,var(--faint)_0_2px,transparent_2px_5px)] opacity-60" style={{ width: seg(b.buffer) }} title={t("sessionDetail.context.reserveTitle", { tokens: tokens(b.buffer) })} />}
       </div>
       <div className="mt-2.5 grid grid-cols-2 gap-x-4 gap-y-1.5 text-[12px]">
-        <Legend swatch="bg-accent/45" label="Setup" title="System prompt, tools, MCP, memory files and skills: sent with every message" value={b.setup} window={b.window} />
-        <Legend swatch="bg-accent" label="Conversation" title="Your messages, Claude's replies and tool results" value={b.messages} window={b.window} />
-        {b.buffer > 0 && <Legend swatch="bg-faint/60" label="Auto-compact reserve" title="Kept free so Claude can summarise the conversation when it fills up" value={b.buffer} window={b.window} />}
-        <Legend swatch="bg-hover border border-line" label="Free" value={Math.max(0, b.window - b.used - b.buffer)} window={b.window} />
+        <Legend swatch="bg-accent/45" label={t("sessionDetail.context.setup")} title={t("sessionDetail.context.setupHint")} value={b.setup} window={b.window} />
+        <Legend swatch="bg-accent" label={t("sessionDetail.context.conversation")} title={t("sessionDetail.context.conversationHint")} value={b.messages} window={b.window} />
+        {b.buffer > 0 && <Legend swatch="bg-faint/60" label={t("sessionDetail.context.reserve")} title={t("sessionDetail.context.reserveHint")} value={b.buffer} window={b.window} />}
+        <Legend swatch="bg-hover border border-line" label={t("sessionDetail.context.free")} value={Math.max(0, b.window - b.used - b.buffer)} window={b.window} />
       </div>
-      <p className="mt-2 text-[11px] text-faint">Setup is the system prompt, tools, MCP, memory files and skills, sent with every message.</p>
+      <p className="mt-2 text-[11px] text-faint">{t("sessionDetail.context.setupNote")}</p>
     </div>
   );
 }
@@ -115,6 +120,7 @@ function Legend({ swatch, label, title, value, window }: { swatch: string; label
 
 /** Context size after each reply: an area line with a hover readout. Drops are compactions. */
 export function GrowthChart({ series, height = 110 }: { series: SessionReport["series"]; height?: number }) {
+  const { t } = useTranslation();
   const [hover, setHover] = useState<number | null>(null);
   const box = useRef<SVGSVGElement>(null);
   const W = 440;
@@ -152,7 +158,7 @@ export function GrowthChart({ series, height = 110 }: { series: SessionReport["s
       </svg>
       <div className="mt-1 flex justify-between text-[10.5px] text-faint tabular-nums">
         <span>{clock(series[0]?.t)}</span>
-        <span>peak {tokens(max)}</span>
+        <span>{t("sessionDetail.growth.peak", { tokens: tokens(max) })}</span>
         <span>{clock(series[series.length - 1]?.t)}</span>
       </div>
       {p && hover != null && (
@@ -160,9 +166,142 @@ export function GrowthChart({ series, height = 110 }: { series: SessionReport["s
           className="pointer-events-none absolute -top-2 z-10 -translate-x-1/2 -translate-y-full rounded-md border border-line bg-raised px-2 py-1 text-[11px] whitespace-nowrap text-fg shadow-sm"
           style={{ left: `${(x(hover) / W) * 100}%` }}
         >
-          Reply {hover + 1} · <span className="font-semibold tabular-nums">{tokens(p.context)}</span> context · {clock(p.t)}
+          <Trans i18nKey="sessionDetail.growth.tooltip" values={{ n: hover + 1, tokens: tokens(p.context), time: clock(p.t) }} components={[<span className="font-semibold tabular-nums" />]} />
         </div>
       )}
+    </div>
+  );
+}
+
+const TOOL_ICON: Record<string, ReactNode> = {
+  Edit: <Pencil size={12} />,
+  MultiEdit: <Pencil size={12} />,
+  Write: <FilePlus size={12} />,
+  NotebookEdit: <Pencil size={12} />,
+  Read: <FileText size={12} />,
+  Bash: <SquareTerminal size={12} />,
+  PowerShell: <SquareTerminal size={12} />,
+  Grep: <Search size={12} />,
+  Glob: <Search size={12} />,
+  WebFetch: <Globe size={12} />,
+  WebSearch: <Globe size={12} />,
+  Agent: <Bot size={12} />,
+  Task: <Bot size={12} />,
+  TodoWrite: <ListChecks size={12} />,
+};
+
+/** Path relative to the project when inside it. */
+function rel(path: string, cwd: string) {
+  const p = path.replace(/\//g, "\\");
+  const c = cwd.replace(/\//g, "\\").replace(/\\$/, "");
+  return p.toLowerCase().startsWith(`${c.toLowerCase()}\\`) ? p.slice(c.length + 1) : path;
+}
+
+type Timeline = SessionReport["timeline"];
+
+/** Prompts with the steps Claude took for each, newest at the bottom. */
+function WhatHappened({ items, cwd }: { items: Timeline; cwd: string }) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState<Set<number>>(new Set());
+  const end = useRef<HTMLDivElement>(null);
+  const turns = useMemo(() => {
+    const out: { prompt?: Timeline[number]; steps: Timeline }[] = [];
+    for (const e of items) {
+      if (e.kind === "prompt" || !out.length) out.push({ prompt: e.kind === "prompt" ? e : undefined, steps: [] });
+      if (e.kind !== "prompt") out[out.length - 1].steps.push(e);
+    }
+    return out;
+  }, [items]);
+  // Braces matter: newer WebView2 returns a promise from scrollIntoView, and an effect must not return one.
+  useEffect(() => {
+    end.current?.scrollIntoView({ block: "end" });
+  }, [items.length]);
+  if (!items.length) return <p className="px-5 py-6 text-[12px] text-faint">{t("sessionDetail.happened.empty")}</p>;
+  const SHOWN = 6;
+  return (
+    <div className="px-5 py-4">
+      {turns.map((turn, i) => {
+        const expanded = open.has(i) || turn.steps.length <= SHOWN + 1;
+        const steps = expanded ? turn.steps : turn.steps.slice(-SHOWN);
+        return (
+          <div key={i} className="relative pb-4 pl-6 last:pb-0">
+            <span className="absolute top-1 bottom-0 left-[7px] w-px bg-line" />
+            {turn.prompt && (
+              <div className="relative mb-2">
+                <span className="absolute top-1 -left-6 flex size-[15px] items-center justify-center rounded-full bg-accent text-on-accent">
+                  <MessageSquare size={8} />
+                </span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-[11px] font-medium text-faint">{t("sessionDetail.happened.you", { time: clock(turn.prompt.t) })}</span>
+                </div>
+                <p className="mt-0.5 rounded-lg bg-accent-soft px-2.5 py-1.5 text-[12.5px] leading-relaxed text-fg select-text">{turn.prompt.text}</p>
+              </div>
+            )}
+            {!expanded && (
+              <button onClick={() => setOpen(new Set(open).add(i))} className="mb-1 text-[11.5px] text-muted hover:text-fg">
+                {t("sessionDetail.happened.showEarlier", { count: turn.steps.length - SHOWN })}
+              </button>
+            )}
+            {steps.map((s, j) =>
+              s.kind === "compact" ? (
+                <div key={j} className="my-1.5 flex items-center gap-2 text-[11.5px] text-attention">
+                  <Shrink size={12} /> {s.text} · {clock(s.t)}
+                </div>
+              ) : (
+                <div key={j} className="flex items-center gap-2 py-[3px] text-[12px]" title={`${s.tool} · ${clock(s.t)}`}>
+                  <span className="flex w-4 shrink-0 justify-center text-faint">{TOOL_ICON[s.tool ?? ""] ?? <Wrench size={12} />}</span>
+                  <span className="w-[4.5rem] shrink-0 truncate font-mono text-[11px] text-muted">{s.tool}</span>
+                  {s.path ? (
+                    <button onClick={() => useStore.getState().openFile(s.path!, cwd)} className="min-w-0 truncate text-left text-fg hover:text-accent hover:underline">
+                      {rel(s.path, cwd)}
+                    </button>
+                  ) : (
+                    <span className="min-w-0 truncate text-fg/85">{s.text}</span>
+                  )}
+                </div>
+              ),
+            )}
+          </div>
+        );
+      })}
+      <div ref={end} />
+    </div>
+  );
+}
+
+function FilesChanged({ files, cwd }: { files: SessionReport["files"]; cwd: string }) {
+  const { t } = useTranslation();
+  if (!files.length) return <p className="px-5 py-6 text-[12px] text-faint">{t("sessionDetail.files.empty")}</p>;
+  const added = files.reduce((n, f) => n + f.added, 0);
+  const removed = files.reduce((n, f) => n + f.removed, 0);
+  return (
+    <div className="px-5 py-4">
+      <p className="mb-3 text-[12px] text-muted">
+        <Trans
+          i18nKey="sessionDetail.files.summary"
+          count={files.length}
+          values={{ count: files.length, added: added.toLocaleString(locale()), removed: removed.toLocaleString(locale()) }}
+          components={[<span className="text-done" />, <span className="text-danger" />]}
+        />
+      </p>
+      <div className="overflow-hidden rounded-lg border border-line">
+        {files.map((f) => (
+          <button
+            key={f.path}
+            onClick={() => useStore.getState().openFile(f.path, cwd)}
+            title={`${f.path}\n${t("sessionDetail.files.clickToOpen")}`}
+            className="flex w-full items-center gap-2.5 border-b border-line px-3 py-2 text-left last:border-b-0 hover:bg-hover"
+          >
+            <MaterialIcon name={f.path} size={15} />
+            <span className="min-w-0 flex-1 truncate text-[12.5px] text-fg">{rel(f.path, cwd)}</span>
+            {f.created && <span className="rounded bg-done/15 px-1.5 text-[10.5px] text-done">{t("sessionDetail.files.new")}</span>}
+            <span className="w-14 shrink-0 text-right font-mono text-[11.5px] text-done">+{f.added}</span>
+            <span className="w-12 shrink-0 text-right font-mono text-[11.5px] text-danger">−{f.removed}</span>
+            <span className="w-14 shrink-0 text-right text-[11px] text-faint">{t("sessionDetail.files.edits", { count: f.edits })}</span>
+          </button>
+        ))}
+      </div>
+      <p className="mt-2 text-[11px] text-faint">{t("sessionDetail.files.note")}</p>
     </div>
   );
 }
@@ -172,6 +311,7 @@ export function GrowthChart({ series, height = 110 }: { series: SessionReport["s
  * (`session`); a past one that's open in a tab uses that tab's live numbers.
  */
 export function SessionDetail({ paneId, session, onClose }: { paneId?: string; session?: SessionInfo; onClose: () => void }) {
+  const { t } = useTranslation();
   const livePane = useStore((s) =>
     paneId
       ? s.panes[paneId]
@@ -189,6 +329,7 @@ export function SessionDetail({ paneId, session, onClose }: { paneId?: string; s
   const [report, setReport] = useState<SessionReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [askedExact, setAskedExact] = useState(0);
+  const [tab, setTab] = useState<"happened" | "files" | "context" | "cost">("happened");
 
   const load = () => {
     if (!pane) return;
@@ -198,8 +339,8 @@ export function SessionDetail({ paneId, session, onClose }: { paneId?: string; s
     });
   };
   useEffect(() => {
-    const t = setTimeout(load, 250);
-    return () => clearTimeout(t);
+    const timer = setTimeout(load, 250);
+    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paneId, session?.id, activity]);
   // After asking for exact numbers, look for the new /context output for a few seconds.
@@ -223,164 +364,256 @@ export function SessionDetail({ paneId, session, onClose }: { paneId?: string; s
   const cacheTotal = r ? r.inputTokens + r.cacheReadTokens + r.cacheWriteTokens : 0;
   const hit = r && cacheTotal ? Math.round((r.cacheReadTokens / cacheTotal) * 100) : null;
   const cost = pane.stats?.costUsd ?? r?.costUsd;
-  const maxTool = Math.max(1, ...(r?.tools.map((t) => t.count) ?? [1]));
+  const maxTool = Math.max(1, ...(r?.tools.map((tool) => tool.count) ?? [1]));
+  const pct = b ? (b.used / b.window) * 100 : null;
 
-  const runInTab = (cmd: string, what: string) => {
-    if (busy) return showToast(`Claude is working in this tab. Try ${what} when it's done.`, "info");
+  /** `busyMessage` is shown instead while Claude is working. */
+  const runInTab = (cmd: string, busyMessage: string) => {
+    if (busy) return showToast(busyMessage, "info");
     typeCommand(pane.id, cmd, true);
     if (cmd === "/context") setAskedExact(Date.now());
-    showToast(cmd === "/context" ? "Asked Claude for exact numbers. They appear here in a moment." : `Sent ${cmd} to this tab.`, "success");
+    showToast(cmd === "/context" ? t("sessionDetail.toast.askedExact") : t("sessionDetail.toast.sentCommand", { cmd }), "success");
   };
+
+  const tabs = [
+    ["happened", t("sessionDetail.tabs.happened"), r ? r.prompts : null],
+    ["files", t("sessionDetail.tabs.files"), r ? r.files.length : null],
+    ["context", t("sessionDetail.tabs.context"), pct != null ? `${Math.round(pct)}%` : null],
+    ["cost", t("sessionDetail.tabs.cost"), null],
+  ] as const;
 
   return (
     <>
       <div className="anim-fade absolute inset-0 z-30 bg-black/20" onClick={onClose} />
-      <aside role="dialog" aria-label="Session details" className="anim-slide-in absolute inset-y-0 right-0 z-40 flex w-[min(540px,100%)] flex-col border-l border-line bg-surface shadow-2xl shadow-black/20">
-        <header className="flex items-start gap-3 border-b border-line px-5 py-4">
-          <StatusDot status={pane.status} claude />
-          <div className="min-w-0 flex-1">
-            <div className="truncate text-[15px] font-semibold text-fg">{folderName(pane.cwd)}</div>
-            <div className="truncate text-[12.5px] text-muted">{title || "New conversation"}</div>
-            <div className="mt-1 text-[11.5px] text-faint">
-              {pane.stats?.model ? modelLabel(pane.stats.model) : r?.models[0] ? modelLabel(r.models[0]) : "Claude"}
-              {pane.stats?.effort && ` · ${pane.stats.effort} effort`}
-              {r?.started && ` · started ${clock(r.started)}`}
+      <aside role="dialog" aria-label={t("sessionDetail.dialogLabel")} className="anim-slide-in absolute inset-y-0 right-0 z-40 flex w-[min(640px,100%)] flex-col border-l border-line bg-surface shadow-2xl shadow-black/20">
+        <header className="border-b border-line px-5 pt-4">
+          <div className="flex items-start gap-3">
+            <span className="mt-1.5">
+              <StatusDot status={pane.status} claude />
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-[15px] font-semibold text-fg">{title || t("sessionDetail.newConversation")}</div>
+              <div className="truncate text-[12px] text-muted">
+                {folderName(pane.cwd)} · {pane.stats?.model ? modelLabel(pane.stats.model) : r?.models[0] ? modelLabel(r.models[0]) : "Claude"}
+                {pane.stats?.effort && ` · ${t("sessionDetail.effort", { effort: pane.stats.effort })}`}
+                {r?.started && ` · ${t("sessionDetail.started", { time: clock(r.started) })}`}
+              </div>
             </div>
-          </div>
-          <button
-            onClick={() => void exportPdf(pdfName("helm-session", folderName(pane.cwd), new Date().toLocaleDateString("en-CA")), <SessionPrint pane={pane} report={report} b={b} />)}
-            title="Save this report as a PDF"
-            className="flex h-7 items-center gap-1 rounded-md border border-line px-2 text-[12px] text-fg hover:bg-hover"
-          >
-            <FileDown size={12} /> PDF
-          </button>
-          {open ? (
-            <button onClick={() => openPane(pane.id)} title="Go to this tab" className="flex h-7 items-center gap-1 rounded-md border border-line px-2 text-[12px] text-fg hover:bg-hover">
-              Open tab <ArrowUpRight size={12} />
+            <button
+              onClick={() => void exportPdf(pdfName("helm-session", folderName(pane.cwd), new Date().toLocaleDateString("en-CA")), <SessionPrint pane={pane} report={report} b={b} />)}
+              title={t("sessionDetail.savePdfTitle")}
+              aria-label={t("sessionDetail.savePdf")}
+              className="flex size-7 items-center justify-center rounded-md text-muted hover:bg-hover hover:text-fg"
+            >
+              <FileDown size={14} />
             </button>
-          ) : (
-            session && (
-              <button
-                onClick={() => {
-                  useStore.getState().resumeSession(session);
-                  onClose();
-                }}
-                title="Continue this conversation in a tab"
-                className="flex h-7 items-center gap-1 rounded-md border border-line px-2 text-[12px] text-fg hover:bg-hover"
-              >
-                <Play size={11} /> Continue
+            {open ? (
+              <button onClick={() => openPane(pane.id)} title={t("sessionDetail.goToTab")} className="flex h-7 items-center gap-1 rounded-md border border-line px-2 text-[12px] text-fg hover:bg-hover">
+                {t("sessionDetail.openTab")} <ArrowUpRight size={12} />
               </button>
-            )
-          )}
-          <button aria-label="Close" onClick={onClose} className="flex size-7 items-center justify-center rounded-md text-faint hover:bg-hover hover:text-fg">
-            <X size={14} />
-          </button>
+            ) : (
+              session && (
+                <button
+                  onClick={() => {
+                    useStore.getState().resumeSession(session);
+                    onClose();
+                  }}
+                  title={t("sessionDetail.continueTitle")}
+                  className="flex h-7 items-center gap-1 rounded-md border border-line px-2 text-[12px] text-fg hover:bg-hover"
+                >
+                  <Play size={11} /> {t("sessionDetail.continue")}
+                </button>
+              )
+            )}
+            <button aria-label={t("common.close")} onClick={onClose} className="flex size-7 items-center justify-center rounded-md text-faint hover:bg-hover hover:text-fg">
+              <X size={14} />
+            </button>
+          </div>
+
+          {/* The four numbers people ask first. */}
+          <div className="mt-3 grid grid-cols-4 gap-3">
+            <Stat label={t("sessionDetail.stat.cost")} value={money(cost)} />
+            <Stat label={t("sessionDetail.stat.worked")} value={duration(r?.activeMs)} />
+            <Stat label={t("sessionDetail.stat.messages")} value={r ? `${r.prompts} → ${r.replies}` : "–"} sub={t("sessionDetail.stat.messagesSub")} />
+            <Stat
+              label={t("sessionDetail.stat.filesChanged")}
+              value={r ? r.files.length : "–"}
+              sub={
+                r?.files.length ? (
+                  <>
+                    <span className="text-done">+{r.files.reduce((n, f) => n + f.added, 0)}</span> <span className="text-danger">−{r.files.reduce((n, f) => n + f.removed, 0)}</span>
+                  </>
+                ) : undefined
+              }
+            />
+          </div>
+
+          <div role="tablist" className="mt-3 -mb-px flex gap-1">
+            {tabs.map(([k, l, n]) => (
+              <button
+                key={k}
+                role="tab"
+                aria-selected={tab === k}
+                onClick={() => setTab(k)}
+                className={`border-b-2 px-2.5 pb-2 text-[12.5px] ${tab === k ? "border-accent font-medium text-fg" : "border-transparent text-muted hover:text-fg"}`}
+              >
+                {l}
+                {n != null && <span className="ml-1.5 text-faint">{n}</span>}
+              </button>
+            ))}
+          </div>
         </header>
 
         <div className="scroll-thin min-h-0 flex-1 overflow-y-auto">
-          <Section
-            title="Context window"
-            aside={
-              open && <span className="flex gap-1">
-                <button
-                  onClick={() => runInTab("/context", "again")}
-                  disabled={busy}
-                  title="Runs /context in this tab (free) and reads Claude's exact numbers"
-                  className="flex items-center gap-1 rounded-md px-2 py-0.5 text-[11.5px] text-muted hover:bg-hover hover:text-fg disabled:opacity-40"
+          {!r && (loading ? <ShimmerRows rows={7} className="px-5 py-5" /> : <p className="px-5 py-6 text-[12px] text-faint">{t("sessionDetail.noTranscript")}</p>)}
+
+          {r && tab === "happened" && <WhatHappened items={r.timeline} cwd={pane.cwd} />}
+          {r && tab === "files" && <FilesChanged files={r.files} cwd={pane.cwd} />}
+
+          {r && tab === "context" && (
+            <>
+              <Section
+                title={t("sessionDetail.context.title")}
+                aside={
+                  open && (
+                    <span className="flex gap-1">
+                      <button
+                        onClick={() => runInTab("/context", t("sessionDetail.toast.busyRetry"))}
+                        disabled={busy}
+                        title={t("sessionDetail.context.exactTitle")}
+                        className="flex items-center gap-1 rounded-md px-2 py-0.5 text-[11.5px] text-muted hover:bg-hover hover:text-fg disabled:opacity-40"
+                      >
+                        <RefreshCw size={11} /> {b?.exact ? t("sessionDetail.context.refreshExact") : t("sessionDetail.context.getExact")}
+                      </button>
+                    </span>
+                  )
+                }
+              >
+                {!b ? (
+                  <p className="text-[12px] text-faint">{t("sessionDetail.context.pending")}</p>
+                ) : (
+                  <>
+                    <div className="mb-3 flex items-baseline gap-2">
+                      <span className="text-[24px] font-semibold text-fg tabular-nums">{Math.round(pct!)}%</span>
+                      <span className="text-[13px] text-muted">
+                        {t("sessionDetail.context.usedOf", { used: tokens(b.used), window: tokens(b.window) })}
+                      </span>
+                      <span className={`ml-auto rounded px-1.5 py-px text-[10.5px] font-medium ${b.exact ? "bg-done/15 text-done" : "bg-hover text-muted"}`}>{b.exact ? t("sessionDetail.context.exact", { time: clock(r.exact?.at) }) : t("sessionDetail.context.estimate")}</span>
+                    </div>
+                    <ContextBar b={b} />
+                    {/* Plain advice for how full it is. */}
+                    <div
+                      className={`mt-3 flex items-start gap-2.5 rounded-lg px-3 py-2.5 text-[12px] leading-relaxed ${pct! >= 80 ? "bg-danger/10 text-fg" : pct! >= 60 ? "bg-attention/10 text-fg" : "bg-hover/60 text-muted"}`}
+                    >
+                      <Lightbulb size={14} className={`mt-0.5 shrink-0 ${pct! >= 80 ? "text-danger" : pct! >= 60 ? "text-attention" : "text-faint"}`} />
+                      <div className="flex-1">
+                        {pct! >= 80
+                          ? t("sessionDetail.context.adviceFull")
+                          : pct! >= 60
+                            ? t("sessionDetail.context.adviceHalf")
+                            : t("sessionDetail.context.adviceRoom")}
+                        {open && pct! >= 60 && (
+                          <div className="mt-2 flex gap-2">
+                            <button onClick={() => runInTab("/compact", t("sessionDetail.toast.busyCompact"))} disabled={busy} className="flex items-center gap-1 rounded-md bg-accent px-2.5 py-1 text-[12px] font-medium text-on-accent hover:opacity-90 disabled:opacity-40">
+                              <Shrink size={12} /> {t("sessionDetail.context.compactNow")}
+                            </button>
+                            <button onClick={() => useStore.getState().openTab(pane.cwd, "claude")} className="rounded-md border border-line px-2.5 py-1 text-[12px] text-fg hover:bg-hover">
+                              {t("sessionDetail.context.newConversation")}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    {b.exact && b.details.length > 0 && (
+                      <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 rounded-lg bg-hover/50 px-3 py-2 text-[11.5px]">
+                        {b.details.map((d) => (
+                          <div key={d.label} className="flex justify-between gap-2">
+                            <span className="truncate text-muted">{d.label}</span>
+                            <span className="text-fg tabular-nums">{tokens(d.tokens)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {!b.exact && (
+                      <p className="mt-2.5 text-[11.5px] leading-relaxed text-faint">
+                        {open ? t("sessionDetail.context.estimatedOpen") : t("sessionDetail.context.estimatedPast")}
+                      </p>
+                    )}
+                  </>
+                )}
+              </Section>
+              {r.series.length > 1 && (
+                <Section
+                  title={t("sessionDetail.growth.title")}
+                  aside={
+                    r.compactions > 0 && (
+                      <span className="flex items-center gap-1 text-[11px] text-faint">
+                        <Layers size={11} /> {t("sessionDetail.growth.compacted", { count: r.compactions })}
+                      </span>
+                    )
+                  }
                 >
-                  <RefreshCw size={11} /> {b?.exact ? "Refresh exact" : "Get exact numbers"}
-                </button>
-                <button
-                  onClick={() => runInTab("/compact", "compacting")}
-                  disabled={busy}
-                  title="Summarise the conversation so every next message uses less"
-                  className="flex items-center gap-1 rounded-md px-2 py-0.5 text-[11.5px] text-muted hover:bg-hover hover:text-fg disabled:opacity-40"
-                >
-                  <Shrink size={11} /> Compact
-                </button>
-              </span>
-            }
-          >
-            {!b ? (
-              <p className="text-[12px] text-faint">{loading ? "Reading the conversation…" : "Appears after Claude's first reply."}</p>
-            ) : (
-              <>
-                <div className="mb-3 flex items-baseline gap-2">
-                  <span className="text-[22px] font-semibold text-fg tabular-nums">{tokens(b.used)}</span>
-                  <span className="text-[13px] text-muted">of {tokens(b.window)} tokens · {((b.used / b.window) * 100).toFixed(1)}%</span>
-                  <span className={`ml-auto rounded px-1.5 py-px text-[10.5px] font-medium ${b.exact ? "bg-done/15 text-done" : "bg-hover text-muted"}`}>
-                    {b.exact ? `Exact · ${clock(r?.exact?.at)}` : "Estimate"}
-                  </span>
+                  <GrowthChart series={r.series} />
+                </Section>
+              )}
+            </>
+          )}
+
+          {r && tab === "cost" && (
+            <>
+              <Section title={t("sessionDetail.cost.title")}>
+                <div className="grid grid-cols-3 gap-3">
+                  <Stat label={t("sessionDetail.cost.thisConversation")} value={money(cost)} sub={t("sessionDetail.cost.asReported")} />
+                  <Stat label={t("sessionDetail.cost.perMessage")} value={r.prompts && cost != null ? money(cost / r.prompts) : "–"} sub={t("sessionDetail.cost.onAverage")} />
+                  <Stat label={t("sessionDetail.cost.linesChanged")} value={<><span className="text-done">+{pane.stats?.linesAdded ?? r.linesAdded ?? 0}</span> <span className="text-danger">−{pane.stats?.linesRemoved ?? r.linesRemoved ?? 0}</span></>} />
                 </div>
-                <ContextBar b={b} />
-                {b.exact && b.details.length > 0 && (
-                  <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 rounded-lg bg-hover/50 px-3 py-2 text-[11.5px]">
-                    {b.details.map((d) => (
-                      <div key={d.label} className="flex justify-between gap-2">
-                        <span className="truncate text-muted">{d.label}</span>
-                        <span className="text-fg tabular-nums">{tokens(d.tokens)}</span>
+              </Section>
+              <Section title={t("sessionDetail.tokens.title")}>
+                <div className="grid grid-cols-4 gap-3">
+                  <Stat label={t("sessionDetail.tokens.sent")} value={tokens(r.inputTokens)} />
+                  <Stat label={t("sessionDetail.tokens.cacheRead")} value={tokens(r.cacheReadTokens)} />
+                  <Stat label={t("sessionDetail.tokens.cacheWrite")} value={tokens(r.cacheWriteTokens)} />
+                  <Stat label={t("sessionDetail.tokens.output")} value={tokens(r.outputTokens)} />
+                </div>
+                {hit != null && (
+                  <div className="mt-3">
+                    <div className="mb-1 flex justify-between text-[11.5px]">
+                      <span className="text-muted">{t("sessionDetail.tokens.cacheHits")}</span>
+                      <span className="text-fg tabular-nums">{t("sessionDetail.tokens.hitPct", { pct: hit })}</span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-hover">
+                      <div className="h-full rounded-full bg-done" style={{ width: `${hit}%` }} />
+                    </div>
+                    <p className="mt-1.5 text-[11.5px] text-faint">{t("sessionDetail.tokens.cacheNote")}</p>
+                  </div>
+                )}
+                {pane.stats?.cache && (
+                  <p className="mt-2 text-[11.5px] text-faint">
+                    {pane.stats.cache.warm
+                      ? pane.stats.cache.expiresAt
+                        ? t("sessionDetail.tokens.warmUntil", { time: clock(pane.stats.cache.expiresAt) })
+                        : t("sessionDetail.tokens.warm")
+                      : t("sessionDetail.tokens.cold")}
+                  </p>
+                )}
+              </Section>
+              {r.tools.length > 0 && (
+                <Section title={t("sessionDetail.tools.title", { count: r.toolCalls })}>
+                  <div className="space-y-1.5">
+                    {r.tools.map((tool) => (
+                      <div key={tool.name} className="flex items-center gap-2 text-[12px]">
+                        <span className="flex w-4 justify-center text-faint">{TOOL_ICON[tool.name] ?? <Wrench size={12} />}</span>
+                        <span className="w-24 shrink-0 truncate font-mono text-[11.5px] text-fg">{tool.name}</span>
+                        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-hover">
+                          <div className="h-full rounded-full bg-accent/70" style={{ width: `${(tool.count / maxTool) * 100}%` }} />
+                        </div>
+                        <span className="w-8 text-right text-muted tabular-nums">{tool.count}</span>
                       </div>
                     ))}
                   </div>
-                )}
-                {!b.exact && (
-                  <p className="mt-2.5 text-[11.5px] leading-relaxed text-faint">
-                    {open
-                      ? `Estimated from the conversation. "Get exact numbers" runs Claude's free /context command in this tab.`
-                      : "Estimated from the conversation. Continue it in a tab to get Claude's exact /context numbers."}
-                  </p>
-                )}
-              </>
-            )}
-          </Section>
-
-          {r && r.series.length > 1 && (
-            <Section title="How the context grew" aside={r.compactions > 0 && <span className="flex items-center gap-1 text-[11px] text-faint"><Layers size={11} /> compacted {r.compactions}×</span>}>
-              <GrowthChart series={r.series} />
-            </Section>
-          )}
-
-          {r && (
-            <Section title="Tokens">
-              <div className="grid grid-cols-4 gap-3">
-                <Stat label="Sent (new)" value={tokens(r.inputTokens)} />
-                <Stat label="From cache" value={tokens(r.cacheReadTokens)} sub={hit != null ? `${hit}% cache hits` : undefined} />
-                <Stat label="Written to cache" value={tokens(r.cacheWriteTokens)} />
-                <Stat label="Claude wrote" value={tokens(r.outputTokens)} />
-              </div>
-              {pane.stats?.cache && (
-                <p className="mt-3 text-[11.5px] text-faint">
-                  {pane.stats.cache.warm
-                    ? `The cache is warm${pane.stats.cache.expiresAt ? ` until ${clock(pane.stats.cache.expiresAt)}` : ""}: replying before then is cheaper.`
-                    : "The cache has gone cold; the next message re-reads the whole conversation."}
-                </p>
+                </Section>
               )}
-            </Section>
-          )}
-
-          <Section title="Activity">
-            <div className="grid grid-cols-4 gap-3">
-              <Stat label="Your messages" value={r?.prompts ?? "–"} sub={r ? `${r.replies} replies` : undefined} />
-              <Stat label="Tool calls" value={r?.toolCalls ?? "–"} />
-              <Stat label="Time working" value={duration(r?.activeMs)} sub={pane.stats?.durationMs ? `${duration(pane.stats.durationMs)} open` : undefined} />
-              <Stat label="Cost" value={money(cost)} sub={pane.stats?.linesAdded != null || r?.linesAdded != null ? <><span className="text-done">+{pane.stats?.linesAdded ?? r?.linesAdded ?? 0}</span> <span className="text-danger">−{pane.stats?.linesRemoved ?? r?.linesRemoved ?? 0}</span> lines</> : undefined} />
-            </div>
-          </Section>
-
-          {r && r.tools.length > 0 && (
-            <Section title="Tools Claude used">
-              <div className="space-y-1.5">
-                {r.tools.map((t) => (
-                  <div key={t.name} className="flex items-center gap-2 text-[12px]">
-                    <span className="w-28 shrink-0 truncate font-mono text-[11.5px] text-fg">{t.name}</span>
-                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-hover">
-                      <div className="h-full rounded-full bg-accent/70" style={{ width: `${(t.count / maxTool) * 100}%` }} />
-                    </div>
-                    <span className="w-8 text-right text-muted tabular-nums">{t.count}</span>
-                  </div>
-                ))}
-              </div>
-            </Section>
+            </>
           )}
         </div>
       </aside>

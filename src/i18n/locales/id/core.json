@@ -1,0 +1,285 @@
+{
+  "status": {
+    "thinking": "Berpikir…"
+  },
+  "events": {
+    "someTool": "sebuah alat",
+    "waitingForYou": "Claude menunggu Anda",
+    "needsYouTitle": "Claude membutuhkan Anda · {{where}}",
+    "finishedTitle": "Claude selesai · {{where}}",
+    "readyForNext": "Siap untuk pesan Anda berikutnya",
+    "stoppedTitle": "Claude berhenti · {{where}}",
+    "needsApprovalTitle": "Claude membutuhkan persetujuan · {{where}}",
+    "whereAndTitle": "{{where}} · {{title}}",
+    "details": "Detail",
+    "usageLimitTitle": "Batas penggunaan Claude",
+    "limitWarning": {
+      "fiveHour": "Anda telah menggunakan {{pct}}% dari batas 5 jam Claude Anda.",
+      "weekly": "Anda telah menggunakan {{pct}}% dari batas mingguan Claude Anda."
+    },
+    "stop": {
+      "rateLimit": "Batas penggunaan tercapai",
+      "authenticationFailed": "Claude berhenti karena gagal masuk. Jalankan /login untuk masuk lagi.",
+      "billingError": "Claude berhenti karena ada masalah tagihan pada akun Anda.",
+      "invalidRequest": "Claude berhenti karena permintaan ditolak.",
+      "serverError": "Claude berhenti karena kesalahan server. Coba lagi sebentar lagi.",
+      "maxOutputTokens": "Claude berhenti karena balasan mencapai batas panjangnya.",
+      "overloaded": "Claude berhenti karena layanan sedang sibuk. Coba lagi sebentar lagi.",
+      "other": "Claude berhenti."
+    }
+  },
+  "taskHints": {
+    "subagent": "Subagen",
+    "backgroundCommand": "Perintah latar belakang",
+    "compactHint": "{{project}}: percakapan ini menggunakan {{pct}}% konteksnya. Meringkas membuat setiap pesan berikutnya lebih hemat.",
+    "compactNow": "Ringkas sekarang",
+    "cacheExpiring": "{{project}}: cache kedaluwarsa dalam sekitar satu menit. Balas sekarang agar percakapan ini tetap hemat.",
+    "idleConversation": "{{project}} memiliki percakapan besar yang sedang tidak aktif. Saat Anda berganti topik, /clear memulai dari awal dan jauh lebih hemat."
+  },
+  "store": {
+    "color": {
+      "red": "Merah",
+      "orange": "Oranye",
+      "yellow": "Kuning",
+      "green": "Hijau",
+      "teal": "Hijau toska",
+      "blue": "Biru",
+      "purple": "Ungu",
+      "pink": "Merah muda"
+    }
+  },
+  "terminal": {
+    "pasteLines_other": "Anda akan menempelkan {{count}} baris ke shell. Setiap baris dijalankan sebagai perintah tersendiri.",
+    "pasteLinesTitle": "Tempel beberapa baris?",
+    "bigPaste": "Tempelan ini berisi {{size}} karakter. Teks yang ditempel dikirim ulang bersama setiap pesan berikutnya. Menyimpannya sebagai file dan melampirkan jalurnya membuat Claude hanya membacanya saat diperlukan, sehingga menghemat penggunaan.",
+    "bigPasteTitle": "Lampirkan sebagai file?",
+    "attachAsFile": "Lampirkan sebagai file",
+    "pasteText": "Tempel teks",
+    "startFailed": "Helm tidak dapat memulai terminal ini: {{error}}"
+  },
+  "format": {
+    "thousand": "{{n}} rb",
+    "million": "{{n}} jt",
+    "billion": "{{n}} M",
+    "days": "{{n}} h",
+    "hours": "{{n}} j",
+    "minutes": "{{n}} m",
+    "seconds": "{{n}} d",
+    "pair": "{{a}} {{b}}",
+    "dayAndTime": "{{day}} {{time}}"
+  },
+  "agentText": {
+    "verb": {
+      "command": "menjalankan perintah",
+      "file": "mengubah file",
+      "read": "membaca file",
+      "web": "menggunakan web",
+      "mcp": "menggunakan alat {{tool}}",
+      "mcpUnknown": "menggunakan alat MCP",
+      "other": "menggunakan {{tool}}"
+    },
+    "wants": {
+      "command": "Ingin menjalankan perintah",
+      "file": "Ingin mengubah file",
+      "read": "Ingin membaca file",
+      "web": "Ingin menggunakan web",
+      "mcp": "Ingin menggunakan alat {{tool}}",
+      "mcpUnknown": "Ingin menggunakan alat MCP",
+      "other": "Ingin menggunakan {{tool}}"
+    },
+    "claudeWants": {
+      "command": "Claude ingin menjalankan perintah",
+      "file": "Claude ingin mengubah file",
+      "read": "Claude ingin membaca file",
+      "web": "Claude ingin menggunakan web",
+      "mcp": "Claude ingin menggunakan alat {{tool}}",
+      "mcpUnknown": "Claude ingin menggunakan alat MCP",
+      "other": "Claude ingin menggunakan {{tool}}"
+    },
+    "rule": {
+      "session": "{{rule}} selama sisa sesi ini",
+      "local": "{{rule}} di proyek ini (hanya Anda)",
+      "project": "{{rule}} di proyek ini",
+      "user": "{{rule}} di mana saja",
+      "none": "{{rule}}"
+    },
+    "allTool": {
+      "session": "semua {{tool}} selama sisa sesi ini",
+      "local": "semua {{tool}} di proyek ini (hanya Anda)",
+      "project": "semua {{tool}} di proyek ini",
+      "user": "semua {{tool}} di mana saja",
+      "none": "semua {{tool}}"
+    },
+    "acceptEdits": {
+      "session": "terima pengeditan file selama sisa sesi ini",
+      "local": "terima pengeditan file di proyek ini (hanya Anda)",
+      "project": "terima pengeditan file di proyek ini",
+      "user": "terima pengeditan file di mana saja",
+      "none": "terima pengeditan file"
+    },
+    "switchMode": {
+      "session": "beralih ke mode {{mode}} selama sisa sesi ini",
+      "local": "beralih ke mode {{mode}} di proyek ini (hanya Anda)",
+      "project": "beralih ke mode {{mode}} di proyek ini",
+      "user": "beralih ke mode {{mode}} di mana saja",
+      "none": "beralih ke mode {{mode}}"
+    },
+    "ruleSeparator": ";",
+    "justNow": "baru saja",
+    "now": "sekarang",
+    "ago": "{{time}} yang lalu"
+  },
+  "themes": {
+    "accent": {
+      "brass": "Kuningan",
+      "blue": "Biru",
+      "violet": "Violet",
+      "green": "Hijau",
+      "rose": "Mawar",
+      "teal": "Hijau toska"
+    }
+  },
+  "changelog": {
+    "v1_0_1": {
+      "pastDetails": {
+        "title": "Detail untuk percakapan sebelumnya",
+        "text": "Di bilah samping, menu ⋯ pada percakapan kini menampilkan konteks, token, biaya, dan alatnya, serta dapat menyimpannya sebagai PDF."
+      }
+    },
+    "v1_0_0": {
+      "madeForClaudeCode": {
+        "title": "Dibuat untuk Claude Code",
+        "text": "Menjalankan CLI claude asli di tab dan panel terpisah yang cepat dengan akselerasi perangkat keras, dengan setiap bahasa dan emoji ditampilkan dengan benar."
+      },
+      "approveAnywhere": {
+        "title": "Setujui dari mana saja",
+        "text": "Tab latar belakang meminta izin di Helm dan dalam pemberitahuan Windows dengan Izinkan / Tolak, plus Selalu izinkan untuk hal yang Anda percayai."
+      },
+      "usageLimits": {
+        "title": "Batas penggunaan",
+        "text": "Pengukur 5 jam dan mingguan secara langsung dengan hitung mundur reset, kecepatan Anda, tab mana yang paling banyak menggunakan, dan peringatan pada 80% dan 95%."
+      },
+      "agentsTab": {
+        "title": "Tab Agen",
+        "text": "Setiap percakapan Claude dikelompokkan ke dalam Membutuhkan Anda, Bekerja, dan Selesai, dengan konteks, biaya, dan apa yang sedang dikerjakan masing-masing (Ctrl+Shift+A)."
+      },
+      "usageAtAGlance": {
+        "title": "Penggunaan dan konteks sekilas",
+        "text": "Setiap batas beserta waktu reset dan kecepatan Anda, biaya dan token hari ini serta minggu ini, dan untuk setiap percakapan apa yang mengisi jendela konteks. Simpan semuanya sebagai PDF."
+      },
+      "builtInBrowser": {
+        "title": "Browser bawaan",
+        "text": "Buka aplikasi Anda di samping terminal, uji ukuran ponsel dan tablet, lalu kirim kesalahan, tangkapan layar, atau bagian mana pun dari halaman ke Claude dengan satu klik."
+      },
+      "filesOpenInHelm": {
+        "title": "File terbuka di Helm",
+        "text": "Kode dengan penyorotan, Markdown, gambar, PDF, video, dan audio terbuka sebagai tab Helm, bukan di aplikasi lain."
+      },
+      "backgroundWork": {
+        "title": "Lihat pekerjaan latar belakang",
+        "text": "Panel samping terbuka di Latar Belakang saat Claude memulai subagen, menampilkan apa yang sedang dikerjakannya dan jawaban akhirnya. Detail mencantumkan tangkapan layar, file, dan halaman web yang digunakan."
+      },
+      "saveUsage": {
+        "title": "Hemat penggunaan Anda",
+        "text": "Riwayat penggunaan per hari dan proyek, pengingat untuk /compact saat konteks terisi, peringatan sebelum cache kedaluwarsa, dan tempelan besar dilampirkan sebagai file."
+      },
+      "promptImprover": {
+        "title": "Penyempurna prompt",
+        "text": "Tulis prompt, biarkan Claude membuatnya lebih jelas, lalu kirim (Ctrl+Shift+I)."
+      },
+      "tabStatus": {
+        "title": "Status di setiap tab",
+        "text": "Bekerja, membutuhkan persetujuan, atau selesai, dengan pemberitahuan untuk tab yang tidak sedang Anda lihat."
+      },
+      "historyAndPalette": {
+        "title": "Riwayat dan palet",
+        "text": "Cari setiap percakapan dan lanjutkan dengan satu klik. Ctrl+Shift+P untuk prompt tersimpan, perintah Claude, skill, dan tindakan."
+      },
+      "reviewChanges": {
+        "title": "Tinjau perubahan",
+        "text": "Perbandingan berdampingan, komentar yang dikirim ke Claude, dan urungkan untuk seluruh file atau hanya satu bagian."
+      },
+      "parallelTasks": {
+        "title": "Tugas paralel",
+        "text": "Jalankan Claude untuk beberapa tugas sekaligus, masing-masing di salinan proyek tersendiri pada cabangnya sendiri, lalu gabungkan atau hapus."
+      },
+      "keepConversations": {
+        "title": "Percakapan yang tidak hilang",
+        "text": "Tab membuka kembali percakapan yang sama setelah dimulai ulang, dan Ctrl+Alt+Shift+T membuka kembali tab yang ditutup."
+      },
+      "statusBar": {
+        "title": "Bilah status yang rapi",
+        "text": "Mode izin, pengatur waktu cache prompt, upaya, git push/pull, pull request, penggunaan, biaya, konteks, dan model. Klik kanan untuk memilih."
+      },
+      "makeItYours": {
+        "title": "Sesuaikan sesuka Anda",
+        "text": "Warna aksen, 10 skema warna terminal, Inter dan JetBrains Mono bawaan, panel yang dapat diubah ukurannya, zoom dengan Ctrl+roda mouse, dan Mica Windows 11."
+      },
+      "claudeCodeSettings": {
+        "title": "Pengaturan Claude Code",
+        "text": "Edit izin, hook, server MCP, dan CLAUDE.md tanpa menyentuh JSON."
+      },
+      "windowsDoneRight": {
+        "title": "Windows yang dikerjakan dengan benar",
+        "text": "PowerShell 7, Windows PowerShell, atau Git Bash per tab, petunjuk Windows untuk Claude, dan tempel tangkapan layar dengan Ctrl+V."
+      },
+      "private": {
+        "title": "Privat sejak awal",
+        "text": "Semuanya tetap di PC Anda. Satu-satunya permintaan jaringan adalah pemeriksaan pembaruan, dan Anda dapat menonaktifkannya."
+      }
+    },
+    "v1_0_2": {
+      "languages": {
+        "title": "Helm dalam bahasa Anda",
+        "text": "Pilih dari 11 bahasa, sama dengan yang ditawarkan Claude, di menu roda gigi atau Pengaturan › Tampilan. Secara default Helm mengikuti bahasa Windows Anda."
+      },
+      "voice": {
+        "title": "Input suara",
+        "text": "Tahan Ctrl+Space atau klik mikrofon di tab Claude, lalu bicara. Suara diubah menjadi teks di PC Anda, tidak ada yang dikirim, dan teks diketik ke prompt untuk Anda kirim."
+      },
+      "tools": {
+        "title": "Alat pengembang",
+        "text": "Pemilih warna, alat gambar, penggaris layar, JSON, encode dan decode, penguji regex, bandingkan teks, generator, konverter waktu, teks placeholder, port yang dipakai, penguji API, variabel lingkungan, dan catatan."
+      },
+      "screenshots": {
+        "title": "Tangkapan layar",
+        "text": "Tangkap area, jendela, bentuk bebas, atau seluruh layar, dengan jeda atau Ctrl+Alt+S dari aplikasi apa pun. Tandai dengan panah, kotak, teks, langkah bernomor, dan blur, lalu salin, simpan, atau kirim ke Claude."
+      },
+      "projects": {
+        "title": "File proyek dan bilah samping baru",
+        "text": "Telusuri, cari, dan edit file proyek tanpa meninggalkan Helm. Bilah samping kini menampilkan proyek beserta percakapannya, dengan pencarian, urutan, label warna, blur privasi, serta ganti nama dan hapus yang aman."
+      },
+      "phones": {
+        "title": "Ponsel untuk pengujian",
+        "text": "Ponsel Android yang terhubung muncul di bilah status: tampilkan layarnya, baca log aplikasi Anda, ambil tangkapan layar, atau lihat detailnya."
+      },
+      "settings": {
+        "title": "settings.json dan menu roda gigi",
+        "text": "Edit pengaturan Helm sebagai file, dengan saran dan pemeriksaan, seperti di VS Code (Ctrl+Shift+,). Roda gigi kini membuka menu berisi pengaturan, tema, bahasa, pembaruan, dan bantuan."
+      },
+      "agents": {
+        "title": "Agen dan Latar Belakang yang lebih jelas",
+        "text": "Halaman Agen kini punya tab Langsung dan Penggunaan, serta tampilan lengkap setiap percakapan. Latar Belakang di panel samping menampilkan subagen dan perintah dengan jawaban yang diformat, dan perintah yang selesai tidak lagi tertahan sebagai berjalan."
+      }
+    }
+  },
+  "updater": {
+    "upToDate": "Helm sudah versi terbaru.",
+    "downloading": "Mengunduh Helm {{version}}…",
+    "available": "Helm {{version}} tersedia.",
+    "checkFailed": "Tidak dapat memeriksa pembaruan: {{error}}"
+  },
+  "misc": {
+    "device": {
+      "laptop": "Laptop",
+      "laptopHd": "Laptop HD",
+      "desktop": "Desktop",
+      "custom": "Kustom"
+    },
+    "deviceGroup": {
+      "phones": "Ponsel",
+      "tablets": "Tablet",
+      "computers": "Komputer"
+    }
+  }
+}

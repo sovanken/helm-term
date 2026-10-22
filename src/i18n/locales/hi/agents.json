@@ -1,0 +1,456 @@
+{
+  "agents": {
+    "title": "एजेंट",
+    "noTabs": "कोई Claude टैब खुला नहीं है।",
+    "summary_one": "{{count}} सेशन खुला · {{working}} काम कर रहे हैं · {{waiting}} आपकी प्रतीक्षा में",
+    "summary_other": "{{count}} सेशन खुले · {{working}} काम कर रहे हैं · {{waiting}} आपकी प्रतीक्षा में",
+    "tabs": {
+      "live": "लाइव",
+      "usage": "उपयोग"
+    },
+    "exportTitle_one": "पिछले {{count}} दिन (सीमाएँ, कुल योग, प्रोजेक्ट और वार्तालाप) को PDF के रूप में सहेजें",
+    "exportTitle_other": "पिछले {{count}} दिनों (सीमाएँ, कुल योग, प्रोजेक्ट और वार्तालाप) को PDF के रूप में सहेजें",
+    "exportPdf": "PDF निर्यात करें…",
+    "newParallelTask": "नया समानांतर कार्य…",
+    "replies_one": "{{n}} जवाब",
+    "replies_other": "{{n}} जवाब",
+    "live": {
+      "newConversation": "नया वार्तालाप",
+      "waitingForYou": "आपकी प्रतीक्षा में",
+      "workingNow": "काम कर रहा है…",
+      "finishedYourTurn": "पूरा हुआ, अब आपकी बारी",
+      "ready": "तैयार",
+      "task": "कार्य",
+      "contextTitle": "संदर्भ: {{window}} का {{pct}}%",
+      "contextPending": "संदर्भ Claude के पहले जवाब के बाद दिखता है",
+      "goToTab": "इस टैब पर जाएँ",
+      "column": {
+        "conversation": "वार्तालाप",
+        "doingNow": "अभी क्या कर रहा है",
+        "context": "संदर्भ",
+        "cost": "लागत",
+        "lastActive": "अंतिम बार सक्रिय"
+      },
+      "group": {
+        "needsYou": "आपकी ज़रूरत है",
+        "working": "काम कर रहे हैं",
+        "finished": "पूरे हुए",
+        "ready": "तैयार"
+      },
+      "waitingApproval": "आपकी स्वीकृति की प्रतीक्षा में",
+      "empty": "कुछ टैब या समानांतर कार्यों में Claude शुरू करें। हर एक यहाँ दिखेगा, साथ में यह भी कि वह क्या कर रहा है और क्या उसे आपकी ज़रूरत है।",
+      "startClaude": "Claude शुरू करें",
+      "clickHint": "क्या हुआ, कौन-सी फ़ाइलें बदलीं, संदर्भ और लागत देखने के लिए किसी वार्तालाप पर क्लिक करें।"
+    },
+    "today": {
+      "title": "आज",
+      "reading": "आज के वार्तालाप पढ़े जा रहे हैं…",
+      "repliesSoFar_one": "अब तक {{n}} जवाब",
+      "repliesSoFar_other": "अब तक {{n}} जवाब",
+      "noWork": "आज अभी तक कोई काम नहीं",
+      "tooltip_one": "{{time}} · {{n}} जवाब",
+      "tooltip_other": "{{time}} · {{n}} जवाब",
+      "note": "हर बार 15 मिनट का है, आधी रात से अब तक (घंटे नीचे दिखाए गए हैं)।"
+    },
+    "usage": {
+      "lastDays_one": "पिछला {{count}} दिन",
+      "lastDays_other": "पिछले {{count}} दिन",
+      "source": "इस PC पर हर Claude Code वार्तालाप से। Claude Code उन्हें 30 दिनों तक रखता है।",
+      "kpi": {
+        "cost": "लागत",
+        "costPerDay": "औसतन {{amount}} प्रतिदिन",
+        "tokens": "टोकन",
+        "cached": "साथ में {{tokens}} कैश से फिर पढ़े गए",
+        "cachedWithHit": "साथ में {{tokens}} कैश से फिर पढ़े गए (इनपुट का {{pct}}%)",
+        "time": "Claude ने कितना समय काम किया",
+        "lines": "बदली गई पंक्तियाँ"
+      },
+      "chart": {
+        "costPerDay": "प्रतिदिन लागत",
+        "tokensPerDay": "प्रतिदिन टोकन",
+        "timePerDay": "प्रतिदिन Claude के काम का समय"
+      },
+      "metric": {
+        "cost": "लागत",
+        "tokens": "टोकन",
+        "time": "समय"
+      },
+      "byProject": "प्रोजेक्ट के अनुसार",
+      "byProjectNote": "Claude द्वारा बदली गई फ़ाइलों के आधार पर",
+      "noProject": "{{name}} (कोई प्रोजेक्ट नहीं)",
+      "homeFolderTitle": "आपके होम फ़ोल्डर में वे चैट जिन्होंने किसी प्रोजेक्ट की फ़ाइलें संपादित नहीं कीं",
+      "noWork": "इस अवधि में कोई काम नहीं।",
+      "byModel": "मॉडल के अनुसार",
+      "whenYouWork": "आप Claude के साथ कब काम करते हैं",
+      "busiest": "सबसे व्यस्त समय: लगभग {{hour}}",
+      "hourTooltip_one": "{{from}}–{{to}} · {{n}} जवाब",
+      "hourTooltip_other": "{{from}}–{{to}} · {{n}} जवाब"
+    }
+  },
+  "background": {
+    "duration": {
+      "seconds": "{{s}} से.",
+      "minutesSeconds": "{{m}} मि. {{s}} से.",
+      "hoursMinutes": "{{h}} घं. {{m}} मि."
+    },
+    "state": {
+      "running": "काम कर रहा है",
+      "done": "पूरा हुआ",
+      "failed": "विफल",
+      "stopped": "रोका गया"
+    },
+    "answer": "उत्तर",
+    "result": "परिणाम",
+    "fullOutput": "पूरा आउटपुट",
+    "earlierSteps_one": "{{count}} पिछला चरण",
+    "earlierSteps_other": "{{count}} पिछले चरण",
+    "subagent": "सबएजेंट",
+    "command": "कमांड",
+    "inBackground": "बैकग्राउंड में",
+    "steps_one": "{{count}} चरण",
+    "steps_other": "{{count}} चरण",
+    "running": "चल रहा है…",
+    "gettingStarted": "शुरू हो रहा है…",
+    "finishedNoAnswer": "लिखित उत्तर के बिना पूरा हुआ।",
+    "finishedCommand": "पूरा हुआ। Claude के पास आउटपुट है।",
+    "activity": "गतिविधि",
+    "goToTab": "इस टैब पर जाएँ",
+    "thisTab": "यह टैब",
+    "workingCount_one": "{{count}} काम कर रहा है",
+    "workingCount_other": "{{count}} काम कर रहे हैं",
+    "empty": {
+      "title": "अभी तक बैकग्राउंड में कोई काम नहीं",
+      "text": "जब Claude कोई सबएजेंट या बैकग्राउंड कमांड शुरू करता है, तो वह यहाँ दिखता है: वह अभी क्या कर रहा है, कितनी देर से चल रहा है, और उसका उत्तर।"
+    },
+    "filter": {
+      "all": "सभी"
+    },
+    "clearFinishedTitle": "पूरे हो चुके सबएजेंट और कमांड इस सूची से हटाएँ",
+    "clearFinished": "पूरे हुए साफ़ करें",
+    "nothingWorking": "अभी कुछ भी काम नहीं कर रहा।",
+    "nothingFinished": "अभी तक कुछ भी पूरा नहीं हुआ।"
+  },
+  "sessionDetail": {
+    "dialogLabel": "वार्तालाप का विवरण",
+    "newConversation": "नया वार्तालाप",
+    "effort": "{{effort}} प्रयास",
+    "started": "{{time}} शुरू हुआ",
+    "savePdfTitle": "इस रिपोर्ट को PDF के रूप में सहेजें",
+    "savePdf": "PDF के रूप में सहेजें…",
+    "goToTab": "इस टैब पर जाएँ",
+    "openTab": "टैब खोलें",
+    "continueTitle": "इस वार्तालाप को एक टैब में जारी रखें",
+    "continue": "जारी रखें",
+    "reading": "वार्तालाप पढ़ा जा रहा है…",
+    "noTranscript": "इस वार्तालाप की अभी कोई सहेजी गई ट्रांसक्रिप्ट नहीं है।",
+    "stat": {
+      "cost": "लागत",
+      "worked": "Claude ने काम किया",
+      "messages": "संदेश",
+      "messagesSub": "आपके संदेश → Claude के जवाब",
+      "filesChanged": "बदली गई फ़ाइलें"
+    },
+    "tabs": {
+      "happened": "क्या हुआ",
+      "files": "फ़ाइलें",
+      "context": "संदर्भ",
+      "cost": "लागत और टोकन"
+    },
+    "toast": {
+      "busyRetry": "Claude इस टैब में काम कर रहा है। उसका काम पूरा होने पर फिर से कोशिश करें।",
+      "busyCompact": "Claude इस टैब में काम कर रहा है। उसका काम पूरा होने पर कॉम्पैक्ट करके देखें।",
+      "askedExact": "Claude से सटीक संख्याएँ माँगी गई हैं। वे कुछ ही पल में यहाँ दिखेंगी।",
+      "sentCommand": "{{cmd}} इस टैब को भेजा गया।"
+    },
+    "happened": {
+      "empty": "अभी कुछ नहीं: चरण आपके पहले संदेश के बाद दिखते हैं।",
+      "you": "आप · {{time}}",
+      "showEarlier_one": "{{count}} पिछला चरण दिखाएँ",
+      "showEarlier_other": "{{count}} पिछले चरण दिखाएँ"
+    },
+    "files": {
+      "empty": "Claude ने इस वार्तालाप में न कोई फ़ाइल संपादित की, न बनाई।",
+      "summary_one": "{{count}} फ़ाइल · Claude के संपादनों में <0>+{{added}}</0> <1>−{{removed}}</1> पंक्तियाँ",
+      "summary_other": "{{count}} फ़ाइलें · Claude के संपादनों में <0>+{{added}}</0> <1>−{{removed}}</1> पंक्तियाँ",
+      "clickToOpen": "खोलने के लिए क्लिक करें",
+      "new": "नई",
+      "edits_one": "{{count}} संपादन",
+      "edits_other": "{{count}} संपादन",
+      "note": "Claude के संपादनों से गिना गया, इसलिए दो बार बदली गई पंक्ति दो बार गिनी जाती है। Git की तुलना में क्या अलग है, यह देखने के लिए साइड पैनल में “बदलाव” देखें।"
+    },
+    "context": {
+      "title": "संदर्भ में क्या भरा है",
+      "usedAria": "{{window}} में से {{used}} टोकन उपयोग किए गए",
+      "usedOf": "{{window}} में से {{used}} टोकन",
+      "setupTitle": "सेटअप: {{tokens}}",
+      "conversationTitle": "वार्तालाप: {{tokens}}",
+      "reserveTitle": "ऑटो-कॉम्पैक्ट के लिए आरक्षित: {{tokens}}",
+      "setup": "सेटअप",
+      "setupHint": "सिस्टम प्रॉम्प्ट, टूल, MCP, मेमोरी फ़ाइलें और स्किल: हर संदेश के साथ भेजे जाते हैं",
+      "conversation": "वार्तालाप",
+      "conversationHint": "आपके संदेश, Claude के जवाब और टूल के परिणाम",
+      "reserve": "ऑटो-कॉम्पैक्ट रिज़र्व",
+      "reserveHint": "खाली रखा जाता है ताकि भर जाने पर Claude वार्तालाप का सारांश बना सके",
+      "free": "खाली",
+      "setupNote": "सेटअप में सिस्टम प्रॉम्प्ट, टूल, MCP, मेमोरी फ़ाइलें और स्किल शामिल हैं, जो हर संदेश के साथ भेजे जाते हैं।",
+      "exactTitle": "इस टैब में /context चलाता है (मुफ़्त) और Claude की सटीक संख्याएँ पढ़ता है",
+      "refreshExact": "सटीक संख्याएँ रीफ़्रेश करें",
+      "getExact": "सटीक संख्याएँ पाएँ",
+      "pending": "Claude के पहले जवाब के बाद दिखता है।",
+      "exact": "सटीक · {{time}}",
+      "estimate": "अनुमान",
+      "adviceFull": "लगभग भर गया है। Claude जल्द ही पुराने संदेशों का सारांश अपने आप बना देगा। समय खुद चुनने के लिए अभी कॉम्पैक्ट करें, या अगले कार्य के लिए नया वार्तालाप शुरू करें।",
+      "adviceHalf": "आधे से ज़्यादा भर गया है। हर संदेश यह सब फिर से भेजता है, इसलिए लंबे वार्तालाप धीमे और महंगे होते जाते हैं। यह कार्य पूरा होने पर कॉम्पैक्ट करें।",
+      "adviceRoom": "अभी काफ़ी जगह बची है।",
+      "compactNow": "अभी कॉम्पैक्ट करें",
+      "newConversation": "नया वार्तालाप शुरू करें",
+      "estimatedOpen": "वार्तालाप से अनुमानित। “सटीक संख्याएँ पाएँ” इस टैब में Claude का मुफ़्त /context कमांड चलाता है।",
+      "estimatedPast": "वार्तालाप से अनुमानित। Claude की सटीक संख्याएँ पाने के लिए इसे किसी टैब में जारी रखें।"
+    },
+    "growth": {
+      "title": "यह कैसे बढ़ा",
+      "peak": "अधिकतम {{tokens}}",
+      "tooltip": "जवाब {{n}} · <0>{{tokens}}</0> संदर्भ · {{time}}",
+      "compacted_one": "{{count}}× कॉम्पैक्ट किया गया",
+      "compacted_other": "{{count}}× कॉम्पैक्ट किया गया"
+    },
+    "cost": {
+      "title": "लागत",
+      "thisConversation": "यह वार्तालाप",
+      "asReported": "जैसा Claude बताता है",
+      "perMessage": "प्रति संदेश",
+      "onAverage": "औसतन",
+      "linesChanged": "बदली गई पंक्तियाँ"
+    },
+    "tokens": {
+      "title": "टोकन",
+      "sent": "भेजे गए (नए)",
+      "cacheRead": "कैश से फिर पढ़े गए",
+      "cacheWrite": "कैश में सहेजे गए",
+      "output": "Claude ने लिखा",
+      "cacheHits": "कैश हिट",
+      "hitPct": "भेजे गए का {{pct}}%",
+      "cacheNote": "कैश से फिर पढ़ने की लागत, नए सिरे से भेजने की लागत का लगभग दसवाँ हिस्सा होती है, इसलिए यहाँ ज़्यादा संख्या अच्छी है।",
+      "warmUntil": "कैश {{time}} तक वॉर्म है: उससे पहले जवाब देना सस्ता है।",
+      "warm": "कैश वॉर्म है: उससे पहले जवाब देना सस्ता है।",
+      "cold": "कैश ठंडा हो गया है; अगला संदेश पूरा वार्तालाप फिर से पढ़ेगा।"
+    },
+    "tools": {
+      "title": "Claude द्वारा उपयोग किए गए टूल · {{count}}"
+    }
+  },
+  "inspector": {
+    "tabs": {
+      "changes": "बदलाव",
+      "background": "बैकग्राउंड",
+      "details": "विवरण"
+    },
+    "closePanel": "पैनल बंद करें",
+    "closeShortcut": "बंद करें (Ctrl+Shift+G)",
+    "details": {
+      "projectFolder": "प्रोजेक्ट फ़ोल्डर",
+      "openProject": "प्रोजेक्ट खोलें",
+      "openInNewTab": "नए टैब में खोलें",
+      "editCount_one": "{{count}} संपादन",
+      "editCount_other": "{{count}} संपादन",
+      "readCount_one": "{{count}} बार",
+      "readCount_other": "{{count}} बार",
+      "search": "खोज",
+      "copyLink": "लिंक कॉपी करें",
+      "noClaude": {
+        "title": "यहाँ कोई Claude वार्तालाप नहीं है",
+        "text": "आपके संलग्न किए गए स्क्रीनशॉट और फ़ाइलें, और Claude द्वारा पढ़ी, बदली और खोजी गई फ़ाइलें देखने के लिए एक Claude टैब खोलें।"
+      },
+      "nothingYet": {
+        "title": "अभी कुछ नहीं",
+        "text": "विवरण इस वार्तालाप के पहले संदेश के बाद दिखते हैं।"
+      },
+      "nothingUsed": {
+        "title": "अभी तक कुछ संलग्न या उपयोग नहीं किया गया",
+        "text": "चिपकाए गए स्क्रीनशॉट, @ से उल्लेख की गई फ़ाइलें और इस वार्तालाप में Claude जो कुछ भी पढ़ता या बदलता है, वह सब यहाँ सूचीबद्ध होगा।"
+      },
+      "stat": {
+        "changed": "बदली गईं",
+        "read": "पढ़ी गईं",
+        "attached": "संलग्न",
+        "web": "वेब"
+      },
+      "group": {
+        "changed": "Claude द्वारा बदली गई फ़ाइलें",
+        "screenshots": "आपके चिपकाए गए स्क्रीनशॉट",
+        "mentioned": "आपकी संलग्न की गई फ़ाइलें",
+        "read": "Claude द्वारा पढ़ी गई फ़ाइलें",
+        "web": "वेब पेज और खोजें",
+        "subagents": "उपयोग किए गए सबएजेंट",
+        "mcp": "उपयोग किए गए MCP टूल"
+      },
+      "pastedScreenshot": "चिपकाया गया स्क्रीनशॉट {{n}}",
+      "screenshot": "स्क्रीनशॉट"
+    }
+  },
+  "changes": {
+    "status": {
+      "changed": "बदला गया",
+      "added": "जोड़ा गया",
+      "new": "नया",
+      "deleted": "हटाया गया",
+      "renamed": "नाम बदला गया"
+    },
+    "revert": {
+      "deleteNewMessage": "इससे यह नई फ़ाइल हट जाएगी:\n\n{{path}}\n\nइसे पहले जैसा नहीं किया जा सकता।",
+      "undoMessage": "इससे इस फ़ाइल के सभी बदलाव पूर्ववत हो जाएँगे:\n\n{{path}}\n\nइसे पहले जैसा नहीं किया जा सकता।",
+      "title": "बदलाव पूर्ववत करें?",
+      "deleteFile": "फ़ाइल हटाएँ",
+      "undoChanges": "बदलाव पूर्ववत करें"
+    },
+    "reviewComments_one": "{{count}} समीक्षा टिप्पणी",
+    "reviewComments_other": "{{count}} समीक्षा टिप्पणियाँ",
+    "clear": "साफ़ करें",
+    "sendToClaude": "Claude को भेजें",
+    "filesSinceCommit_one": "पिछले कमिट के बाद से {{count}} फ़ाइल",
+    "filesSinceCommit_other": "पिछले कमिट के बाद से {{count}} फ़ाइलें",
+    "noTab": "बदलाव देखने के लिए एक टैब खोलें।",
+    "notRepo": "यह फ़ोल्डर एक Git रिपॉज़िटरी नहीं है। क्या बदला यह दिखाने और बदलाव पूर्ववत करने के लिए Helm, Git का उपयोग करता है — इसे चालू करने के लिए यहाँ <0>git init</0> चलाएँ।",
+    "noChanges": "पिछले कमिट के बाद से कोई बदलाव नहीं।",
+    "fileTitle": "{{status}}: {{path}}",
+    "undoFileNamed": "{{path}} के बदलाव पूर्ववत करें",
+    "undoFile": "इस फ़ाइल के बदलाव पूर्ववत करें",
+    "openClaudeFirst": "पहले इस प्रोजेक्ट में Claude खोलें, फिर टिप्पणियाँ भेजें।",
+    "sentComments_one": "{{count}} समीक्षा टिप्पणी Claude को भेजी गई।",
+    "sentComments_other": "{{count}} समीक्षा टिप्पणियाँ Claude को भेजी गईं।",
+    "commentOnLine": "इस पंक्ति पर टिप्पणी करें",
+    "commentPlaceholder": "Claude को यहाँ क्या बदलना चाहिए? (जोड़ने के लिए Enter, नई पंक्ति के लिए Shift+Enter)",
+    "addComment": "टिप्पणी जोड़ें",
+    "hunk": {
+      "message": "फ़ाइल का यह हिस्सा पूर्ववत करें? फ़ाइल के बाकी बदलाव बने रहेंगे।",
+      "title": "यह हिस्सा पूर्ववत करें?",
+      "ok": "हिस्सा पूर्ववत करें",
+      "done": "फ़ाइल का वह हिस्सा पूर्ववत किया गया।",
+      "button": "यह हिस्सा पूर्ववत करें"
+    },
+    "sendComments_one": "{{count}} टिप्पणी Claude को भेजें",
+    "sendComments_other": "{{count}} टिप्पणियाँ Claude को भेजें",
+    "undoFileChanges": "फ़ाइल के बदलाव पूर्ववत करें",
+    "closeDiff": "अंतर बंद करें",
+    "closeEsc": "बंद करें (Esc)",
+    "before": "पहले (पिछला कमिट)",
+    "now": "अभी <0>· टिप्पणी के लिए किसी पंक्ति संख्या पर क्लिक करें</0>",
+    "binary": "यह एक बाइनरी फ़ाइल है, इसलिए तुलना करने के लिए कोई टेक्स्ट नहीं है।",
+    "noTextChanged": "कोई टेक्स्ट नहीं बदला। सिर्फ़ फ़ाइल की अनुमतियाँ या नाम बदला।",
+    "removeComment": "टिप्पणी हटाएँ"
+  },
+  "reports": {
+    "generated": "बनाया गया",
+    "footer": "संख्याएँ इस PC पर Claude Code से ली गई हैं। “अनुमान” के रूप में चिह्नित संदर्भ आँकड़े अनुमानित हैं; लागत वही है जो Claude Code बताता है।",
+    "cost": "लागत",
+    "timeWorking": "काम का समय",
+    "replies_one": "{{count}} जवाब",
+    "replies_other": "{{count}} जवाब",
+    "session": {
+      "title": "{{project}} · वार्तालाप रिपोर्ट",
+      "conversation": "वार्तालाप",
+      "effort": "{{effort}} प्रयास",
+      "contextExact": "संदर्भ विंडो · सटीक",
+      "contextEstimate": "संदर्भ विंडो · अनुमान",
+      "usedOf": "{{window}} में से <0>{{used}}</0> टोकन ({{pct}}%)",
+      "category": "श्रेणी",
+      "tokens": "टोकन",
+      "ofWindow": "विंडो का",
+      "grew": "संदर्भ कैसे बढ़ा",
+      "grewCompacted_one": "संदर्भ कैसे बढ़ा · {{count}}× कॉम्पैक्ट किया गया",
+      "grewCompacted_other": "संदर्भ कैसे बढ़ा · {{count}}× कॉम्पैक्ट किया गया",
+      "sent": "भेजे गए (नए)",
+      "fromCache": "कैश से",
+      "cacheHits": "{{pct}}% कैश हिट",
+      "writtenToCache": "कैश में लिखे गए",
+      "claudeWrote": "Claude ने लिखा",
+      "activity": "गतिविधि",
+      "yourMessages": "आपके संदेश",
+      "toolCalls": "टूल कॉल",
+      "lines": "+{{added}} −{{removed}} पंक्तियाँ",
+      "toolsUsed": "Claude द्वारा उपयोग किए गए टूल"
+    },
+    "usage": {
+      "fiveHourLimit": "5-घंटे की सीमा",
+      "weeklyLimit": "साप्ताहिक सीमा (सभी मॉडल)",
+      "spendLimit": "खर्च सीमा",
+      "noProject": "{{name}} (कोई प्रोजेक्ट नहीं)",
+      "title": "Claude उपयोग रिपोर्ट",
+      "subtitle_one": "इस PC पर पिछला {{count}} दिन · {{span}}",
+      "subtitle_other": "इस PC पर पिछले {{count}} दिन · {{span}}",
+      "limits": "उपयोग सीमाएँ",
+      "limit": "सीमा",
+      "used": "उपयोग किया गया",
+      "resets": "रीसेट होगी",
+      "startsNext": "अगले संदेश के साथ शुरू होती है",
+      "totals": "कुल योग",
+      "tokens": "टोकन",
+      "fromCacheSub": "{{tokens}} कैश से",
+      "linesChanged": "बदली गई पंक्तियाँ",
+      "byDay": "दिन के अनुसार",
+      "col": {
+        "day": "दिन",
+        "fromCache": "कैश से",
+        "time": "समय",
+        "lines": "पंक्तियाँ",
+        "conversations": "वार्तालाप",
+        "project": "प्रोजेक्ट",
+        "conversation": "वार्तालाप",
+        "model": "मॉडल",
+        "context": "संदर्भ"
+      },
+      "byProject": "प्रोजेक्ट के अनुसार",
+      "byModel": "मॉडल के अनुसार",
+      "openConversations": "खुले Claude वार्तालाप"
+    }
+  },
+  "usage": {
+    "window": {
+      "fiveHour": "5-घंटे",
+      "weekly": "साप्ताहिक"
+    },
+    "title": "उपयोग सीमाएँ",
+    "startsWithNextMessage": "आपके अगले संदेश के साथ शुरू होती है",
+    "resetsIn": "{{time}} में रीसेट होगी · {{clock}}",
+    "notYet": "किसी भी टैब में Claude के अगले जवाब के बाद दिखता है। सीमाएँ Claude Pro और Max प्लान (और टीम खर्च सीमाओं) के लिए दिखाई जाती हैं। अगर आपने अपनी खुद की Claude स्टेटस लाइन सेट की है, तो Helm उसे नहीं छूता और सीमाएँ नहीं दिखा सकता।",
+    "turnedOff": "सेटिंग्स → Helm में Claude में बंद किया गया है।",
+    "updated": "{{ago}} अपडेट किया गया",
+    "fiveHourLimit": "5-घंटे की सीमा",
+    "currentSession": "मौजूदा सेशन",
+    "weeklyLimit": "साप्ताहिक सीमा",
+    "allModels": "सभी मॉडल",
+    "spendLimit": "खर्च सीमा",
+    "spendOf": "${{limit}} में से ${{used}}",
+    "byTab": "टैब के अनुसार यह 5-घंटे की अवधि (लगभग)",
+    "duration": {
+      "hoursMinutes": "{{h}} घं. {{m}} मि.",
+      "minutes": "{{m}} मि."
+    },
+    "pace": {
+      "weekJustStarted": "अभी-अभी नया सप्ताह शुरू हुआ है",
+      "even": "समान गति पर (सप्ताह का {{pct}}% बीत चुका है)",
+      "ahead_one": "समान गति से {{count}} पॉइंट आगे",
+      "ahead_other": "समान गति से {{count}} पॉइंट आगे",
+      "under_one": "समान गति से {{count}} पॉइंट कम",
+      "under_other": "समान गति से {{count}} पॉइंट कम",
+      "soon": "कुछ मिनट काम करने के बाद आपकी गति दिखेगी",
+      "eta": "इस गति से आप लगभग {{time}} में सीमा तक पहुँच जाएँगे",
+      "perHour": "लगभग {{rate}}% प्रति घंटा · रीसेट होने से पहले यह खत्म नहीं होगी"
+    },
+    "history": {
+      "title": "उपयोग इतिहास",
+      "showChart": "चार्ट दिखाएँ",
+      "showTable": "तालिका के रूप में दिखाएँ",
+      "subtitle": "हर दिन उपयोग की गई साप्ताहिक सीमा का हिस्सा · पिछले 7 दिन: {{pct}}%",
+      "empty": "Helm अब से आपका उपयोग रिकॉर्ड करेगा। एक दिन काम करने के बाद फिर से देखें।",
+      "day": "दिन",
+      "weeklyUsed": "उपयोग की गई साप्ताहिक सीमा",
+      "chartLabel": "साप्ताहिक सीमा का दैनिक हिस्सा, पिछले 14 दिन",
+      "tooltip": "<0>{{pct}}%</0> <1>साप्ताहिक सीमा का · {{day}}</1>",
+      "mostUsed": "इस सप्ताह सबसे ज़्यादा उपयोग"
+    }
+  },
+  "charts": {
+    "barChartLabel": "बार चार्ट, अधिकतम {{max}}"
+  }
+}

@@ -1,0 +1,478 @@
+{
+  "tools": {
+    "groups": {
+      "design": "デザイン",
+      "data": "データ",
+      "generators": "ジェネレーター",
+      "system": "システム"
+    },
+    "list": {
+      "color": {
+        "label": "カラー ピッカー",
+        "blurb": "色の選択、変換、コントラストの確認"
+      },
+      "image": {
+        "label": "画像ツール",
+        "blurb": "サイズ変更、圧縮、変換"
+      },
+      "ruler": {
+        "label": "画面ルーラー",
+        "blurb": "画面上のあらゆるものを測定"
+      },
+      "json": {
+        "label": "JSON ツール",
+        "blurb": "整形、検証、YAML、TypeScript"
+      },
+      "encode": {
+        "label": "エンコード / デコード",
+        "blurb": "Base64、URL、HTML、JWT"
+      },
+      "regex": {
+        "label": "正規表現テスター",
+        "blurb": "一致とグループをリアルタイム表示"
+      },
+      "diff": {
+        "label": "テキストの比較",
+        "blurb": "変更点を確認"
+      },
+      "generate": {
+        "label": "UUID / パスワード / ハッシュ",
+        "blurb": "ID、パスワード、チェックサム"
+      },
+      "time": {
+        "label": "時刻コンバーター",
+        "blurb": "Unix 時刻と日付"
+      },
+      "placeholder": {
+        "label": "ダミー テキスト",
+        "blurb": "Lorem ipsum とテスト データ"
+      },
+      "ports": {
+        "label": "使用中のポート",
+        "blurb": "ポート 3000 を使っているのは?"
+      },
+      "http": {
+        "label": "API リクエスト テスター",
+        "blurb": "要求を送信して応答を確認"
+      },
+      "env": {
+        "label": "環境変数",
+        "blurb": "PATH などの変数"
+      },
+      "scratchpad": {
+        "label": "メモ帳",
+        "blurb": "プロジェクトごとのメモ"
+      }
+    },
+    "page": {
+      "navLabel": "開発者ツール",
+      "opening": "開いています…"
+    },
+    "ui": {
+      "copyValue": "{{label}} をコピー"
+    },
+    "shared": {
+      "swap": "入れ替え",
+      "clear": "クリア",
+      "new": "新規",
+      "howMany": "個数",
+      "nothingMatches": "一致するものはありません。",
+      "saveAs": "名前を付けて保存…",
+      "savedFile": "{{name}} を保存しました"
+    },
+    "color": {
+      "color": "色",
+      "choose": "色を選択…",
+      "pickTitle": "画面上の任意の場所から色を取得",
+      "pick": "画面から取得",
+      "invalid": "Helm が認識できる色ではありません。",
+      "contrast": "テキストのコントラスト",
+      "textColor": "テキストの色",
+      "text": "テキスト",
+      "swapLabel": "テキストと背景を入れ替え",
+      "background": "背景",
+      "sampleHeading": "大きな見出しテキスト",
+      "sampleBody": "通常の本文テキストは、この色ではこのように見えます。",
+      "passBody": "本文テキスト",
+      "passLarge": "大きなテキスト",
+      "passBest": "最高 (AAA)",
+      "contrastHint": "本文テキストを読みやすくするには 4.5:1、大きなテキストや太字のテキストには 3:1 が必要です。",
+      "recent": "最近使った色",
+      "recentEmpty": "取得または入力した色がここに保存されます。"
+    },
+    "diff": {
+      "before": "変更前",
+      "beforePlaceholder": "元のテキストを貼り付け",
+      "after": "変更後",
+      "afterPlaceholder": "変更後のテキストを貼り付け",
+      "swapLabel": "2 つのテキストを入れ替え",
+      "differences": "相違点",
+      "noDifferences": "相違点はありません",
+      "changedLines_other": "{{count}} 行の変更",
+      "ignoreSpaces": "空白を無視",
+      "ignoreCase": "大文字と小文字を無視",
+      "empty": "上に 2 つのバージョンを貼り付けると、行ごとに比較します。"
+    },
+    "encode": {
+      "dateWithRelative": "{{date}} ({{relative}})",
+      "jwtParts": "JWT はドットで区切られた 3 つの部分で構成されます。",
+      "jwtUnreadable": "JWT ではないようです (各部分が読み取れる JSON ではありません)。",
+      "pasteToken": "トークンを貼り付けると内容を読み取ります。",
+      "summary": "概要",
+      "expired": "期限切れ",
+      "notExpired": "有効期限内",
+      "algorithm": "アルゴリズム",
+      "subject": "サブジェクト",
+      "issuer": "発行者",
+      "issued": "発行日時",
+      "expires": "有効期限",
+      "payload": "ペイロード",
+      "header": "ヘッダー",
+      "jwtNote": "Helm はトークンを読み取るだけで、署名は検証しません。そのため、ここに表示された内容を根拠に信頼しないでください。",
+      "invalidBase64": "有効な Base64 テキストではありません。",
+      "cantDecode": "デコードできません。",
+      "encode": "エンコード",
+      "decode": "デコード",
+      "urlSafe": "URL セーフ",
+      "token": "トークン",
+      "encodedText": "エンコードされたテキスト",
+      "text": "テキスト",
+      "encodedPlaceholder": "エンコードされたテキストを貼り付け",
+      "textPlaceholder": "テキストを入力または貼り付け",
+      "swapTitle": "結果を入力として使い、方向を切り替える",
+      "decoded": "デコード結果",
+      "encoded": "エンコード結果"
+    },
+    "env": {
+      "hidden": "非表示 (シークレットのようです)。クリックすると表示します。",
+      "user": "ユーザー ({{n}})",
+      "system": "システム ({{n}})",
+      "searchPlaceholder": "名前または値",
+      "note": "Windows に保存されている値を読み取り専用で表示しています。すでに開いているプログラム (Helm を含む) は起動時の値を使い続けるため、変数を変更した後はプログラムを再起動してください。"
+    },
+    "generate": {
+      "copyAll": "すべてコピー",
+      "v4": "ランダム (v4)",
+      "v7": "時刻順 (v7)",
+      "uppercase": "大文字",
+      "dashes": "ハイフン",
+      "v7Hint": "v7 の ID は時刻から始まるため、作成順に並べ替えられます (データベースのキーに最適)。",
+      "veryStrong": "非常に強力",
+      "strong": "強力",
+      "ok": "普通",
+      "weak": "弱い",
+      "password": "パスワード",
+      "newPassword": "新しいパスワード",
+      "lengthValue": "長さ: {{length}}",
+      "length": "長さ",
+      "noLookAlikes": "紛らわしい文字を除く (I l 1 O 0)",
+      "randomness_other": "<0>{{strength}}</0> · 約 {{count}} ビットのランダム性",
+      "hashTextInstead": "代わりにテキストをハッシュ",
+      "chooseFileTitle": "ハッシュするファイルを選択",
+      "chooseFile": "ファイルを選択…",
+      "hash": "ハッシュ (チェックサム)",
+      "hashPlaceholder": "ハッシュするテキストを入力するか、ファイルを選択",
+      "readingFile": "ファイルを読み込んでいます…",
+      "hashHint": "ダウンロードしたファイルを確認するには、その SHA-256 を Web サイトに記載された値と比較します。その用途なら MD5 や SHA-1 でもかまいませんが、パスワードやセキュリティには使わないでください。"
+    },
+    "http": {
+      "binaryBody_other": "({{size}} バイトのバイナリ データ)",
+      "newRequest": "新しい要求",
+      "saved": "保存済み",
+      "savedEmpty": "保存した要求がここに表示されます。",
+      "deleteRequest": "{{name}} を削除",
+      "method": "メソッド",
+      "address": "アドレス",
+      "send": "送信",
+      "saveTitle": "この要求を保存",
+      "copyCurl": "curl としてコピー",
+      "headersCount": "ヘッダー ({{n}})",
+      "headers": "ヘッダー",
+      "body": "本文",
+      "headerName": "名前",
+      "headerValue": "値",
+      "removeHeader": "ヘッダーを削除",
+      "addHeader": "ヘッダーを追加",
+      "addAuth": "Authorization ヘッダーを追加",
+      "noBody": "GET 要求と HEAD 要求では本文は送信されません。",
+      "noContentType": "Content-Type ヘッダーがありません。",
+      "addJson": "\"application/json\" を追加",
+      "response": "応答",
+      "truncated": "(最初の 10 MB だけを表示しています。)",
+      "empty": "要求を送信すると応答が表示されます。要求は Helm 自体から送信されるため、ブラウザーの CORS の制限を受けません。"
+    },
+    "image": {
+      "notImage": "このファイルは Helm が読み取れる画像ではありません。",
+      "chooseTitle": "画像を選択",
+      "imagesFilter": "画像",
+      "tooLarge": "画像が大きすぎます (15 MB 超)。",
+      "pastedName": "貼り付けた画像",
+      "saveTitle": "画像を保存",
+      "copied": "画像をコピーしました",
+      "copyFailed": "画像をコピーできませんでした: {{error}}",
+      "empty": "画像を選択するか、Ctrl+V で貼り付けてください。",
+      "chooseButton": "画像を選択…",
+      "change": "変更…",
+      "original": "元の画像",
+      "size": "サイズ",
+      "width": "幅",
+      "height": "高さ",
+      "unlock": "縦横比の固定を解除",
+      "lock": "縦横比を固定",
+      "locked": "縦横比を固定中",
+      "unlocked": "縦横比は自由",
+      "format": "形式",
+      "qualityValue": "品質 {{quality}}",
+      "quality": "品質",
+      "hintPng": "PNG はすべてのピクセルをそのまま保持します (ファイルは大きくなります)。",
+      "hintJpg": "JPG は写真に適していますが、透明度はありません。",
+      "hintWebp": "WebP は最も小さく、現在のすべてのブラウザーで使えます。",
+      "result": "結果",
+      "smaller_other": "({{count}}% 小さい)",
+      "larger_other": "({{count}}% 大きい)",
+      "copyImage": "画像をコピー",
+      "copyDataUri": "データ URI をコピー",
+      "dataUriLarge": "データ URI は {{size}} です。コードに含めるには大きすぎます。"
+    },
+    "json": {
+      "errorAt": "{{line}} 行 {{col}} 列: {{message}}",
+      "inputPlaceholder": "ここに JSON を貼り付け",
+      "valid_other": "有効な JSON · {{n}} 文字",
+      "rootName": "メインの型の名前",
+      "spaces_other": "スペース {{count}} 個",
+      "tabs": "タブ",
+      "formatted": "整形",
+      "minified": "縮小",
+      "outputPlaceholder": "ここに結果が表示されます",
+      "errors": {
+        "endsEarly": "テキストが途中で終わっています",
+        "unexpected": "予期しない {{char}}",
+        "badUnicodeEscape": "\\u エスケープが正しくありません",
+        "badEscape": "\\ の後のエスケープが正しくありません",
+        "controlChar": "文字列内の改行とタブはエスケープする必要があります",
+        "unclosedString": "文字列が閉じられていません (\" がありません)",
+        "extraCommaObject": "} の前に余分なコンマがあります",
+        "expectedKey": "\"引用符で囲んだ\" キーが必要ですが、{{found}} が見つかりました",
+        "expectedColon": "キーの後に : が必要です",
+        "expectedCommaObject": ", または } が必要です ({{problem}})",
+        "extraCommaArray": "] の前に余分なコンマがあります",
+        "expectedCommaArray": ", または ] が必要です ({{problem}})",
+        "singleQuotes": "単一引用符ではなく二重引用符を使ってください",
+        "trailing": "JSON の終わりの後にまだ内容があります"
+      }
+    },
+    "placeholder": {
+      "testData": "テスト データ",
+      "paragraphs": "段落",
+      "sentences": "文",
+      "words": "単語",
+      "rows": "行",
+      "rowsAs": "<0></0><1>行、形式:</1><2></2>",
+      "text": "テキスト",
+      "data": "データ (架空のもの。メールには example.com を使用)"
+    },
+    "ports": {
+      "stopConfirm": "{{name}} (プロセス {{pid}}) を停止しますか? ポート {{port}} を使用しています。保存されていない内容は失われます。",
+      "stopConfirmTitle": "{{name}} を停止しますか?",
+      "stop": "停止",
+      "stopped": "{{name}} を停止しました。ポート {{port}} は空いています。",
+      "searchPlaceholder": "ポート、プログラム、プロセス ID",
+      "showSystem": "Windows のシステム ポートを表示",
+      "port": "ポート",
+      "program": "プログラム",
+      "pid": "プロセス ID",
+      "listeningOn": "待ち受け先",
+      "allNetworks": "すべてのネットワーク",
+      "thisPcOnly": "この PC のみ",
+      "openTitle": "Helm のブラウザー タブで開く",
+      "stopTitle": "このプログラムを停止",
+      "empty": "ポートで待ち受けているプログラムはありません。",
+      "hint": "数秒ごとに更新されます。盾のアイコンが付いたプログラムは Windows のものなので、Helm は停止しません。"
+    },
+    "regex": {
+      "flags": {
+        "allMatches": "すべての一致",
+        "ignoreCase": "大文字と小文字を無視",
+        "perLine": "^ $ を行ごとに",
+        "dotAll": ". が改行に一致",
+        "unicode": "Unicode"
+      },
+      "escapes": {
+        "digit": "数字 (0–9)",
+        "notDigit": "数字以外の文字",
+        "word": "英字、数字、または _",
+        "notWord": "英字、数字、_ 以外の文字",
+        "space": "スペース、タブ、または改行",
+        "notSpace": "空白以外の文字",
+        "boundary": "単語の境界",
+        "notBoundary": "単語の境界以外",
+        "newline": "改行",
+        "tab": "タブ",
+        "carriageReturn": "キャリッジ リターン"
+      },
+      "zeroOrMore": "0 回以上",
+      "zeroOrMoreLazy": "0 回以上 (できるだけ少なく)",
+      "oneOrMore": "1 回以上",
+      "oneOrMoreLazy": "1 回以上 (できるだけ少なく)",
+      "optional": "省略可能",
+      "exactly_other": "ちょうど {{count}} 回",
+      "range": "{{min}}～{{max}} 回",
+      "rangeLazy": "{{min}}～{{max}} 回 (できるだけ少なく)",
+      "atLeast": "{{min}} 回以上",
+      "atLeastLazy": "{{min}} 回以上 (できるだけ少なく)",
+      "backref": "グループ {{n}} と同じテキスト",
+      "char": "文字 \"{{char}}\"",
+      "notOneOf": "{{chars}} 以外の任意の文字",
+      "oneOf": "{{chars}} のいずれか",
+      "groupNotCaptured": "グループの開始 (キャプチャしない)",
+      "followedBy": "直後に次が続く…",
+      "notFollowedBy": "直後に次が続かない…",
+      "precededBy": "直前に次がある…",
+      "notPrecededBy": "直前に次がない…",
+      "namedGroup": "グループ \"{{name}}\" の開始",
+      "group": "キャプチャ グループの開始",
+      "groupEnd": "グループの終了",
+      "start": "テキスト (または行) の先頭",
+      "end": "テキスト (または行) の末尾",
+      "any": "任意の文字",
+      "or": "または",
+      "literal": "テキスト \"{{text}}\"",
+      "pattern": "パターン",
+      "testText": "テスト用テキスト",
+      "matches_other": "{{count}} 件の一致",
+      "match": "一致",
+      "position": "位置",
+      "groups": "グループ",
+      "meaning": "パターンの意味"
+    },
+    "ruler": {
+      "intro": "Helm が一時的に非表示になり、画面をキャプチャします。キャプチャ上をドラッグして測定するか、ピクセルをクリックして色を取得します。",
+      "capture": "画面をキャプチャ",
+      "captureAlt": "画面のキャプチャ",
+      "newCapture": "新しいキャプチャ",
+      "zoomOut": "縮小",
+      "zoomIn": "拡大",
+      "fitTitle": "全体表示 / 実際のサイズ",
+      "measured": "測定値",
+      "screenPixels": "画面ピクセル · 対角線 {{diagonal}}",
+      "cssPixels": "{{w}} × {{h}} CSS ピクセル (拡大率 {{scaling}}%)",
+      "dragHint": "キャプチャ上をドラッグしてください。",
+      "underPointer": "ポインターの位置",
+      "lastPoint": "最後の位置",
+      "copyLastColor": "最後の位置の色をコピー",
+      "footer": "キャプチャはすべての画面を対象とし、このタブ内にのみ保持されます。"
+    },
+    "scratchpad": {
+      "saveFailed": "このメモを保存できませんでした。",
+      "savedAuto": "自動的に保存されます。プロジェクト内ではなく Helm に保存されます。",
+      "notesFor": "メモの対象",
+      "project": "プロジェクト",
+      "general": "全般 (すべてのプロジェクト)"
+    },
+    "time": {
+      "now": "現在",
+      "inputLabel": "Unix 時刻または日付",
+      "typeHint": "タイムスタンプまたは日付を入力してください。",
+      "readAsMicroseconds": "マイクロ秒として読み取りました。",
+      "readAsMilliseconds": "ミリ秒として読み取りました。",
+      "readAsSeconds": "秒として読み取りました。",
+      "readAsDate": "日付として読み取りました。",
+      "unreadable": "Helm はこれを時刻として読み取れません。",
+      "yourTime": "現地時刻",
+      "day": "曜日",
+      "dayValue": "{{weekday}}、第 {{week}} 週",
+      "timeZones": "タイム ゾーン",
+      "yourZone": "{{zone}} (現在地)",
+      "removeZone": "{{zone}} を削除",
+      "addZonePlaceholder": "タイム ゾーンを追加 (例: Asia/Tokyo)",
+      "add": "追加",
+      "rightNow": "現在"
+    }
+  },
+  "snip": {
+    "withKey": "{{label}} ({{key}})",
+    "toast": {
+      "startFailed": "スクリーンショットを開始できませんでした: {{error}}",
+      "countdown_other": "{{count}} 秒後にスクリーンショット…",
+      "shortcutTaken": "スクリーンショットのショートカット {{keys}} は別のアプリで使用されています。[設定] で別のショートカットを選んでください。",
+      "copied": "スクリーンショットをコピーしました。"
+    },
+    "overlay": {
+      "modes": {
+        "area": "四角形",
+        "window": "ウィンドウ",
+        "screen": "全画面",
+        "freeform": "フリーフォーム"
+      },
+      "captureFailed": "画面をキャプチャできませんでした: {{error}}",
+      "allScreens": "すべての画面",
+      "cancelTitle": "キャンセル (Esc)",
+      "hints": {
+        "area": "ドラッグして範囲を選択 · Esc でキャンセル",
+        "window": "ウィンドウをクリック · Esc でキャンセル",
+        "screen": "画面をクリック · Esc でキャンセル",
+        "freeform": "取り込みたい部分を囲むように描画 · Esc でキャンセル"
+      }
+    },
+    "editor": {
+      "tools": {
+        "arrow": "矢印",
+        "rect": "四角形",
+        "ellipse": "円",
+        "line": "線",
+        "pen": "ペン",
+        "highlight": "蛍光ペン",
+        "text": "テキスト",
+        "step": "番号付きステップ",
+        "blur": "ぼかし (モザイク)",
+        "redact": "黒塗り",
+        "crop": "トリミング"
+      },
+      "widths": {
+        "thin": "細",
+        "medium": "中",
+        "thick": "太"
+      },
+      "widthLines": {
+        "thin": "細い線",
+        "medium": "中くらいの線",
+        "thick": "太い線"
+      },
+      "notLoaded": "まだ読み込まれていません",
+      "copyFailed": "コピーできませんでした: {{error}}",
+      "saveTitle": "スクリーンショットを保存",
+      "pngFilter": "PNG 画像",
+      "unreadable": "画像を読み取れませんでした",
+      "sentToClaude": "スクリーンショットを Claude へのメッセージに追加しました。伝えたいことを書き足して Enter を押してください。",
+      "deleteConfirm": "このスクリーンショットと書き込みは削除されます。",
+      "deleteTitle": "スクリーンショットを削除しますか?",
+      "colorLabel": "色: {{color}}",
+      "otherColor": "その他の色…",
+      "undoTitle": "元に戻す (Ctrl+Z)",
+      "undo": "元に戻す",
+      "redoTitle": "やり直し (Ctrl+Y)",
+      "redo": "やり直し",
+      "undoCrop": "トリミングを元に戻す",
+      "deleteThis": "このスクリーンショットを削除",
+      "saveAsTitle": "名前を付けて保存 (Ctrl+S)",
+      "copyTitle": "コピー (Ctrl+C)",
+      "needClaude": "先に Claude タブを開いてから、もう一度送ってください。",
+      "send": "Claude に送信",
+      "textPlaceholder": "入力して Enter を押す",
+      "footer": {
+        "crop": "{{w}} × {{h}} px · ドラッグして残す部分を選択",
+        "text": "{{w}} × {{h}} px · テキストを入れる場所をクリック",
+        "step": "{{w}} × {{h}} px · クリックして {{n}} を配置",
+        "other": "{{w}} × {{h}} px · Shift を押すと正方形・正円になります"
+      }
+    },
+    "page": {
+      "newScreenshot": "新しいスクリーンショット",
+      "delay": "遅延してスクリーンショット",
+      "delayItem_other": "{{count}} 秒後にスクリーンショット",
+      "empty": "スクリーンショットがここに表示されます。",
+      "intro": "範囲、ウィンドウ、画面全体、任意の形を切り取れます。どのアプリからでも使えるショートカット: <0>{{keys}}</0>",
+      "shortcutOff": "オフ"
+    }
+  }
+}

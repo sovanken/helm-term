@@ -1,37 +1,49 @@
 // App shortcuts use Ctrl+Shift / Alt+Shift so they never steal keys Claude Code uses
 // (Ctrl+T, Ctrl+B, Ctrl+R, Ctrl+O, Ctrl+L, …).
 
+import { openSettingsJson } from "./settingsJson";
 import { activePane, defaultFolder, useStore } from "../state/store";
 import { clearTerminal, focusTerminal } from "../terminal/terminals";
-import { closePaneSafely } from "./actions";
+import { closeFileSafely, closePaneSafely, closeWorkspaceSafely } from "./actions";
+import { focusSidebarSearch } from "../components/HistoryList";
+import { t } from "../i18n";
 
 export interface Shortcut {
   keys: string;
   label: string;
 }
 
+/** `label` is translated each time it is read, in the current language. */
+const sc = (keys: string, labelKey: string): Shortcut => ({
+  keys,
+  get label() {
+    return t(labelKey);
+  },
+});
+
 export const SHORTCUTS: Shortcut[] = [
-  { keys: "Ctrl+Shift+T", label: "New Claude tab in this folder" },
-  { keys: "Ctrl+Shift+N", label: "New PowerShell tab" },
-  { keys: "Ctrl+Shift+W", label: "Close pane" },
-  { keys: "Alt+Shift+=", label: "Split right" },
-  { keys: "Alt+Shift+-", label: "Split down" },
-  { keys: "Alt+Arrow", label: "Move between panes" },
-  { keys: "Ctrl+Tab", label: "Next tab" },
-  { keys: "Ctrl+1…9", label: "Go to tab" },
-  { keys: "Ctrl+Shift+P", label: "Command palette: prompts, Claude commands, actions" },
-  { keys: "Ctrl+Shift+H", label: "Conversation history" },
-  { keys: "Ctrl+Shift+A", label: "Agents: all sessions, approvals and usage limits" },
-  { keys: "Ctrl+Alt+Shift+T", label: "Reopen closed tab" },
-  { keys: "Ctrl+Shift+G", label: "Right panel: changes, agents, details" },
-  { keys: "Ctrl+Shift+I", label: "Write and improve a prompt" },
-  { keys: "Ctrl+Shift+F", label: "Find in output" },
-  { keys: "Ctrl+Shift+B", label: "Show or hide projects" },
-  { keys: "Ctrl+Shift+K", label: "Clear scrollback" },
-  { keys: "Ctrl+= / Ctrl+- / Ctrl+0", label: "Text size" },
-  { keys: "Ctrl+,", label: "Settings" },
-  { keys: "Ctrl+C / Ctrl+V", label: "Copy selection / paste text or screenshot" },
-  { keys: "Shift+Enter", label: "New line in Claude's prompt" },
+  sc("Ctrl+Shift+T", "shortcuts.newClaudeTab"),
+  sc("Ctrl+Shift+N", "shortcuts.newTerminalTab"),
+  sc("Ctrl+Shift+W", "shortcuts.closePane"),
+  sc("Alt+Shift+=", "shortcuts.splitRight"),
+  sc("Alt+Shift+-", "shortcuts.splitDown"),
+  sc("Alt+Arrow keys", "shortcuts.movePanes"),
+  sc("Ctrl+Tab", "shortcuts.nextTab"),
+  sc("Ctrl+1…9", "shortcuts.goToTab"),
+  sc("Ctrl+Shift+P", "shortcuts.palette"),
+  sc("Ctrl+Shift+H", "shortcuts.search"),
+  sc("Ctrl+Shift+A", "shortcuts.agents"),
+  sc("Ctrl+Alt+Shift+T", "shortcuts.reopenTab"),
+  sc("Ctrl+Shift+G", "shortcuts.sidePanel"),
+  sc("Ctrl+Shift+I", "shortcuts.composer"),
+  sc("Ctrl+Shift+F", "shortcuts.find"),
+  sc("Ctrl+Shift+B", "shortcuts.toggleSidebar"),
+  sc("Ctrl+Shift+K", "shortcuts.clearScrollback"),
+  sc("Ctrl+= / Ctrl+- / Ctrl+0", "shortcuts.textSize"),
+  sc("Ctrl+,", "shortcuts.settings"),
+  sc("Ctrl+Shift+,", "shortcuts.openSettingsJson"),
+  sc("Ctrl+C / Ctrl+V", "shortcuts.copyPaste"),
+  sc("Shift+Enter", "shortcuts.newLine"),
 ];
 
 function run(e: KeyboardEvent): boolean {
@@ -47,7 +59,17 @@ function run(e: KeyboardEvent): boolean {
       case "KeyW":
         if (s.view === "settings") s.closeSettings();
         else if (s.view === "agents") s.closeAgents();
-        else if (s.view === "file") { if (s.activeFileId) s.closeFile(s.activeFileId); }
+        else if (s.view === "tools") s.closeTools();
+        else if (s.view === "snips") s.closeSnips();
+        else if (s.view === "workspace") {
+          // Closes the open file first, then the project itself.
+          const ws = s.workspaces.find((w) => w.id === s.activeWorkspaceId);
+          const file = ws?.files.find((f) => f.id === ws.activeFileId);
+          if (ws && file) {
+            if (file.draft === undefined) s.closeWorkspaceFile(ws.id, file.id);
+          } else if (ws) void closeWorkspaceSafely(ws.id);
+        }
+        else if (s.view === "file") { if (s.activeFileId) void closeFileSafely(s.activeFileId); }
         else if (pane) void closePaneSafely(pane.id);
         return true;
       case "KeyF": if (pane) s.set({ searchOpen: true }); return true;
@@ -57,7 +79,7 @@ function run(e: KeyboardEvent): boolean {
       case "KeyG": s.set({ changesOpen: !s.changesOpen }); return true;
       case "KeyI": s.set({ composerOpen: !s.composerOpen }); return true;
       case "KeyH":
-        s.set(s.sidebarOpen && s.sidebarView === "history" ? { sidebarOpen: false } : { sidebarOpen: true, sidebarView: "history" });
+        focusSidebarSearch();
         return true;
       case "KeyK": if (pane) clearTerminal(pane.id); return true;
       case "Tab": s.cycleTab(-1); return true;
@@ -71,12 +93,13 @@ function run(e: KeyboardEvent): boolean {
     if (e.code === "Equal") { s.splitActive("row", "shell"); return true; }
     if (e.code === "Minus") { s.splitActive("column", "shell"); return true; }
   }
-  if (e.altKey && !e.ctrlKey && !e.shiftKey) {
+  if (e.altKey && !e.ctrlKey && !e.shiftKey && s.view === "terminal") {
     const dir = ({ ArrowLeft: "left", ArrowRight: "right", ArrowUp: "up", ArrowDown: "down" } as const)[
       e.key as "ArrowLeft"
     ];
     if (dir) { s.focusNeighbor(dir); return true; }
   }
+  if (e.ctrlKey && e.shiftKey && !e.altKey && e.code === "Comma") { void openSettingsJson(); return true; }
   if (e.ctrlKey && !e.shiftKey && !e.altKey) {
     if (e.key === "Tab") { s.cycleTab(1); return true; }
     if (/^[1-9]$/.test(key)) {
